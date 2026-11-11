@@ -56,6 +56,17 @@ main{padding:12px 16px}#timeline{border:1px solid #334154;border-radius:10px;ove
 #original{position:absolute;left:-100000px;top:0;visibility:hidden;overflow:auto;height:calc(100vh - 168px);border:1px solid #334154;border-radius:10px;background:white}
 #original svg{display:block;max-width:none}
 .notice{padding:26px;color:#a9bed7}
+.row{cursor:pointer}
+#details{position:fixed;right:18px;top:145px;bottom:18px;width:min(540px,calc(100vw - 36px));z-index:30;
+  display:none;flex-direction:column;border:1px solid #54769c;border-radius:11px;
+  background:#1e2939;box-shadow:0 16px 48px #0009;overflow:hidden}
+#details.open{display:flex}
+#details-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;
+  background:#29384d;border-bottom:1px solid #405570}
+#details-title{font-weight:700;color:#8fc5ff;overflow-wrap:anywhere}
+#details-body{padding:16px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;
+  line-height:1.5;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;color:#e1eafa}
+#details-close{font-size:18px;line-height:1;padding:4px 10px}
 @media(max-width:680px){.label{width:200px;min-width:200px;max-width:200px}main{padding:6px}header{padding:10px}#timeline,#original{height:calc(100vh - 200px)}}
 </style></head>
 <body>
@@ -76,6 +87,9 @@ main{padding:12px 16px}#timeline{border:1px solid #334154;border-radius:10px;ove
 <div id="timeline"><div id="rows"></div></div>
 <div id="original">__SVG__</div>
 </main>
+<aside id="details" role="dialog" aria-modal="false" aria-label="Systemd unit details">
+<div id="details-head"><div id="details-title"></div><button id="details-close" type="button" aria-label="Close details">×</button></div>
+<pre id="details-body"></pre></aside>
 <script>
 "use strict";
 const selected = __SERVICE__;
@@ -90,6 +104,24 @@ const status = document.getElementById("status");
 const toggle = document.getElementById("toggle");
 let zoom = 1;
 let raw = false;
+let activeUnit = selected;
+const details = document.getElementById("details");
+const detailsTitle = document.getElementById("details-title");
+const detailsBody = document.getElementById("details-body");
+function closeDetails(){details.classList.remove("open");}
+document.getElementById("details-close").onclick=closeDetails;
+document.addEventListener("keydown",event=>{if(event.key==="Escape")closeDetails();});
+function showDetails(entry){
+  activeUnit=entry.name;
+  document.querySelectorAll(".row.selected").forEach(n=>n.classList.remove("selected"));
+  for(const row of rowsNode.querySelectorAll(".row")){
+    if(row.dataset.unit===entry.name)row.classList.add("selected");
+  }
+  detailsTitle.textContent=entry.name;
+  detailsBody.textContent=entry.details ||
+    "The original systemd SVG contains no detailed information for this unit.";
+  details.classList.add("open");
+}
 const unitRe = /^(.+?\.(?:service|socket|target|mount|automount|device|timer|path|swap|slice|scope))(?:\s+\(.*\))?$/;
 const entries = [];
 // The SVG is the sole data source. Read the row label and corresponding
@@ -111,7 +143,13 @@ try {
     try { b = el.getBBox(); } catch (_) { continue; }
     const mid = b.y + b.height/2;
     const nearby = rects.filter(r => Math.abs(r.y + r.h/2 - mid) < 7);
-    entries.push({name: match[1], caption:label, bars:nearby});
+    // Each unit row in systemd-analyze plot is a <g> whose <title>
+    // contains After/Before/Requires and other available relationships.
+    const group = el.parentElement;
+    const title = group && Array.from(group.children)
+      .find(child => child.localName === "title");
+    const details = title ? title.textContent.trim() : "";
+    entries.push({name: match[1], caption:label, bars:nearby, details});
   }
 } catch (e) { status.textContent = "Could not interpret SVG: " + e.message; }
 // SVG geometry must be measured while rendered. Hide the raw plot only after reading it.
@@ -172,9 +210,9 @@ function render() {
   for(const entry of filtered){
     const row=div("row");
     row.dataset.unit=entry.name;
-    if(entry.name===selected)row.classList.add("selected");
+    if(entry.name===activeUnit)row.classList.add("selected");
     const label=div("label",entry.name);
-    label.title=entry.caption;
+    label.title=entry.details || entry.caption;
     row.appendChild(label);
     const graph=div("plotbar");
     graph.style.width=width+"px";
@@ -185,16 +223,18 @@ function render() {
       // The source SVG supplies the original phase colors.
       if(bar.color && bar.color!=="none" && bar.color!=="transparent")
         segment.style.backgroundColor=bar.color;
-      segment.title=entry.caption;
+      segment.title=entry.details || entry.caption;
       graph.appendChild(segment);
     }
     row.appendChild(graph);rowsNode.appendChild(row);
-    row.onclick=()=>{document.querySelectorAll(".row.selected").forEach(n=>n.classList.remove("selected"));row.classList.add("selected");};
+    row.onclick=()=>showDetails(entry);
   }
   status.textContent=filtered.length+" units displayed / "+entries.length+" found";
-  if(!filtered.length)rowsNode.appendChild(div("notice","No matching units. Try disabling Services only or changing the search."));
+  if(!filtered.length)rowsNode.appendChild(div("notice","No matching units. Change the unit type or search text."));
 }
 function focus(){
+  activeUnit=selected;
+  closeDetails();
   if(raw){raw=false;original.style.display="none";timeline.style.display="block";toggle.textContent="Original SVG";}
   const selectedType=selected.split(".").pop();
   if(unitType.value!=="all" && unitType.value!==selectedType)
