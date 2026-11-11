@@ -5,7 +5,7 @@ These are custom changes to [System Monitoring Center](https://github.com/hakand
 ## Changes
 
 - **Single-process Services loading:** In `src/Libsysmon.py`, `get_services_information()` uses the existing single-process code path by setting `number_of_logical_cores = 2` locally. This worked around a Services-tab loading failure on Xubuntu 24.04.5 / AMD Ryzen 7 5700G. The setting does **not** change actual CPU core availability or other CPU-monitoring features.
-- **New Services context-menu actions:** `Edit override` and `Edit full unit` in `src/Services.py`. They launch `systemctl edit` in Xfce Terminal with `sudo` and the `nano` editor. This integration targets Xubuntu/Xfce; it has not been verified on all desktop environments.
+- **New Services context-menu actions:** `View unit (cat)`, `Edit override`, and `Edit full unit` in `src/Services.py`. They launch `systemctl edit` in Xfce Terminal with `sudo` and the `nano` editor. This integration targets Xubuntu/Xfce; it has not been verified on all desktop environments.
 
 ## First-time clone using SSH
 
@@ -67,10 +67,11 @@ Right-click a systemd service in the **Services** tab:
 
 | Menu action | Equivalent command | Purpose |
 | --- | --- | --- |
+| **View unit (cat)** | `systemctl cat --no-pager NAME.service` | Displays the unit file and its drop-ins in a terminal, without sudo or editing. | 
 | **Edit override** | `sudo systemctl edit NAME.service` | Creates or edits a drop-in, usually under `/etc/systemd/system/NAME.service.d/`. Recommended for most local customizations. |
 | **Edit full unit** | `sudo systemctl edit --full NAME.service` | Edits a complete local unit file under `/etc/systemd/system/`. This may override subsequent vendor unit-file updates. |
 
-Both actions launch `xfce4-terminal` with `nano`. Press `Ctrl+X` to exit; choose **N** if prompted to save changes you do not want. On successful save, `systemctl edit` normally runs `daemon-reload`, but does **not** restart the service.
+All three actions launch `xfce4-terminal`. **View unit (cat)** displays read-only output (no editor, no sudo), and the terminal stays open so you can scroll or copy the text. The two editing actions use `nano`. Press `Ctrl+X` to exit; choose **N** if prompted to save changes you do not want. On successful save, `systemctl edit` normally runs `daemon-reload`, but does **not** restart the service.
 
 The following programs must be available: `xfce4-terminal`, `sudo`, and `nano`. An active graphical Xfce session is expected.
 
