@@ -109,8 +109,7 @@ try {
     let b;
     try { b = el.getBBox(); } catch (_) { continue; }
     const mid = b.y + b.height/2;
-    const nearby = rects.filter(r => Math.abs(r.y + r.h/2 - mid) < 13 &&
-                                     r.x >= b.x + Math.min(b.width, 30));
+    const nearby = rects.filter(r => Math.abs(r.y + r.h/2 - mid) < 7);
     entries.push({name: match[1], caption:label, bars:nearby});
   }
 } catch (e) { status.textContent = "Could not interpret SVG: " + e.message; }
