@@ -104,6 +104,10 @@ class Services:
         self.right_click_menu.add_separator()
         self.right_click_menu.add_command(label="View unit (cat)", activebackground="gray", command=self.on_service_cat)
         self.right_click_menu.add_command(label="List dependencies", activebackground="gray", command=self.on_service_dependencies)
+        self.right_click_menu.add_command(label="Reverse dependencies", activebackground="gray", command=lambda: self.on_service_inspect("reverse"))
+        self.right_click_menu.add_command(label="Show ordering", activebackground="gray", command=lambda: self.on_service_inspect("ordering"))
+        self.right_click_menu.add_command(label="Ordering: After (tree)", activebackground="gray", command=lambda: self.on_service_inspect("after"))
+        self.right_click_menu.add_command(label="Ordering: Before (tree)", activebackground="gray", command=lambda: self.on_service_inspect("before"))
         self.right_click_menu.add_command(label="Edit override", activebackground="gray", command=lambda: self.on_service_edit("override"))
         self.right_click_menu.add_command(label="Edit full unit", activebackground="gray", command=lambda: self.on_service_edit("full"))
         self.right_click_menu.add_separator()
@@ -191,6 +195,31 @@ class Services:
         command = [
             "xfce4-terminal", "--disable-server", "--hold", "--execute",
             "systemctl", "list-dependencies", "--no-pager", "--", service_name,
+        ]
+        try:
+            subprocess.Popen(command, start_new_session=True)
+        except OSError as error:
+            self.service_dialog_label.config(text=str(error))
+
+
+    def on_service_inspect(self, mode):
+        """Display dependencies or ordering in a read-only terminal."""
+        service_name = getattr(self, "selected_row_name", None)
+        if not service_name or not service_name.endswith(".service"):
+            return
+
+        commands = {
+            "reverse": ["systemctl", "list-dependencies", "--reverse", "--no-pager"],
+            "ordering": ["systemctl", "show", "--property=After,Before", "--no-pager"],
+            "after": ["systemctl", "list-dependencies", "--after", "--no-pager"],
+            "before": ["systemctl", "list-dependencies", "--before", "--no-pager"],
+        }
+        if mode not in commands:
+            return
+
+        command = [
+            "xfce4-terminal", "--disable-server", "--hold", "--execute",
+            *commands[mode], "--", service_name,
         ]
         try:
             subprocess.Popen(command, start_new_session=True)
