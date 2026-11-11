@@ -237,19 +237,45 @@ class Services:
         if not service_name or not service_name.endswith(".service"):
             return
 
-        commands = {
-            "verify": ["systemd-analyze", "verify", service_name],
-            "errors": ["journalctl", "--boot", "--unit", service_name,
-                       "--priority=err", "--lines=100", "--no-pager"],
-            "daemon-reload": ["sudo", "systemctl", "daemon-reload"],
+        scripts = {
+            "verify": """printf 'Verifying %s...\\n\\n' "$1"
+systemd-analyze verify "$1"
+result=$?
+printf '\\n'
+if [ "$result" -eq 0 ]; then
+    printf 'OK: No verification errors reported for %s.\\n' "$1"
+else
+    printf 'FAILED: Verification returned exit code %s for %s.\\n' "$result" "$1"
+fi
+exit "$result"
+""",
+            "errors": """printf 'Error-level journal entries for %s (current boot, latest 100):\\n\\n' "$1"
+output=$(journalctl --quiet --boot --unit "$1" --priority=err --lines=100 --no-pager --output=short-iso)
+result=$?
+if [ "$result" -ne 0 ]; then
+    printf 'FAILED: journalctl returned exit code %s.\\n' "$result"
+    exit "$result"
+fi
+if [ -z "$output" ]; then
+    printf 'OK: No error-level journal entries found for %s in the current boot.\\n' "$1"
+else
+    printf '%s\\n' "$output"
+fi
+""",
         }
-        if mode not in commands:
+        if mode == "daemon-reload":
+            command = [
+                "xfce4-terminal", "--disable-server", "--hold", "--execute",
+                "sudo", "systemctl", "daemon-reload",
+            ]
+        elif mode in scripts:
+            # Pass the unit name as a positional argument, never interpolate into shell code.
+            command = [
+                "xfce4-terminal", "--disable-server", "--hold", "--execute",
+                "bash", "-c", scripts[mode], "smc-diagnostics", service_name,
+            ]
+        else:
             return
-
-        command = [
-            "xfce4-terminal", "--disable-server", "--hold", "--execute",
-            *commands[mode],
-        ]
         try:
             subprocess.Popen(command, start_new_session=True)
         except OSError as error:
