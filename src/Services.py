@@ -47,6 +47,7 @@ class Services:
         self.journal_sash.bind("<ButtonPress-1>", self.on_journal_sash_start)
         self.journal_sash.bind("<B1-Motion>", self.on_journal_sash_drag)
         self.journal_panel = ServiceJournal(self.tab_frame)
+        self.journal_panel.close_callback = self.close_service_journal
         self.journal_height = 260
         self.treeview.bind("<<TreeviewSelect>>",
                            self.on_service_selection_for_journal, add="+")
