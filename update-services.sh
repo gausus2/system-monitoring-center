@@ -24,7 +24,7 @@ printf '==> Checking Python syntax\n'
 python3 - <<'PY'
 from pathlib import Path
 
-for name in ("Services.py", "Libsysmon.py", "MainWindow.py"):
+for name in ("Services.py", "Libsysmon.py", "MainWindow.py", "ServiceBootPlot.py"):
     path = Path("src") / name
     compile(path.read_bytes(), str(path), "exec")
     print(f"{name}: syntax OK")
@@ -44,5 +44,9 @@ for name in Services.py Libsysmon.py MainWindow.py; do
     sudo install -m 644 -- "src/$name" "$DEST/$name"
     printf 'Installed %s\n' "$name"
 done
+
+# Install the new helper (not present in original upstream packages).
+sudo install -m 644 -- src/ServiceBootPlot.py "$DEST/ServiceBootPlot.py"
+printf 'Installed ServiceBootPlot.py\\n'
 
 printf '\nDone. Close and restart System Monitoring Center to use the updates.\n'
