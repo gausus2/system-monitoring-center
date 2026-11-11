@@ -104,7 +104,6 @@ class Services:
         self.right_click_menu.add_separator()
         self.right_click_menu.add_command(label="Edit override", activebackground="gray", command=lambda: self.on_service_edit("override"))
         self.right_click_menu.add_command(label="Edit full unit", activebackground="gray", command=lambda: self.on_service_edit("full"))
-        self.right_click_menu.add_command(label="Edit full unit (force)", activebackground="gray", command=lambda: self.on_service_edit("force-full"))
         self.right_click_menu.add_separator()
         self.right_click_menu.add_command(label=_tr("Help"), activebackground="gray", command=self.on_service_help_item_activate)
         self.right_click_menu.add_separator()
@@ -174,7 +173,6 @@ class Services:
         modes = {
             "override": [],
             "full": ["--full"],
-            "force-full": ["--force", "--full"],
         }
         if mode not in modes:
             return
