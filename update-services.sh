@@ -47,6 +47,6 @@ done
 
 # Install the new helper (not present in original upstream packages).
 sudo install -m 644 -- src/ServiceBootPlot.py "$DEST/ServiceBootPlot.py"
-printf 'Installed ServiceBootPlot.py\\n'
+printf 'Installed ServiceBootPlot.py\n'
 
 printf '\nDone. Close and restart System Monitoring Center to use the updates.\n'
