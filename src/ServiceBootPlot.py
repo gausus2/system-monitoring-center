@@ -24,7 +24,7 @@ def create_plot(service_name):
         raise ValueError("systemd-analyze did not return an SVG document")
     svg_markup = ET.tostring(svg, encoding="unicode")
 
-    template = """<!doctype html>
+    template = r"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Systemd boot timeline</title>
