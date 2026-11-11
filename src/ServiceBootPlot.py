@@ -53,7 +53,7 @@ main{padding:12px 16px}#timeline{border:1px solid #334154;border-radius:10px;ove
 .axis .label{background:#202e3e}
 .ticks{position:relative;height:34px;flex:none;background:repeating-linear-gradient(to right,transparent 0,transparent 99px,#3b526b 100px)}
 .tick{position:absolute;top:8px;font-size:10px;color:#b9c9dd;white-space:nowrap}
-#original{display:none;overflow:auto;height:calc(100vh - 168px);border:1px solid #334154;border-radius:10px;background:white}
+#original{position:absolute;left:-100000px;top:0;visibility:hidden;overflow:auto;height:calc(100vh - 168px);border:1px solid #334154;border-radius:10px;background:white}
 #original svg{display:block;max-width:none}
 .notice{padding:26px;color:#a9bed7}
 @media(max-width:680px){.label{width:200px;min-width:200px;max-width:200px}main{padding:6px}header{padding:10px}#timeline,#original{height:calc(100vh - 200px)}}
@@ -114,6 +114,12 @@ try {
     entries.push({name: match[1], caption:label, bars:nearby});
   }
 } catch (e) { status.textContent = "Could not interpret SVG: " + e.message; }
+// SVG geometry must be measured while rendered. Hide the raw plot only after reading it.
+original.style.display = "none";
+original.style.visibility = "visible";
+original.style.position = "static";
+original.style.left = "auto";
+original.style.top = "auto";
 const allBars = entries.flatMap(e => e.bars);
 const left = allBars.length ? Math.min(...allBars.map(b=>b.x)) : 0;
 const right = allBars.length ? Math.max(...allBars.map(b=>b.x+b.w)) : 1;
