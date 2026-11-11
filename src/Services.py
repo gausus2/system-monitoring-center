@@ -109,6 +109,7 @@ class Services:
         # Read-only inspection, logs and verification.
         inspect_menu = tk.Menu(self.right_click_menu, tearoff=False)
         inspect_menu.add_command(label="View unit (cat)", command=self.on_service_cat)
+        inspect_menu.add_command(label="Boot plot (focus service)", command=self.on_service_boot_plot)
         inspect_menu.add_command(label="Service journal (current boot)", command=lambda: self.on_service_diagnostics("journal"))
         inspect_menu.add_command(label="Service errors (journal)", command=lambda: self.on_service_diagnostics("errors"))
         inspect_menu.add_command(label="Verify unit (syntax)", command=lambda: self.on_service_diagnostics("verify"))
@@ -185,6 +186,24 @@ class Services:
             message_text = systemctl_error
             if message_text != "":
                 self.service_dialog_label.config(text=message_text)
+
+
+    def on_service_boot_plot(self):
+        """Open boot timing SVG in the default browser, focused on this service."""
+        service_name = getattr(self, "selected_row_name", None)
+        if not service_name or not service_name.endswith(".service"):
+            return
+
+        plot_tool = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 "ServiceBootPlot.py")
+        command = [
+            "xfce4-terminal", "--disable-server", "--hold", "--execute",
+            "python3", plot_tool, service_name,
+        ]
+        try:
+            subprocess.Popen(command, start_new_session=True)
+        except OSError as error:
+            self.service_dialog_label.config(text=str(error))
 
 
     def on_service_cat(self):
