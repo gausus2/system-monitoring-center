@@ -216,7 +216,10 @@ class ServiceJournal(ttk.Frame):
 
     def close(self):
         self._generation += 1
-        self.master.forget(self)
+        if callable(getattr(self, "close_callback", None)):
+            self.close_callback()
+        else:
+            self.grid_remove()
         self.refresh_button.configure(state="normal")
 
     def destroy(self):
