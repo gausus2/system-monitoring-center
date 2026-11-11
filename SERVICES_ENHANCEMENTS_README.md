@@ -73,8 +73,8 @@ Right-click a systemd service in the **Services** tab:
 | **Show ordering** | `systemctl show --property=After,Before --no-pager NAME.service` | Shows the unit's direct ordering relationships as `After=` and `Before=` properties. |
 | **Ordering: After (tree)** | `systemctl list-dependencies --after --no-pager NAME.service` | Shows ordering-after relationships as a tree. |
 | **Ordering: Before (tree)** | `systemctl list-dependencies --before --no-pager NAME.service` | Shows ordering-before relationships as a tree. |
-| **Verify unit (syntax)** | `systemd-analyze verify NAME.service` | Checks the unit for configuration, execution and dependency problems; messages may also refer to related units. |
-| **Service errors (journal)** | `journalctl --boot --unit NAME.service --priority=err --lines=100 --no-pager` | Shows up to 100 errors (priority err or higher) for the selected unit from the current boot. |
+| **Verify unit (syntax)** | `systemd-analyze verify NAME.service` | Checks unit configuration and dependencies; prints an explicit OK message when the command succeeds, or FAILED with the exit code otherwise. Messages may refer to related units. |
+| **Service errors (journal)** | `journalctl --boot --unit NAME.service --priority=err --lines=100 --no-pager` | Shows up to 100 errors (priority err or higher) from the current boot, or an explicit OK message when none are found. Errors from other boots and warnings are excluded. |
 | **Daemon reload** | `sudo systemctl daemon-reload` | Asks systemd to reread unit files globally. Does not reload or restart the selected service. |
 | **Edit override** | `sudo systemctl edit NAME.service` | Creates or edits a drop-in, usually under `/etc/systemd/system/NAME.service.d/`. Recommended for most local customizations. |
 | **Edit full unit** | `sudo systemctl edit --full NAME.service` | Edits a complete local unit file under `/etc/systemd/system/`. This may override subsequent vendor unit-file updates. |
@@ -83,7 +83,7 @@ All eleven custom actions launch `xfce4-terminal`. Eight viewing/inspection acti
 
 The following programs must be available: `xfce4-terminal`, `systemctl`, `systemd-analyze`, `journalctl`, `sudo`, and `nano`. An active graphical Xfce session is expected.
 
-**Note:** The existing upstream **Reload** menu action runs `systemctl reload NAME.service` (service-specific configuration reload, if supported). The new **Daemon reload** action runs `systemctl daemon-reload` (systemd manager reload after unit file changes). Neither is a service restart. A successful verification may produce no output. The journal view intentionally filters to errors from the current boot; warnings and earlier-boot errors are not included.\n\n**Caution:** Editing the full unit is more invasive than using a drop-in. Prefer **Edit override** where possible, and test carefully before changing critical services.
+**Note:** The existing upstream **Reload** menu action runs `systemctl reload NAME.service` (service-specific configuration reload, if supported). The new **Daemon reload** action runs `systemctl daemon-reload` (systemd manager reload after unit file changes). Neither is a service restart. Verification now reports an explicit OK or FAILED result, and the journal view reports when no error-level entries are found. These checks do not guarantee that a service is functioning correctly: verification tests unit configuration, and the journal view only covers errors from the current boot.\n\n**Caution:** Editing the full unit is more invasive than using a drop-in. Prefer **Edit override** where possible, and test carefully before changing critical services.
 
 ## Restore the previous installed files
 
