@@ -10,6 +10,7 @@ from .Performance import Performance
 from .MainWindow import MainWindow
 from . import Common
 from . import Libsysmon
+from .ServiceJournal import ServiceJournal
 
 _tr = Config._tr
 
@@ -76,8 +77,14 @@ class Services:
         Generate information GUI objects.
         """
 
-        # TreeView
-        self.treeview, frame = Common.treeview(self.tab_frame, self)
+        # Resizable vertical split: service list first; journal appears on demand.
+        self.services_paned = ttk.Panedwindow(self.tab_frame, orient="vertical")
+        self.services_paned.grid(row=1, column=0, sticky="nsew")
+        self.treeview, frame = Common.treeview(self.services_paned, self)
+        frame.grid_forget()
+        self.services_paned.add(frame, weight=3)
+        self.journal_panel = ServiceJournal(self.services_paned)
+        self.treeview.bind("<<TreeviewSelect>>", self.on_service_selection_for_journal, add="+")
 
 
     def gui_signals(self):
@@ -110,8 +117,8 @@ class Services:
         inspect_menu = tk.Menu(self.right_click_menu, tearoff=False)
         inspect_menu.add_command(label="View unit (cat)", command=self.on_service_cat)
         inspect_menu.add_command(label="Boot plot (focus service)", command=self.on_service_boot_plot)
-        inspect_menu.add_command(label="Service journal (current boot)", command=lambda: self.on_service_diagnostics("journal"))
-        inspect_menu.add_command(label="Service errors (journal)", command=lambda: self.on_service_diagnostics("errors"))
+        inspect_menu.add_command(label="Service journal (viewer)", command=self.on_service_journal)
+        inspect_menu.add_command(label="Service errors (journal)", command=lambda: self.on_service_journal(errors=True))
         inspect_menu.add_command(label="Verify unit (syntax)", command=lambda: self.on_service_diagnostics("verify"))
         self.right_click_menu.add_cascade(label="Inspect / Logs", menu=inspect_menu)
 
@@ -262,6 +269,26 @@ class Services:
         except OSError as error:
             self.service_dialog_label.config(text=str(error))
 
+
+    def on_service_journal(self, errors=False):
+        """Open a filtered, embedded journal view for the selected service."""
+        service = getattr(self, "selected_row_name", None)
+        if not service or not service.endswith(".service"):
+            return
+        if str(self.journal_panel) not in self.services_paned.panes():
+            self.services_paned.add(self.journal_panel, weight=2)
+        self.journal_panel.open_service(service, errors=errors)
+
+    def on_service_selection_for_journal(self, event=None):
+        """Keep the journal linked to the current tree selection when visible."""
+        if str(self.journal_panel) not in self.services_paned.panes():
+            return
+        selected = self.treeview.selection()
+        if not selected:
+            return
+        service = self.treeview.item(selected[0], "text")
+        if service and service.endswith(".service") and service != self.journal_panel.service:
+            self.journal_panel.open_service(service)
 
     def on_service_diagnostics(self, mode):
         """Verify a unit, inspect errors, or reload systemd's unit files."""
