@@ -5,7 +5,7 @@ These are custom changes to [System Monitoring Center](https://github.com/hakand
 ## Changes
 
 - **Single-process Services loading:** In `src/Libsysmon.py`, `get_services_information()` uses the existing single-process code path by setting `number_of_logical_cores = 2` locally. This worked around a Services-tab loading failure on Xubuntu 24.04.5 / AMD Ryzen 7 5700G. The setting does **not** change actual CPU core availability or other CPU-monitoring features.
-- **New Services context-menu actions:** `View unit (cat)`, `List dependencies`, `Reverse dependencies`, `Show ordering`, `Ordering: After (tree)`, `Ordering: Before (tree)`, `Verify unit (syntax)`, `Service journal (current boot)`, `Service errors (journal)`, `Daemon reload`, `Edit override`, and `Edit full unit` in `src/Services.py`. They use Xfce Terminal; read-only actions run without `sudo`, while editing actions use `sudo systemctl edit` and the `nano` editor. This integration targets Xubuntu/Xfce; it has not been verified on all desktop environments.
+- **New Services context-menu actions:** `View unit (cat)`, `Boot plot (focus service)`, `List dependencies`, `Reverse dependencies`, `Show ordering`, `Ordering: After (tree)`, `Ordering: Before (tree)`, `Verify unit (syntax)`, `Service journal (current boot)`, `Service errors (journal)`, `Daemon reload`, `Edit override`, and `Edit full unit` in `src/Services.py`. They use Xfce Terminal; read-only actions run without `sudo`, while editing actions use `sudo systemctl edit` and the `nano` editor. This integration targets Xubuntu/Xfce; it has not been verified on all desktop environments.
 
 - **Fork identifier in About:** The About dialog displays `3.4.1 services-enhancements` without modifying the upstream `src/__version__` file. This is implemented in `src/MainWindow.py`.\n\n## First-time clone using SSH
 
@@ -30,10 +30,10 @@ This script:
 
 1. Verifies that the local branch is `services-enhancements` and stops if tracked files contain uncommitted changes.
 2. Runs `git pull --ff-only origin services-enhancements` over your configured GitHub connection (SSH when cloned using the SSH URL).
-3. Checks Python syntax in `src/Services.py`, `src/Libsysmon.py`, and `src/MainWindow.py` without creating `__pycache__`.
+3. Checks Python syntax in `src/Services.py`, `src/Libsysmon.py`, `src/MainWindow.py`, and `src/ServiceBootPlot.py` without creating `__pycache__`.
 4. Checks for the installed application under `/usr/share/system-monitoring-center/systemmonitoringcenter/`.
 5. Creates one-time backups of the three installed files named `.pre-services-enhancements`; it **does not overwrite existing backups**.
-6. Installs all three modified Python files using `sudo install -m 644`.
+6. Installs the three modified upstream Python files plus the new `ServiceBootPlot.py` helper using `sudo install -m 644`.
 7. Reminds you to restart System Monitoring Center.
 
 If the syntax check or Git update fails, the script stops before copying files. Close the application before running the update, then restart it after installation.
@@ -61,11 +61,11 @@ If a local change prevents the pull, use `git status` and commit or stash the ch
 
 ## How to use the new actions
 
-Right-click a systemd service in the **Services** tab. The menu now groups inspection, dependencies and editing into submenus:\n\n- **Inspect / Logs:** unit content, full current-boot journal, error-only journal, syntax/configuration verification\n- **Dependencies / Ordering:** dependency trees, reverse dependencies and ordering information\n- **Edit unit:** override and full unit editing\n- **Daemon reload:** manager-wide unit-file reload (separate from the existing service **Reload** action)\n\nThe commands below operate on the selected systemd service:
+Right-click a systemd service in the **Services** tab. The menu now groups inspection, dependencies and editing into submenus:\n\n- **Inspect / Logs:** unit content, browser-based boot plot focused on a selected service, full current-boot journal, error-only journal, syntax/configuration verification\n- **Dependencies / Ordering:** dependency trees, reverse dependencies and ordering information\n- **Edit unit:** override and full unit editing\n- **Daemon reload:** manager-wide unit-file reload (separate from the existing service **Reload** action)\n\nThe commands below operate on the selected systemd service:
 
 | Menu action | Equivalent command | Purpose |
 | --- | --- | --- |
-| **View unit (cat)** | `systemctl cat --no-pager NAME.service` | Displays the unit file and its drop-ins in a terminal, without sudo or editing. |
+| **Boot plot (focus service)** | `systemd-analyze plot` (via `ServiceBootPlot.py`) | Generates the boot SVG, opens a local HTML viewer in the default browser, highlights the selected service row and automatically scrolls to it; zoom controls and refocus button included. If the unit is missing from the boot plot, a message is shown. |\n| **View unit (cat)** | `systemctl cat --no-pager NAME.service` | Displays the unit file and its drop-ins in a terminal, without sudo or editing. |
 | **List dependencies** | `systemctl list-dependencies --no-pager NAME.service` | Displays the selected service’s dependency tree (by default, dependencies it needs), without sudo or editing. | 
 | **Reverse dependencies** | `systemctl list-dependencies --reverse --no-pager NAME.service` | Shows units that depend on the selected service, as a tree. |
 | **Show ordering** | `systemctl show --property=After,Before --no-pager NAME.service` | Shows the unit's direct ordering relationships as `After=` and `Before=` properties. |
@@ -77,13 +77,13 @@ Right-click a systemd service in the **Services** tab. The menu now groups inspe
 | **Edit override** | `sudo systemctl edit NAME.service` | Creates or edits a drop-in, usually under `/etc/systemd/system/NAME.service.d/`. Recommended for most local customizations. |
 | **Edit full unit** | `sudo systemctl edit --full NAME.service` | Edits a complete local unit file under `/etc/systemd/system/`. This may override subsequent vendor unit-file updates. |
 
-All twelve custom actions launch `xfce4-terminal`. Nine viewing/inspection actions are read-only (no editor, no sudo); their terminals remain open for scrolling and copying. **Daemon reload** is a system-wide privileged operation and prompts for sudo; it does not restart a service. **Show ordering** displays direct ordering properties, while the two **Ordering: ... (tree)** entries recursively expand ordering relationships. An ordering relationship alone does not necessarily imply a requirement dependency. The two editing actions use `nano`. Press `Ctrl+X` to exit; choose **N** if prompted to save changes you do not want. On successful save, `systemctl edit` normally runs `daemon-reload`, but does **not** restart the service.
+The new boot plot action starts a helper in `xfce4-terminal` and opens the generated HTML in the default browser; the terminal remains available for errors. The other actions launch `xfce4-terminal`. Ten viewing/inspection actions are read-only (no editor, no sudo); their terminals remain open for scrolling and copying. **Daemon reload** is a system-wide privileged operation and prompts for sudo; it does not restart a service. **Show ordering** displays direct ordering properties, while the two **Ordering: ... (tree)** entries recursively expand ordering relationships. An ordering relationship alone does not necessarily imply a requirement dependency. The two editing actions use `nano`. Press `Ctrl+X` to exit; choose **N** if prompted to save changes you do not want. On successful save, `systemctl edit` normally runs `daemon-reload`, but does **not** restart the service.
 
-The following programs must be available: `xfce4-terminal`, `systemctl`, `systemd-analyze`, `journalctl`, `sudo`, and `nano`. An active graphical Xfce session is expected.
+The following programs must be available: `xfce4-terminal`, `systemctl`, `systemd-analyze`, `journalctl`, `sudo`, `nano`, `python3`, and a default browser. The boot plot uses only Python standard-library modules. An active graphical Xfce session is expected.
 
 **Note:** The existing upstream **Reload** menu action runs `systemctl reload NAME.service` (service-specific configuration reload, if supported). The new **Daemon reload** action runs `systemctl daemon-reload` (systemd manager reload after unit file changes). Neither is a service restart. Verification now reports an explicit OK or FAILED result, and the journal view reports when no error-level entries are found. These checks do not guarantee that a service is functioning correctly: verification tests unit configuration, and the error-only journal view only covers error-priority entries from the current boot. The full journal view shows all priorities from the current boot.\n\n**Caution:** Editing the full unit is more invasive than using a drop-in. Prefer **Edit override** where possible, and test carefully before changing critical services.
 
-## Restore the previous installed files
+## Boot plot limitations\n\n`systemd-analyze plot` covers the most recent available unit startup timestamps and may omit services that were not started, unloaded or otherwise absent from the current manager timing data. The viewer only focuses the selected unit when its label can be found in the SVG; otherwise it reports that the unit is not present. This is a boot timing graph, **not** a live service history. The browser-based focus/zoom feature is experimental and may require adjustment on other systemd versions. Each plot opens a temporary local HTML file.\n\n## Restore the previous installed files
 
 Close the application and run:
 
