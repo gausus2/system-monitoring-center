@@ -35,10 +35,21 @@ class Services:
         self.tab_frame.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
         self.tab_frame.columnconfigure(0, weight=1)
         self.tab_frame.rowconfigure(1, weight=1)
+        self.tab_frame.rowconfigure(3, weight=0)
 
         self.tab_title_frame()
 
         self.information_frame()
+
+        # Journal is an optional extra grid row. Never move/reparent the
+        # existing service Treeview: its original geometry stays intact.
+        self.journal_sash = ttk.Frame(self.tab_frame, height=7, cursor="sb_v_double_arrow")
+        self.journal_sash.bind("<ButtonPress-1>", self.on_journal_sash_start)
+        self.journal_sash.bind("<B1-Motion>", self.on_journal_sash_drag)
+        self.journal_panel = ServiceJournal(self.tab_frame)
+        self.journal_height = 260
+        self.treeview.bind("<<TreeviewSelect>>",
+                           self.on_service_selection_for_journal, add="+")
 
         self.gui_signals()
 
@@ -46,7 +57,7 @@ class Services:
 
         # Label (Note: This tab is not reloaded automatically. Manually reload for changes.)
         self.processing_label = Common.static_information_label(self.tab_frame, _tr("Note: This tab is not reloaded automatically. Manually reload for changes."))
-        self.processing_label.grid(row=2, column=0, sticky="w", padx=0, pady=1)
+        self.processing_label.grid(row=4, column=0, sticky="w", padx=0, pady=1)
 
 
     def tab_title_frame(self):
@@ -77,14 +88,8 @@ class Services:
         Generate information GUI objects.
         """
 
-        # Resizable vertical split: service list first; journal appears on demand.
-        self.services_paned = ttk.Panedwindow(self.tab_frame, orient="vertical")
-        self.services_paned.grid(row=1, column=0, sticky="nsew")
-        self.treeview, frame = Common.treeview(self.services_paned, self)
-        frame.grid_forget()
-        self.services_paned.add(frame, weight=3)
-        self.journal_panel = ServiceJournal(self.services_paned)
-        self.treeview.bind("<<TreeviewSelect>>", self.on_service_selection_for_journal, add="+")
+        # TreeView
+        self.treeview, frame = Common.treeview(self.tab_frame, self)
 
 
     def gui_signals(self):
@@ -271,24 +276,40 @@ class Services:
 
 
     def on_service_journal(self, errors=False):
-        """Open a filtered, embedded journal view for the selected service."""
-        service = getattr(self, "selected_row_name", None)
-        if not service or not service.endswith(".service"):
+        """Show the journal without altering the existing service list."""
+        name = getattr(self, "selected_row_name", None)
+        if not name or not name.endswith(".service"):
             return
-        if str(self.journal_panel) not in self.services_paned.panes():
-            self.services_paned.add(self.journal_panel, weight=2)
-        self.journal_panel.open_service(service, errors=errors)
+        if not self.journal_panel.winfo_manager():
+            self.journal_sash.grid(row=2, column=0, sticky="ew")
+            self.journal_panel.grid(row=3, column=0, sticky="nsew")
+            self.tab_frame.grid_rowconfigure(3, minsize=self.journal_height)
+        self.journal_panel.open_service(name, errors=errors)
 
     def on_service_selection_for_journal(self, event=None):
-        """Keep the journal linked to the current tree selection when visible."""
-        if str(self.journal_panel) not in self.services_paned.panes():
+        if not self.journal_panel.winfo_manager():
             return
         selected = self.treeview.selection()
-        if not selected:
-            return
-        service = self.treeview.item(selected[0], "text")
-        if service and service.endswith(".service") and service != self.journal_panel.service:
-            self.journal_panel.open_service(service)
+        if selected:
+            name = self.treeview.item(selected[0], "text")
+            if name and name.endswith(".service") and name != self.journal_panel.service:
+                self.journal_panel.open_service(name)
+
+    def on_journal_sash_start(self, event):
+        self._journal_drag_y = event.y_root
+        self._journal_drag_height = self.journal_height
+
+    def on_journal_sash_drag(self, event):
+        delta = self._journal_drag_y - event.y_root
+        available = max(160, self.tab_frame.winfo_height() - 180)
+        self.journal_height = max(130, min(available, self._journal_drag_height + delta))
+        self.tab_frame.grid_rowconfigure(3, minsize=self.journal_height)
+
+    def close_service_journal(self):
+        self.journal_panel.grid_remove()
+        self.journal_sash.grid_remove()
+        self.tab_frame.grid_rowconfigure(3, minsize=0)
+        self.journal_height = max(130, self.journal_height)
 
     def on_service_diagnostics(self, mode):
         """Verify a unit, inspect errors, or reload systemd's unit files."""
