@@ -108,6 +108,10 @@ class Services:
         self.right_click_menu.add_command(label="Show ordering", activebackground="gray", command=lambda: self.on_service_inspect("ordering"))
         self.right_click_menu.add_command(label="Ordering: After (tree)", activebackground="gray", command=lambda: self.on_service_inspect("after"))
         self.right_click_menu.add_command(label="Ordering: Before (tree)", activebackground="gray", command=lambda: self.on_service_inspect("before"))
+        self.right_click_menu.add_command(label="Verify unit (syntax)", activebackground="gray", command=lambda: self.on_service_diagnostics("verify"))
+        self.right_click_menu.add_command(label="Service errors (journal)", activebackground="gray", command=lambda: self.on_service_diagnostics("errors"))
+        self.right_click_menu.add_command(label="Daemon reload", activebackground="gray", command=lambda: self.on_service_diagnostics("daemon-reload"))
+        self.right_click_menu.add_separator()
         self.right_click_menu.add_command(label="Edit override", activebackground="gray", command=lambda: self.on_service_edit("override"))
         self.right_click_menu.add_command(label="Edit full unit", activebackground="gray", command=lambda: self.on_service_edit("full"))
         self.right_click_menu.add_separator()
@@ -220,6 +224,31 @@ class Services:
         command = [
             "xfce4-terminal", "--disable-server", "--hold", "--execute",
             *commands[mode], "--", service_name,
+        ]
+        try:
+            subprocess.Popen(command, start_new_session=True)
+        except OSError as error:
+            self.service_dialog_label.config(text=str(error))
+
+
+    def on_service_diagnostics(self, mode):
+        """Verify a unit, inspect errors, or reload systemd's unit files."""
+        service_name = getattr(self, "selected_row_name", None)
+        if not service_name or not service_name.endswith(".service"):
+            return
+
+        commands = {
+            "verify": ["systemd-analyze", "verify", service_name],
+            "errors": ["journalctl", "--boot", "--unit", service_name,
+                       "--priority=err", "--lines=100", "--no-pager"],
+            "daemon-reload": ["sudo", "systemctl", "daemon-reload"],
+        }
+        if mode not in commands:
+            return
+
+        command = [
+            "xfce4-terminal", "--disable-server", "--hold", "--execute",
+            *commands[mode],
         ]
         try:
             subprocess.Popen(command, start_new_session=True)
