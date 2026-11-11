@@ -78,7 +78,7 @@ function focusSelected() {
     message.textContent = "Unit not present in the boot timing plot.";
     return;
   }
-  target.style.fill = "#d32f2f";
+  target.style.fill = "#1565c0";
   target.style.fontWeight = "bold";
   const bounds = target.getBoundingClientRect();
   const vp = viewport.getBoundingClientRect();
