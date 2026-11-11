@@ -27,76 +27,166 @@ def create_plot(service_name):
     template = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Systemd boot plot</title>
+<title>Systemd boot timeline</title>
 <style>
-html,body { margin:0; height:100%; font:14px sans-serif; background:#f5f5f5; }
-header { display:flex; gap:12px; align-items:center; padding:9px 14px;
-         background:#252b34; color:white; flex-wrap:wrap; }
-header strong { margin-right:10px; }
-button { cursor:pointer; padding:5px 12px; }
-#message { font-size:13px; }
-#viewport { width:100vw; height:calc(100vh - 64px); overflow:auto;
-            background:white; }
-#viewport svg { display:block; max-width:none; }
+:root {font-family:system-ui,-apple-system,sans-serif;color:#dce4f0;background:#111721}
+*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}
+header{position:sticky;top:0;z-index:10;background:#1b2432;border-bottom:1px solid #344257;padding:12px 18px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+h1{font-size:18px;margin:0 0 3px;font-weight:650}.sub{font-size:12px;color:#9daec6}
+.controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:12px}
+button,select,input{color:#e4ecf8;background:#293649;border:1px solid #43536a;border-radius:6px;padding:7px 10px}
+button{cursor:pointer}button:hover{background:#344960}button.active{background:#214c7c;border-color:#4793dd}
+input{min-width:230px;flex:1;max-width:390px}
+label{display:flex;align-items:center;gap:6px;font-size:13px;color:#c4d0e1}
+label input{min-width:auto;flex:none}#status{color:#b5c8e5;font-size:13px}
+main{padding:12px 16px}#timeline{border:1px solid #334154;border-radius:10px;overflow:auto;height:calc(100vh - 168px);background:#17202d}
+#rows{width:max-content;min-width:100%;position:relative}
+.row{display:flex;min-height:26px;border-bottom:1px solid #28384a;align-items:center;font-size:12px}
+.row:nth-child(even){background:#1d2938}.row:hover{background:#2b3b51}
+.row.selected{background:#163e6d;outline:1px solid #4da5ff;outline-offset:-1px}
+.label{position:sticky;left:0;z-index:2;width:360px;min-width:360px;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 12px;border-right:1px solid #3b4d63;background:inherit}
+.row.selected .label{font-weight:700;color:#78bfff}.plotbar{position:relative;height:25px;flex:none;background-image:linear-gradient(to right,transparent calc(100% - 1px),#334458 calc(100% - 1px));background-size:100px 100%}
+.seg{position:absolute;top:6px;height:12px;border-radius:3px;min-width:2px;opacity:.91;background:#5b98d9}
+.seg:hover{outline:2px solid #d7e8ff;z-index:3}
+.axis{display:flex;background:#202e3e;border-bottom:1px solid #4a6077;position:sticky;top:0;z-index:4;min-height:34px}
+.axis .label{background:#202e3e}
+.ticks{position:relative;height:34px;flex:none;background:repeating-linear-gradient(to right,transparent 0,transparent 99px,#3b526b 100px)}
+.tick{position:absolute;top:8px;font-size:10px;color:#b9c9dd;white-space:nowrap}
+#original{display:none;overflow:auto;height:calc(100vh - 168px);border:1px solid #334154;border-radius:10px;background:white}
+#original svg{display:block;max-width:none}
+.notice{padding:26px;color:#a9bed7}
+@media(max-width:680px){.label{width:200px;min-width:200px;max-width:200px}main{padding:6px}header{padding:10px}#timeline,#original{height:calc(100vh - 200px)}}
 </style></head>
 <body>
 <header>
-<strong>Systemd boot plot</strong>
-<span id="selected"></span>
-<button id="minus" type="button">−</button>
-<button id="plus" type="button">+</button>
+<div class="top"><div><h1>Systemd boot timeline</h1><div class="sub" id="chosen"></div></div>
+<div id="status">Preparing timeline…</div></div>
+<div class="controls">
+<input id="search" type="search" placeholder="Find a service or unit…" aria-label="Search units">
+<label><input type="checkbox" id="services" checked>Services only</label>
 <button id="focus" type="button">Focus selected</button>
-<span id="message"></span>
+<button id="minus" type="button">− Zoom</button>
+<button id="plus" type="button">+ Zoom</button>
+<button id="toggle" type="button">Original SVG</button>
+</div>
 </header>
-<div id="viewport">__SVG__</div>
+<main>
+<div id="timeline"><div id="rows"></div></div>
+<div id="original">__SVG__</div>
+</main>
 <script>
 "use strict";
 const selected = __SERVICE__;
-const viewport = document.getElementById("viewport");
-const svg = viewport.querySelector("svg");
-const message = document.getElementById("message");
-document.getElementById("selected").textContent = selected;
-const width = parseFloat(svg.getAttribute("width")) || svg.getBBox().width;
-const height = parseFloat(svg.getAttribute("height")) || svg.getBBox().height;
-let zoom = 1.35;
-let target = null;
-const texts = svg.querySelectorAll("text");
-for (const el of texts) {
-  const label = (el.textContent || "").trim();
-  if (label === selected || label.startsWith(selected + " ") ||
-      label.startsWith(selected + "(")) {
-    target = el;
-    break;
+document.getElementById("chosen").textContent = "Selected: " + selected;
+const original = document.getElementById("original");
+const svg = original.querySelector("svg");
+const timeline = document.getElementById("timeline");
+const rowsNode = document.getElementById("rows");
+const search = document.getElementById("search");
+const services = document.getElementById("services");
+const status = document.getElementById("status");
+const toggle = document.getElementById("toggle");
+let zoom = 1;
+let raw = false;
+const unitRe = /^(.+?\.(?:service|socket|target|mount|automount|device|timer|path|swap|slice|scope))(?:\s+\(.*\))?$/;
+const entries = [];
+// The SVG is the sole data source. Read the row label and corresponding
+// bar geometry directly; no timings are invented by the viewer.
+try {
+  const texts = Array.from(svg.querySelectorAll("text"));
+  const rects = Array.from(svg.querySelectorAll("rect")).map(el => {
+    let b;
+    try { b = el.getBBox(); } catch (_) { return null; }
+    if (!b || b.width <= 0 || b.height < 2 || b.height > 30) return null;
+    return {x:b.x,y:b.y,w:b.width,h:b.height,
+            color:el.getAttribute("fill") || getComputedStyle(el).fill};
+  }).filter(Boolean);
+  for (const el of texts) {
+    const label = (el.textContent || "").trim();
+    const match = label.match(unitRe);
+    if (!match) continue;
+    let b;
+    try { b = el.getBBox(); } catch (_) { continue; }
+    const mid = b.y + b.height/2;
+    const nearby = rects.filter(r => Math.abs(r.y + r.h/2 - mid) < 13 &&
+                                     r.x >= b.x + Math.min(b.width, 30));
+    entries.push({name: match[1], caption:label, bars:nearby});
   }
-}
-function applyZoom() {
-  svg.style.width = (width * zoom) + "px";
-  svg.style.height = (height * zoom) + "px";
-}
-function focusSelected() {
-  if (!target) {
-    message.textContent = "Unit not present in the boot timing plot.";
-    return;
+} catch (e) { status.textContent = "Could not interpret SVG: " + e.message; }
+const allBars = entries.flatMap(e => e.bars);
+const left = allBars.length ? Math.min(...allBars.map(b=>b.x)) : 0;
+const right = allBars.length ? Math.max(...allBars.map(b=>b.x+b.w)) : 1;
+const span = Math.max(right-left, 1);
+const baseWidth = 1500;
+function div(cls,text) { const e=document.createElement("div");e.className=cls;if(text!==undefined)e.textContent=text;return e; }
+function render() {
+  const term=search.value.trim().toLowerCase();
+  const filtered=entries.filter(e=>(!services.checked || e.name.endsWith(".service")) &&
+                                   (!term || e.name.toLowerCase().includes(term)));
+  const width=baseWidth*zoom;
+  rowsNode.replaceChildren();
+  const axis=div("axis");
+  axis.appendChild(div("label","UNIT / STARTUP"));
+  const ticks=div("ticks");
+  ticks.style.width=width+"px";
+  // Relative SVG horizontal position, intentionally not presented as seconds:
+  // exact time conversion depends on the original graph's units and origin.
+  for(let i=0;i<=10;i++){
+    const tick=div("tick",i*10+"%");
+    tick.style.left=(width*i/10)+"px";
+    ticks.appendChild(tick);
   }
-  target.style.fill = "#1565c0";
-  target.style.fontWeight = "bold";
-  const bounds = target.getBoundingClientRect();
-  const vp = viewport.getBoundingClientRect();
-  // Keep the left-side unit label visible while centering its row vertically.
-  viewport.scrollTop += bounds.top - vp.top - vp.height / 2;
-  viewport.scrollLeft = 0;
-  message.textContent = "Selected service highlighted";
+  axis.appendChild(ticks);rowsNode.appendChild(axis);
+  for(const entry of filtered){
+    const row=div("row");
+    row.dataset.unit=entry.name;
+    if(entry.name===selected)row.classList.add("selected");
+    const label=div("label",entry.name);
+    label.title=entry.caption;
+    row.appendChild(label);
+    const graph=div("plotbar");
+    graph.style.width=width+"px";
+    for(const bar of entry.bars){
+      const segment=div("seg");
+      segment.style.left=((bar.x-left)/span*width)+"px";
+      segment.style.width=Math.max(2,bar.w/span*width)+"px";
+      // The source SVG supplies the original phase colors.
+      if(bar.color && bar.color!=="none" && bar.color!=="transparent")
+        segment.style.backgroundColor=bar.color;
+      segment.title=entry.caption;
+      graph.appendChild(segment);
+    }
+    row.appendChild(graph);rowsNode.appendChild(row);
+    row.onclick=()=>{document.querySelectorAll(".row.selected").forEach(n=>n.classList.remove("selected"));row.classList.add("selected");};
+  }
+  status.textContent=filtered.length+" units displayed / "+entries.length+" found";
+  if(!filtered.length)rowsNode.appendChild(div("notice","No matching units. Try disabling Services only or changing the search."));
 }
-function changeZoom(multiplier) {
-  zoom = Math.max(0.4, Math.min(5, zoom * multiplier));
-  applyZoom();
-  requestAnimationFrame(focusSelected);
+function focus(){
+  if(raw){raw=false;original.style.display="none";timeline.style.display="block";toggle.textContent="Original SVG";}
+  if(services.checked && !selected.endsWith(".service"))services.checked=false;
+  if(search.value && !selected.toLowerCase().includes(search.value.toLowerCase()))search.value="";
+  render();
+  const row=Array.from(rowsNode.querySelectorAll(".row")).find(r=>r.dataset.unit===selected);
+  if(!row){status.textContent="Selected unit is not in the boot timing SVG.";return;}
+  timeline.scrollTop=Math.max(0,row.offsetTop-timeline.clientHeight/2);
+  const bar=entries.find(e=>e.name===selected)?.bars[0];
+  timeline.scrollLeft=bar?Math.max(0,(bar.x-left)/span*baseWidth*zoom-300):0;
 }
-document.getElementById("minus").onclick = () => changeZoom(1/1.25);
-document.getElementById("plus").onclick = () => changeZoom(1.25);
-document.getElementById("focus").onclick = focusSelected;
-applyZoom();
-requestAnimationFrame(() => requestAnimationFrame(focusSelected));
+search.addEventListener("input",render);
+services.addEventListener("change",render);
+document.getElementById("focus").onclick=focus;
+document.getElementById("minus").onclick=()=>{zoom=Math.max(.5,zoom/1.25);render();focus();};
+document.getElementById("plus").onclick=()=>{zoom=Math.min(5,zoom*1.25);render();focus();};
+toggle.onclick=()=>{
+  raw=!raw;
+  original.style.display=raw?"block":"none";
+  timeline.style.display=raw?"none":"block";
+  toggle.textContent=raw?"Compact timeline":"Original SVG";
+};
+render();
+requestAnimationFrame(()=>requestAnimationFrame(focus));
 </script></body></html>"""
     html = template.replace("__SVG__", svg_markup).replace(
         "__SERVICE__", json.dumps(service_name).replace("<", "\\u003c")
