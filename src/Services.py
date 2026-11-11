@@ -102,6 +102,7 @@ class Services:
         self.right_click_menu.add_command(label=_tr("Mask"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("mask"))
         self.right_click_menu.add_command(label=_tr("Unmask"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("unmask"))
         self.right_click_menu.add_separator()
+        self.right_click_menu.add_command(label="View unit (cat)", activebackground="gray", command=self.on_service_cat)
         self.right_click_menu.add_command(label="Edit override", activebackground="gray", command=lambda: self.on_service_edit("override"))
         self.right_click_menu.add_command(label="Edit full unit", activebackground="gray", command=lambda: self.on_service_edit("full"))
         self.right_click_menu.add_separator()
@@ -162,6 +163,22 @@ class Services:
             message_text = systemctl_error
             if message_text != "":
                 self.service_dialog_label.config(text=message_text)
+
+
+    def on_service_cat(self):
+        """Show the selected unit and its drop-ins without modifying them."""
+        service_name = getattr(self, "selected_row_name", None)
+        if not service_name or not service_name.endswith(".service"):
+            return
+
+        command = [
+            "xfce4-terminal", "--disable-server", "--hold", "--execute",
+            "systemctl", "cat", "--no-pager", "--", service_name,
+        ]
+        try:
+            subprocess.Popen(command, start_new_session=True)
+        except OSError as error:
+            self.service_dialog_label.config(text=str(error))
 
 
     def on_service_edit(self, mode):
