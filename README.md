@@ -195,3 +195,8 @@
 
 ![System Monitoring Center](screenshots/process_details__dark_system_theme_2.png)
 
+
+
+## Fork: Services enhancements (gausus2)
+
+The `services-enhancements` branch includes a workaround for service loading with multiprocessing and adds **Edit override** / **Edit full unit** to the Services context menu. For installation, updates, usage, and rollback, see [SERVICES_ENHANCEMENTS_README.md](SERVICES_ENHANCEMENTS_README.md). These changes are not part of upstream System Monitoring Center.
