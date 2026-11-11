@@ -1,13 +1,13 @@
-# System Monitoring Center – Services-forbedringer
+# System Monitoring Center – Services enhancements
 
-Dette er lokale tilpasninger til [System Monitoring Center](https://github.com/hakandundar34coding/system-monitoring-center) v3.4.1 i [gausus2-forken](https://github.com/gausus2/system-monitoring-center). Endringene ligger på grenen `services-enhancements` og er ikke en del av originalprosjektet.
+These are custom changes to [System Monitoring Center](https://github.com/hakandundar34coding/system-monitoring-center) v3.4.1, maintained in the [gausus2 fork](https://github.com/gausus2/system-monitoring-center) on the `services-enhancements` branch. They are **not** part of the original upstream project.
 
-## Hva er endret?
+## Changes
 
-- **Services lastes uten Python multiprocessing:** I `src/Libsysmon.py` bruker `get_services_information()` den eksisterende enkeltprosess-løsningen ved å sette `number_of_logical_cores = 2` lokalt i funksjonen. Dette løste et konkret problem med lasting av Services på Xubuntu 24.04.5 / Ryzen 7 5700G. Det endrer ikke antall CPU-kjerner systemet har, og påvirker ikke CPU-overvåkingen ellers.
-- **To nye høyreklikkvalg i Services:** `Edit override` og `Edit full unit` i `src/Services.py`. Begge åpner Xfce Terminal og `nano` gjennom `sudo systemctl edit`. Endringen er laget for Xubuntu/Xfce, ikke testet på alle skrivebordsmiljøer.
+- **Single-process Services loading:** In `src/Libsysmon.py`, `get_services_information()` uses the existing single-process code path by setting `number_of_logical_cores = 2` locally. This worked around a Services-tab loading failure on Xubuntu 24.04.5 / AMD Ryzen 7 5700G. The setting does **not** change actual CPU core availability or other CPU-monitoring features.
+- **New Services context-menu actions:** `Edit override` and `Edit full unit` in `src/Services.py`. They launch `systemctl edit` in Xfce Terminal with `sudo` and the `nano` editor. This integration targets Xubuntu/Xfce; it has not been verified on all desktop environments.
 
-## Hent forken første gang (SSH)
+## First-time clone using SSH
 
 ```bash
 git clone git@github.com:gausus2/system-monitoring-center.git
@@ -16,35 +16,35 @@ git fetch origin
 git switch --track origin/services-enhancements
 ```
 
-Hvis grenen allerede eksisterer lokalt, bruk `git switch services-enhancements`.
+If the branch already exists locally, use `git switch services-enhancements` instead.
 
-## Hent senere oppdateringer fra din fork
+## Get updates from this fork
 
-Kjør fra repositorykatalogen:
+Run from the repository directory:
 
 ```bash
 git switch services-enhancements
 git pull --ff-only origin services-enhancements
 ```
 
-Hvis du har egne lokale endringer som hindrer oppdatering, sjekk først `git status` og commit eller stash dem. Ikke kjør `git reset --hard` uten å forstå konsekvensene.
+If local edits prevent the pull, check `git status` first and commit or stash them. Avoid `git reset --hard` unless you intend to discard local changes.
 
-## Installer endringene i System Monitoring Center
+## Install or update the modified files
 
-Disse kommandoene passer en installasjon med Python-filene under `/usr/share/system-monitoring-center/systemmonitoringcenter/`. Kjør dem fra roten av repositoryet. Lukk programmet før du kopierer filene.
+These instructions apply when System Monitoring Center is installed under `/usr/share/system-monitoring-center/systemmonitoringcenter/`. Run from the repository root, and close the application first.
 
 ```bash
 DEST=/usr/share/system-monitoring-center/systemmonitoringcenter
-test -f "$DEST/Services.py" && test -f "$DEST/Libsysmon.py" || { echo "Finner ikke installasjonen"; exit 1; }
+test -f "$DEST/Services.py" && test -f "$DEST/Libsysmon.py" || { echo "Installation not found"; exit 1; }
 
-# Lag sikkerhetskopier bare første gang – ikke overskriv backup ved senere oppdateringer.
+# Back up the installed files once. Do not overwrite backups on later updates.
 for file in Services.py Libsysmon.py; do
     if [ ! -e "$DEST/$file.pre-services-enhancements" ]; then
         sudo cp -a "$DEST/$file" "$DEST/$file.pre-services-enhancements"
     fi
 done
 
-# Sjekk Python-syntaks uten å skrive __pycache__ i systemkatalogen.
+# Validate syntax without generating __pycache__ files.
 python3 - <<'PY'
 from pathlib import Path
 for name in ("Services.py", "Libsysmon.py"):
@@ -57,28 +57,28 @@ sudo install -m 644 src/Services.py "$DEST/Services.py"
 sudo install -m 644 src/Libsysmon.py "$DEST/Libsysmon.py"
 ```
 
-Start programmet på nytt og åpne **Services**.
+Restart the application and open **Services**.
 
-**Ved senere oppdateringer:** Kjør først `git pull --ff-only` som ovenfor, og installer deretter de oppdaterte filene på nytt.
+**To update later:** first run `git pull --ff-only` as above, then reinstall the two modified Python files.
 
-## Bruk av nye høyreklikkvalg
+## How to use the new actions
 
-Høyreklikk på en systemd-tjeneste i **Services**:
+Right-click a systemd service in the **Services** tab:
 
-| Menyvalg | Tilsvarer | Effekt |
+| Menu action | Equivalent command | Purpose |
 | --- | --- | --- |
-| **Edit override** | `sudo systemctl edit TJENESTE.service` | Oppretter/redigerer vanligvis en drop-in under `/etc/systemd/system/TJENESTE.service.d/`. Anbefalt for lokale tilpasninger. |
-| **Edit full unit** | `sudo systemctl edit --full TJENESTE.service` | Redigerer en full lokal kopi av unit-filen under `/etc/systemd/system/`. Kan overstyre fremtidige endringer i leverandørens unit-fil. |
+| **Edit override** | `sudo systemctl edit NAME.service` | Creates or edits a drop-in, usually under `/etc/systemd/system/NAME.service.d/`. Recommended for most local customizations. |
+| **Edit full unit** | `sudo systemctl edit --full NAME.service` | Edits a complete local unit file under `/etc/systemd/system/`. This may override subsequent vendor unit-file updates. |
 
-Begge valg åpner `xfce4-terminal` med `nano` som editor. Du kan avslutte uten å lagre med `Ctrl+X` (svar **N** om editoren spør om lagring). Ved lagring utfører `systemctl edit` normalt `daemon-reload`, men starter **ikke** tjenesten på nytt.
+Both actions launch `xfce4-terminal` with `nano`. Press `Ctrl+X` to exit; choose **N** if prompted to save changes you do not want. On successful save, `systemctl edit` normally runs `daemon-reload`, but does **not** restart the service.
 
-Du trenger `xfce4-terminal`, `sudo` og `nano` installert. Programmet forutsetter at Xfce Terminal kan åpnes i den grafiske økten.
+The following programs must be available: `xfce4-terminal`, `sudo`, and `nano`. An active graphical Xfce session is expected.
 
-**Merk:** `Edit full unit` er mer inngripende enn en override. Ta vare på endringene dine og foretrekk **Edit override** der det er mulig. Test med en ufarlig tjeneste først.
+**Caution:** Editing the full unit is more invasive than using a drop-in. Prefer **Edit override** where possible, and test carefully before changing critical services.
 
-## Gjenopprett tidligere installasjon
+## Restore the previous installed files
 
-Lukk programmet og kjør:
+Close the application and run:
 
 ```bash
 DEST=/usr/share/system-monitoring-center/systemmonitoringcenter
@@ -86,30 +86,32 @@ sudo cp -a "$DEST/Services.py.pre-services-enhancements" "$DEST/Services.py"
 sudo cp -a "$DEST/Libsysmon.py.pre-services-enhancements" "$DEST/Libsysmon.py"
 ```
 
-Gjenoppretting virker bare dersom sikkerhetskopiene finnes. En pakkeoppdatering kan overskrive de installerte filene; endringene kan da installeres på nytt fra forken.
+Restore commands require the backup files to exist. Package upgrades may overwrite the modified installed files; reinstall from this fork afterward if needed.
 
-## Hent endringer fra originalprosjektet (upstream)
+## Check for upstream changes
 
-Dette er **ikke** det samme som å hente oppdateringer fra `origin` (din egen fork).
+`origin` refers to **your fork**. The original project can be configured as a separate `upstream` remote:
 
 ```bash
 git remote add upstream git@github.com:hakandundar34coding/system-monitoring-center.git
 git fetch upstream
 ```
 
-Legg til `upstream` bare én gang (se `git remote -v`). Sammenlign før du fletter:
+Only add `upstream` once; inspect configured remotes with `git remote -v`.
+
+Compare before attempting to merge:
 
 ```bash
 git log --oneline --left-right services-enhancements...upstream/master
 git diff services-enhancements..upstream/master -- src/Services.py src/Libsysmon.py
 ```
 
-For å integrere nye upstream-endringer: gjør det i en separat testgren og gjennomgå eventuelle konflikter, spesielt i `Services.py` og `Libsysmon.py`. Ikke anta at denne v3.4.1-tilpasningen fortsatt passer uendret til senere versjoner.
+Integrate upstream updates in a separate test branch and review conflicts, especially in `Services.py` and `Libsysmon.py`. The v3.4.1 modifications may need adjustment for newer upstream versions.
 
-## Status
+## Test status
 
-- Bekreftet: Services-fanen fungerer med enkeltprosess-workaround på Xubuntu 24.04.5.
-- Bekreftet av bruker: nytt høyreklikkvalg åpner editor.
-- Ikke fullstendig testet: alle tjenester, alle skrivebordsmiljøer og fremtidige upstream-versjoner.
+- **Confirmed:** The Services tab loads using the single-process workaround on Xubuntu 24.04.5.
+- **Confirmed by the user:** The context-menu editor launches successfully.
+- **Not fully tested:** All services, other desktop environments, or future upstream versions.
 
-Originalkoden er lisensiert under **GNU GPL v3**. Behold copyright- og lisensinformasjonen ved videre distribusjon.
+The original project is licensed under **GNU GPL v3**. Retain upstream copyright notices and license terms when redistributing modified versions.
