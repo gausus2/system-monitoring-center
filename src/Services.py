@@ -102,6 +102,10 @@ class Services:
         self.right_click_menu.add_command(label=_tr("Mask"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("mask"))
         self.right_click_menu.add_command(label=_tr("Unmask"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("unmask"))
         self.right_click_menu.add_separator()
+        self.right_click_menu.add_command(label="Edit override", activebackground="gray", command=lambda: self.on_service_edit("override"))
+        self.right_click_menu.add_command(label="Edit full unit", activebackground="gray", command=lambda: self.on_service_edit("full"))
+        self.right_click_menu.add_command(label="Edit full unit (force)", activebackground="gray", command=lambda: self.on_service_edit("force-full"))
+        self.right_click_menu.add_separator()
         self.right_click_menu.add_command(label=_tr("Help"), activebackground="gray", command=self.on_service_help_item_activate)
         self.right_click_menu.add_separator()
         self.right_click_menu.add_command(label=_tr("Details"), activebackground="gray", accelerator="(Enter)", command=self.on_details_item_activate)
@@ -159,6 +163,31 @@ class Services:
             message_text = systemctl_error
             if message_text != "":
                 self.service_dialog_label.config(text=message_text)
+
+
+    def on_service_edit(self, mode):
+        """Open systemctl edit in an interactive Xfce terminal."""
+        service_name = getattr(self, "selected_row_name", None)
+        if not service_name or not service_name.endswith(".service"):
+            return
+
+        modes = {
+            "override": [],
+            "full": ["--full"],
+            "force-full": ["--force", "--full"],
+        }
+        if mode not in modes:
+            return
+
+        command = [
+            "xfce4-terminal", "--disable-server", "--hold", "--execute",
+            "sudo", "env", "SYSTEMD_EDITOR=nano", "systemctl", "edit",
+            *modes[mode], "--", service_name,
+        ]
+        try:
+            subprocess.Popen(command, start_new_session=True)
+        except OSError as error:
+            self.service_dialog_label.config(text=str(error))
 
 
     def service_information_gui(self):
