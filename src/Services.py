@@ -133,7 +133,7 @@ class Services:
         self.right_click_menu.add_command(label=_tr("Help"), command=self.on_service_help_item_activate)
         self.right_click_menu.add_command(label=_tr("Details"), accelerator="(Enter)", command=self.on_details_item_activate)
 
-        self.right_click_menu.bind("<FocusOut>", self.right_click_menu_close)
+        # Do not unpost on FocusOut: opening a cascade submenu transfers focus.
 
         self.treeview.bind("<Button-3>", self.on_right_click)
         self.treeview.bind("<Double-1>", self.treeview_double_click_event)
