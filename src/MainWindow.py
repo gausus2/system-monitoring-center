@@ -524,6 +524,7 @@ class MainWindow():
         # Get software version
         with open(os.path.dirname(os.path.abspath(__file__)) + "/__version__") as reader:
             software_version = reader.read().strip()
+        software_version += " services-enhancements"  # Fork-specific About label
 
         # Define translators dictionary
         translators_dict = {"cs": "panmourovaty",
