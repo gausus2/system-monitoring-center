@@ -93,31 +93,44 @@ class Services:
         """
 
         self.right_click_menu = tk.Menu(self.treeview, tearoff=False, bd=3, activebackground="gray")
-        self.right_click_menu.add_command(label=_tr("Start"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("start"))
-        self.right_click_menu.add_command(label=_tr("Stop"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("stop"))
-        self.right_click_menu.add_command(label=_tr("Restart"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("restart"))
-        self.right_click_menu.add_command(label=_tr("Reload"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("reload"))
-        self.right_click_menu.add_command(label=_tr("Enable"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("enable"))
-        self.right_click_menu.add_command(label=_tr("Disable"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("disable"))
-        self.right_click_menu.add_command(label=_tr("Mask"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("mask"))
-        self.right_click_menu.add_command(label=_tr("Unmask"), activebackground="gray", command=lambda: self.on_service_manage_items_activate("unmask"))
+
+        # Service control actions provided by upstream.
+        self.right_click_menu.add_command(label=_tr("Start"), command=lambda: self.on_service_manage_items_activate("start"))
+        self.right_click_menu.add_command(label=_tr("Stop"), command=lambda: self.on_service_manage_items_activate("stop"))
+        self.right_click_menu.add_command(label=_tr("Restart"), command=lambda: self.on_service_manage_items_activate("restart"))
+        self.right_click_menu.add_command(label=_tr("Reload"), command=lambda: self.on_service_manage_items_activate("reload"))
         self.right_click_menu.add_separator()
-        self.right_click_menu.add_command(label="View unit (cat)", activebackground="gray", command=self.on_service_cat)
-        self.right_click_menu.add_command(label="List dependencies", activebackground="gray", command=self.on_service_dependencies)
-        self.right_click_menu.add_command(label="Reverse dependencies", activebackground="gray", command=lambda: self.on_service_inspect("reverse"))
-        self.right_click_menu.add_command(label="Show ordering", activebackground="gray", command=lambda: self.on_service_inspect("ordering"))
-        self.right_click_menu.add_command(label="Ordering: After (tree)", activebackground="gray", command=lambda: self.on_service_inspect("after"))
-        self.right_click_menu.add_command(label="Ordering: Before (tree)", activebackground="gray", command=lambda: self.on_service_inspect("before"))
-        self.right_click_menu.add_command(label="Verify unit (syntax)", activebackground="gray", command=lambda: self.on_service_diagnostics("verify"))
-        self.right_click_menu.add_command(label="Service errors (journal)", activebackground="gray", command=lambda: self.on_service_diagnostics("errors"))
-        self.right_click_menu.add_command(label="Daemon reload", activebackground="gray", command=lambda: self.on_service_diagnostics("daemon-reload"))
+        self.right_click_menu.add_command(label=_tr("Enable"), command=lambda: self.on_service_manage_items_activate("enable"))
+        self.right_click_menu.add_command(label=_tr("Disable"), command=lambda: self.on_service_manage_items_activate("disable"))
+        self.right_click_menu.add_command(label=_tr("Mask"), command=lambda: self.on_service_manage_items_activate("mask"))
+        self.right_click_menu.add_command(label=_tr("Unmask"), command=lambda: self.on_service_manage_items_activate("unmask"))
         self.right_click_menu.add_separator()
-        self.right_click_menu.add_command(label="Edit override", activebackground="gray", command=lambda: self.on_service_edit("override"))
-        self.right_click_menu.add_command(label="Edit full unit", activebackground="gray", command=lambda: self.on_service_edit("full"))
+
+        # Read-only inspection, logs and verification.
+        inspect_menu = tk.Menu(self.right_click_menu, tearoff=False)
+        inspect_menu.add_command(label="View unit (cat)", command=self.on_service_cat)
+        inspect_menu.add_command(label="Service journal (current boot)", command=lambda: self.on_service_diagnostics("journal"))
+        inspect_menu.add_command(label="Service errors (journal)", command=lambda: self.on_service_diagnostics("errors"))
+        inspect_menu.add_command(label="Verify unit (syntax)", command=lambda: self.on_service_diagnostics("verify"))
+        self.right_click_menu.add_cascade(label="Inspect / Logs", menu=inspect_menu)
+
+        dependencies_menu = tk.Menu(self.right_click_menu, tearoff=False)
+        dependencies_menu.add_command(label="List dependencies", command=self.on_service_dependencies)
+        dependencies_menu.add_command(label="Reverse dependencies", command=lambda: self.on_service_inspect("reverse"))
+        dependencies_menu.add_separator()
+        dependencies_menu.add_command(label="Show ordering", command=lambda: self.on_service_inspect("ordering"))
+        dependencies_menu.add_command(label="Ordering: After (tree)", command=lambda: self.on_service_inspect("after"))
+        dependencies_menu.add_command(label="Ordering: Before (tree)", command=lambda: self.on_service_inspect("before"))
+        self.right_click_menu.add_cascade(label="Dependencies / Ordering", menu=dependencies_menu)
+
+        edit_menu = tk.Menu(self.right_click_menu, tearoff=False)
+        edit_menu.add_command(label="Edit override", command=lambda: self.on_service_edit("override"))
+        edit_menu.add_command(label="Edit full unit", command=lambda: self.on_service_edit("full"))
+        self.right_click_menu.add_cascade(label="Edit unit", menu=edit_menu)
+        self.right_click_menu.add_command(label="Daemon reload", command=lambda: self.on_service_diagnostics("daemon-reload"))
         self.right_click_menu.add_separator()
-        self.right_click_menu.add_command(label=_tr("Help"), activebackground="gray", command=self.on_service_help_item_activate)
-        self.right_click_menu.add_separator()
-        self.right_click_menu.add_command(label=_tr("Details"), activebackground="gray", accelerator="(Enter)", command=self.on_details_item_activate)
+        self.right_click_menu.add_command(label=_tr("Help"), command=self.on_service_help_item_activate)
+        self.right_click_menu.add_command(label=_tr("Details"), accelerator="(Enter)", command=self.on_details_item_activate)
 
         self.right_click_menu.bind("<FocusOut>", self.right_click_menu_close)
 
@@ -246,6 +259,14 @@ if [ "$result" -eq 0 ]; then
     printf 'OK: No verification errors reported for %s.\\n' "$1"
 else
     printf 'FAILED: Verification returned exit code %s for %s.\\n' "$result" "$1"
+fi
+exit "$result"
+""",
+            "journal": """printf 'Journal for %s (current boot):\\n\\n' "$1"
+journalctl --boot --unit "$1" --no-pager --output=short-iso
+result=$?
+if [ "$result" -ne 0 ]; then
+    printf '\\nFAILED: journalctl returned exit code %s.\\n' "$result"
 fi
 exit "$result"
 """,
