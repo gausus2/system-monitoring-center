@@ -7,7 +7,7 @@ These are custom changes to [System Monitoring Center](https://github.com/hakand
 - **Single-process Services loading:** In `src/Libsysmon.py`, `get_services_information()` uses the existing single-process code path by setting `number_of_logical_cores = 2` locally. This worked around a Services-tab loading failure on Xubuntu 24.04.5 / AMD Ryzen 7 5700G. The setting does **not** change actual CPU core availability or other CPU-monitoring features.
 - **New Services context-menu actions:** `View unit (cat)`, `List dependencies`, `Reverse dependencies`, `Show ordering`, `Ordering: After (tree)`, `Ordering: Before (tree)`, `Verify unit (syntax)`, `Service journal (current boot)`, `Service errors (journal)`, `Daemon reload`, `Edit override`, and `Edit full unit` in `src/Services.py`. They use Xfce Terminal; read-only actions run without `sudo`, while editing actions use `sudo systemctl edit` and the `nano` editor. This integration targets Xubuntu/Xfce; it has not been verified on all desktop environments.
 
-## First-time clone using SSH
+- **Fork identifier in About:** The About dialog displays `3.4.1 services-enhancements` without modifying the upstream `src/__version__` file. This is implemented in `src/MainWindow.py`.\n\n## First-time clone using SSH
 
 ```bash
 git clone git@github.com:gausus2/system-monitoring-center.git
@@ -30,10 +30,10 @@ This script:
 
 1. Verifies that the local branch is `services-enhancements` and stops if tracked files contain uncommitted changes.
 2. Runs `git pull --ff-only origin services-enhancements` over your configured GitHub connection (SSH when cloned using the SSH URL).
-3. Checks Python syntax in **both** `src/Services.py` and `src/Libsysmon.py` without creating `__pycache__`.
+3. Checks Python syntax in `src/Services.py`, `src/Libsysmon.py`, and `src/MainWindow.py` without creating `__pycache__`.
 4. Checks for the installed application under `/usr/share/system-monitoring-center/systemmonitoringcenter/`.
-5. Creates one-time backups of both installed files named `.pre-services-enhancements`; it **does not overwrite existing backups**.
-6. Installs both modified Python files using `sudo install -m 644`.
+5. Creates one-time backups of the three installed files named `.pre-services-enhancements`; it **does not overwrite existing backups**.
+6. Installs all three modified Python files using `sudo install -m 644`.
 7. Reminds you to restart System Monitoring Center.
 
 If the syntax check or Git update fails, the script stops before copying files. Close the application before running the update, then restart it after installation.
@@ -90,7 +90,7 @@ Close the application and run:
 ```bash
 DEST=/usr/share/system-monitoring-center/systemmonitoringcenter
 sudo cp -a "$DEST/Services.py.pre-services-enhancements" "$DEST/Services.py"
-sudo cp -a "$DEST/Libsysmon.py.pre-services-enhancements" "$DEST/Libsysmon.py"
+sudo cp -a "$DEST/Libsysmon.py.pre-services-enhancements" "$DEST/Libsysmon.py"\nsudo cp -a "$DEST/MainWindow.py.pre-services-enhancements" "$DEST/MainWindow.py"
 ```
 
 Restore commands require the backup files to exist. Package upgrades may overwrite the modified installed files; reinstall from this fork afterward if needed.
