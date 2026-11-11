@@ -64,7 +64,8 @@ main{padding:12px 16px}#timeline{border:1px solid #334154;border-radius:10px;ove
 <div id="status">Preparing timeline…</div></div>
 <div class="controls">
 <input id="search" type="search" placeholder="Find a service or unit…" aria-label="Search units">
-<label><input type="checkbox" id="services" checked>Services only</label>
+<label for="unit-type">Unit type</label>
+<select id="unit-type" aria-label="Filter by unit type"><option value="service">Services</option><option value="all">All units</option></select>
 <button id="focus" type="button">Focus selected</button>
 <button id="minus" type="button">− Zoom</button>
 <button id="plus" type="button">+ Zoom</button>
@@ -84,7 +85,7 @@ const svg = original.querySelector("svg");
 const timeline = document.getElementById("timeline");
 const rowsNode = document.getElementById("rows");
 const search = document.getElementById("search");
-const services = document.getElementById("services");
+const unitType = document.getElementById("unit-type");
 const status = document.getElementById("status");
 const toggle = document.getElementById("toggle");
 let zoom = 1;
@@ -119,6 +120,31 @@ original.style.visibility = "visible";
 original.style.position = "static";
 original.style.left = "auto";
 original.style.top = "auto";
+// Populate the unit-type filter from the actual SVG labels.
+const typeNames = {
+  service:"Services", mount:"Mounts", device:"Devices", socket:"Sockets",
+  target:"Targets", timer:"Timers", slice:"Slices", path:"Paths",
+  automount:"Automounts", scope:"Scopes", swap:"Swap"
+};
+const typeOrder = ["service","mount","automount","device","socket","target",
+                   "timer","path","swap","slice","scope"];
+const counts = new Map();
+for(const entry of entries) {
+  const type=entry.name.split(".").pop();
+  counts.set(type,(counts.get(type)||0)+1);
+}
+unitType.replaceChildren();
+const makeOption=(value,name,count)=>{
+  const opt=document.createElement("option");
+  opt.value=value;
+  opt.textContent=name+" ("+count+")";
+  unitType.appendChild(opt);
+};
+makeOption("all","All units",entries.length);
+for(const type of typeOrder) {
+  if(counts.has(type)) makeOption(type,typeNames[type]||type,counts.get(type));
+}
+unitType.value=counts.has("service")?"service":"all";
 const allBars = entries.flatMap(e => e.bars);
 const left = allBars.length ? Math.min(...allBars.map(b=>b.x)) : 0;
 const right = allBars.length ? Math.max(...allBars.map(b=>b.x+b.w)) : 1;
@@ -127,7 +153,7 @@ const baseWidth = 1500;
 function div(cls,text) { const e=document.createElement("div");e.className=cls;if(text!==undefined)e.textContent=text;return e; }
 function render() {
   const term=search.value.trim().toLowerCase();
-  const filtered=entries.filter(e=>(!services.checked || e.name.endsWith(".service")) &&
+  const filtered=entries.filter(e=>(unitType.value==="all" || e.name.endsWith("."+unitType.value)) &&
                                    (!term || e.name.toLowerCase().includes(term)));
   const width=baseWidth*zoom;
   rowsNode.replaceChildren();
@@ -170,7 +196,9 @@ function render() {
 }
 function focus(){
   if(raw){raw=false;original.style.display="none";timeline.style.display="block";toggle.textContent="Original SVG";}
-  if(services.checked && !selected.endsWith(".service"))services.checked=false;
+  const selectedType=selected.split(".").pop();
+  if(unitType.value!=="all" && unitType.value!==selectedType)
+    unitType.value=counts.has(selectedType)?selectedType:"all";
   if(search.value && !selected.toLowerCase().includes(search.value.toLowerCase()))search.value="";
   render();
   const row=Array.from(rowsNode.querySelectorAll(".row")).find(r=>r.dataset.unit===selected);
@@ -180,7 +208,7 @@ function focus(){
   timeline.scrollLeft=bar?Math.max(0,(bar.x-left)/span*baseWidth*zoom-300):0;
 }
 search.addEventListener("input",render);
-services.addEventListener("change",render);
+unitType.addEventListener("change",render);
 document.getElementById("focus").onclick=focus;
 document.getElementById("minus").onclick=()=>{zoom=Math.max(.5,zoom/1.25);render();focus();};
 document.getElementById("plus").onclick=()=>{zoom=Math.min(5,zoom*1.25);render();focus();};
