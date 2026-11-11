@@ -18,48 +18,46 @@ git switch --track origin/services-enhancements
 
 If the branch already exists locally, use `git switch services-enhancements` instead.
 
-## Get updates from this fork
+## Install and update — one command
 
-Run from the repository directory:
-
-```bash
-git switch services-enhancements
-git pull --ff-only origin services-enhancements
-```
-
-If local edits prevent the pull, check `git status` first and commit or stash them. Avoid `git reset --hard` unless you intend to discard local changes.
-
-## Install or update the modified files
-
-These instructions apply when System Monitoring Center is installed under `/usr/share/system-monitoring-center/systemmonitoringcenter/`. Run from the repository root, and close the application first.
+After cloning the repository and switching to `services-enhancements`, use **the same command every time**, from the repository root:
 
 ```bash
-DEST=/usr/share/system-monitoring-center/systemmonitoringcenter
-test -f "$DEST/Services.py" && test -f "$DEST/Libsysmon.py" || { echo "Installation not found"; exit 1; }
-
-# Back up the installed files once. Do not overwrite backups on later updates.
-for file in Services.py Libsysmon.py; do
-    if [ ! -e "$DEST/$file.pre-services-enhancements" ]; then
-        sudo cp -a "$DEST/$file" "$DEST/$file.pre-services-enhancements"
-    fi
-done
-
-# Validate syntax without generating __pycache__ files.
-python3 - <<'PY'
-from pathlib import Path
-for name in ("Services.py", "Libsysmon.py"):
-    path = Path("src") / name
-    compile(path.read_bytes(), str(path), "exec")
-    print(f"{name}: syntax OK")
-PY
-
-sudo install -m 644 src/Services.py "$DEST/Services.py"
-sudo install -m 644 src/Libsysmon.py "$DEST/Libsysmon.py"
+bash ./update-services.sh
 ```
 
-Restart the application and open **Services**.
+This script:
 
-**To update later:** first run `git pull --ff-only` as above, then reinstall the two modified Python files.
+1. Verifies that the local branch is `services-enhancements` and stops if tracked files contain uncommitted changes.
+2. Runs `git pull --ff-only origin services-enhancements` over your configured GitHub connection (SSH when cloned using the SSH URL).
+3. Checks Python syntax in **both** `src/Services.py` and `src/Libsysmon.py` without creating `__pycache__`.
+4. Checks for the installed application under `/usr/share/system-monitoring-center/systemmonitoringcenter/`.
+5. Creates one-time backups of both installed files named `.pre-services-enhancements`; it **does not overwrite existing backups**.
+6. Installs both modified Python files using `sudo install -m 644`.
+7. Reminds you to restart System Monitoring Center.
+
+If the syntax check or Git update fails, the script stops before copying files. Close the application before running the update, then restart it after installation.
+
+The script currently targets the standard **Xubuntu / system-package installation path**. It is not intended for Flatpak installations. `sudo`, `git`, `bash`, and `python3` must be available.
+
+For the first clone:
+
+```bash
+git clone git@github.com:gausus2/system-monitoring-center.git
+cd system-monitoring-center
+git fetch origin
+git switch --track origin/services-enhancements
+bash ./update-services.sh
+```
+
+For all subsequent updates:
+
+```bash
+cd /path/to/system-monitoring-center
+bash ./update-services.sh
+```
+
+If a local change prevents the pull, use `git status` and commit or stash the changes first. Do not use `git reset --hard` unless you intend to discard those changes.
 
 ## How to use the new actions
 
