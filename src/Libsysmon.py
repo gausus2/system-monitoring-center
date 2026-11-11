@@ -4692,7 +4692,7 @@ def get_services_information():
     # Get number of online logical CPU cores (this operation is repeated in every loop because 
     # number of online CPU cores may be changed by user and this may cause wrong calculation of
     # CPU usage percentage data of the processes even if this is a very rare situation.)
-    number_of_logical_cores = get_number_of_logical_cores()
+    number_of_logical_cores = 2  # Workaround: use single-process systemctl show
 
     # Do not use multiprocessing with Python 3.14 and higher versions. Multiple GUI instances are opened.
     minor_version = int(get_current_python_version().split(".")[1])
