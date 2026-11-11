@@ -123,6 +123,7 @@ class ServiceJournal(ttk.Frame):
             command.extend(["--priority", level])
         if since:
             command.extend(["--since", since])
+        self._records = []
         self.refresh_button.configure(state="disabled")
         self.status.configure(text="Loading…")
         self._set_text("Loading journal for " + service + "…\n")
@@ -207,7 +208,10 @@ class ServiceJournal(ttk.Frame):
     def _set_text(self, text, tag=None):
         self.log.configure(state="normal")
         self.log.delete("1.0", "end")
-        self.log.insert("end", text, tag)
+        if tag:
+            self.log.insert("end", text, tag)
+        else:
+            self.log.insert("end", text)
         self.log.configure(state="disabled")
 
     def close(self):
