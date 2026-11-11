@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Update and install the Services enhancements from the gausus2 fork.
+# Test installer for the journal-development branch. Stable branch remains unchanged.
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="services-enhancements"
+BRANCH="journal-development"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
