@@ -88,13 +88,24 @@ class FileLogsTests(unittest.TestCase):
         start = datetime.datetime(2026, 11, 12, 12, tzinfo=tz)
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "plain.log"
-            path.write_text("foo\\nbar\n", encoding="utf-8")
+            path.write_text("foo\nbar\n", encoding="utf-8")
             with mock.patch.object(logs, "ROOT", directory), \
                  mock.patch.object(logs.os.path, "getmtime", return_value=start.timestamp()), \
                  mock.patch.object(logs.FileLogBoot, "boot_window",
                                    return_value=(start, None)):
                 with self.assertRaisesRegex(ValueError, "No recognizable"):
                     logs.read_lines(str(path), 2, boot="Current boot")
+
+    def test_last_scans_newest_bytes_in_large_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "large.log"
+            path.write_text("old line\n" * 40 + "NEW last line\n",
+                            encoding="utf-8")
+            with mock.patch.object(logs, "ROOT", directory), \
+                 mock.patch.object(logs, "MAX_SCAN_BYTES", 64):
+                lines, partial = logs.read_lines(str(path), 1)
+                self.assertEqual(lines, ["NEW last line"])
+                self.assertTrue(partial)
 
     def test_binary_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
