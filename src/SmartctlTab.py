@@ -57,6 +57,14 @@ def details_text(disk, smart, writes_unit="Auto"):
             if smart.get("rated_tbw_used_pct") is not None else "-"),
         "Rating source: " + (smart.get("rated_tbw_source") or "-"),
     ]
+    if disk.get("mount_error"):
+        parts.append("Mount points: Unavailable (" + disk["mount_error"] + ")")
+    elif disk.get("mount_points"):
+        parts.append("Mount points (currently mounted):")
+        for device, point in disk["mount_points"]:
+            parts.append("  " + str(device or disk["path"]) + " → " + point)
+    else:
+        parts.append("Mount points: Not mounted")
     for key, label, suffix in (
         ("temperature", "Temperature", " °C"),
         ("hours", "Power-on time", ""),
