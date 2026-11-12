@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Test installer for journal-colors-development; existing working branches are untouched.
+# Test installer for warp-log-levels-development; working branches are untouched.
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="journal-colors-development"
+BRANCH="warp-log-levels-development"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
@@ -24,7 +24,7 @@ printf '==> Checking Python syntax\n'
 python3 - <<'PY'
 from pathlib import Path
 
-for name in ("Services.py", "Libsysmon.py", "MainWindow.py", "ServiceBootPlot.py", "ServiceJournal.py", "SystemLogs.py"):
+for name in ("Services.py", "Libsysmon.py", "MainWindow.py", "ServiceBootPlot.py", "ServiceJournal.py", "SystemLogs.py", "WarpJournal.py"):
     path = Path("src") / name
     compile(path.read_bytes(), str(path), "exec")
     print(f"{name}: syntax OK")
@@ -46,7 +46,7 @@ for name in Services.py Libsysmon.py MainWindow.py; do
 done
 
 # Install the new helper (not present in original upstream packages).
-for name in ServiceBootPlot.py ServiceJournal.py SystemLogs.py; do
+for name in ServiceBootPlot.py ServiceJournal.py SystemLogs.py WarpJournal.py; do
     sudo install -m 644 -- "src/$name" "$DEST/$name"
     printf 'Installed %s\n' "$name"
 done
