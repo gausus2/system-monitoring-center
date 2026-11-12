@@ -6,13 +6,14 @@ unprivileged; explicit administrator reads try sudo -n and then pkexec.
 """
 import json
 import os
+from datetime import datetime
 import shutil
 import subprocess
 
 from . import SmartEndurance
 
 LSBLK = ["lsblk", "-J", "-d", "-b", "-o", "NAME,PATH,TYPE,MODEL,SIZE,TRAN"]
-MOUNT_LSBLK = ["lsblk", "-J", "-T", "-o", "PATH,TYPE,MOUNTPOINTS"]
+MOUNT_LSBLK = ["lsblk", "-J", "-T", "-o", "PATH,TYPE,FSTYPE,MOUNTPOINTS"]
 SMARTCTL = ["smartctl", "-a", "-j"]
 TIMEOUT = 12
 ATTRIBUTE_NAMES = {
@@ -88,6 +89,62 @@ def mounted_paths(run=subprocess.run):
         if node.get("type") == "disk" and isinstance(path, str):
             result[path] = sorted(set(found), key=lambda pair: (pair[1], pair[0] or ""))
         return found
+    for block in blocks:
+        walk(block)
+    return result
+
+
+def filesystem_creation_dates(run=subprocess.run, admin=False,
+                              which=shutil.which):
+    """Read ext4 mkfs dates from partition superblocks, without writes.
+
+    A normal scan does not escalate. Explicit Admin scans may try sudo -n
+    if ordinary tune2fs access is denied. Never ask for a password here.
+    """
+    process = run(MOUNT_LSBLK, capture_output=True, text=True,
+                  timeout=TIMEOUT, check=False)
+    if process.returncode != 0:
+        raise RuntimeError(process.stderr.strip() or "lsblk failed")
+    try:
+        blocks = json.loads(process.stdout).get("blockdevices", [])
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("Invalid lsblk JSON") from exc
+
+    result = {}
+    def walk(node):
+        dates = []
+        for child in node.get("children") or []:
+            dates.extend(walk(child))
+        path = node.get("path")
+        if (node.get("fstype") == "ext4"
+                and isinstance(path, str) and path.startswith("/dev/")):
+            commands = [["tune2fs", "-l", path]]
+            # Admin is an explicit user action. Do not retry in normal mode.
+            if admin and which("sudo") and which("tune2fs"):
+                commands.append(["sudo", "-n", "--", which("tune2fs"), "-l", path])
+            for command in commands:
+                try:
+                    output = run(command, capture_output=True, text=True,
+                                 errors="replace", timeout=TIMEOUT,
+                                 check=False, env=dict(os.environ, LC_ALL="C"))
+                except (OSError, subprocess.TimeoutExpired):
+                    break
+                if output.returncode == 0:
+                    for line in output.stdout.splitlines():
+                        if line.startswith("Filesystem created:"):
+                            value = line.partition(":")[2].strip()
+                            try:
+                                stamp = datetime.strptime(
+                                    value, "%a %b %d %H:%M:%S %Y")
+                            except ValueError:
+                                break
+                            dates.append((stamp.strftime("%Y-%m-%d %H:%M:%S"),
+                                          path))
+                            break
+                    break
+        if node.get("type") == "disk" and isinstance(path, str):
+            result[path] = sorted(set(dates))
+        return dates
     for block in blocks:
         walk(block)
     return result
@@ -296,8 +353,13 @@ def collect(run=subprocess.run, admin=False):
     except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as exc:
         mounts = {}
         mount_error = str(exc)
+    try:
+        filesystem_dates = filesystem_creation_dates(run, admin=admin)
+    except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired):
+        filesystem_dates = {}
     results = []
     for disk in disks:
+        disk["filesystem_dates"] = filesystem_dates.get(disk["path"], [])
         disk["mount_points"] = mounts.get(disk["path"], [])
         disk["mount_error"] = mount_error
         smart = (read_admin(disk["path"], run) if admin
