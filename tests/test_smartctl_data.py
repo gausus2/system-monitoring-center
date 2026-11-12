@@ -76,6 +76,48 @@ class SmartctlTests(unittest.TestCase):
             module.parse_smart({"nvme_smart_health_information_log": {
                 "data_units_written": "invalid"}})["writes_bytes"])
 
+    def test_ata_same_id_241_has_vendor_specific_units(self):
+        samsung = module.parse_smart({
+            "model_name": "Samsung SSD 870 EVO 1TB",
+            "ata_smart_attributes": {"table": [{
+                "id": 241, "name": "Total_LBAs_Written",
+                "raw": {"value": 2_000_000_000}}]}})
+        self.assertEqual(samsung["writes_bytes"], 1_024_000_000_000)
+        self.assertIn("Samsung", samsung["writes_source"])
+        kingston = module.parse_smart({
+            "model_name": "KINGSTON SA400S37240G",
+            "ata_smart_attributes": {"table": [{
+                "id": 241, "name": "Host_Writes_GB",
+                "raw": {"value": 1024}}]}})
+        self.assertEqual(kingston["writes_bytes"], 1_024_000_000_000)
+        self.assertIn("Kingston", kingston["writes_source"])
+
+    def test_ata_unknown_id_241_is_not_guessed(self):
+        for model, name in (
+            ("Unknown SSD", "Total_LBAs_Written"),
+            ("KINGSTON SA400S37240G", "Total_LBAs_Written"),
+            ("Samsung SSD 870 EVO 1TB", "Host_Writes_GB"),
+            ("Some Other SSD", "NAND_Writes_1GiB"),
+        ):
+            with self.subTest(model=model, name=name):
+                data = module.parse_smart({
+                    "model_name": model,
+                    "ata_smart_attributes": {"table": [{
+                        "id": 241, "name": name,
+                        "raw": {"value": 100}}]}})
+                self.assertIsNone(data["writes_bytes"])
+                self.assertIsNone(data["writes_source"])
+
+    def test_nvme_counter_takes_precedence_over_ata_guess(self):
+        data = module.parse_smart({
+            "model_name": "Samsung SSD NVMe",
+            "nvme_smart_health_information_log": {"data_units_written": 2000},
+            "ata_smart_attributes": {"table": [{
+                "id": 241, "name": "Total_LBAs_Written",
+                "raw": {"value": 2000}}]}})
+        self.assertEqual(data["writes_bytes"], 1_024_000_000)
+        self.assertIn("NVMe", data["writes_source"])
+
     def test_status_not_assumed_good_without_evidence(self):
         self.assertEqual(module.parse_smart({})["health"], "Unknown")
         self.assertEqual(module.parse_smart({"smart_status":{"passed":False}})
