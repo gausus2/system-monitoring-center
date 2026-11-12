@@ -34,6 +34,21 @@ class SmartFormattingTests(unittest.TestCase):
         smart.pop("firmware")
         self.assertIn("Firmware: -", scope["details_text"](disk, smart))
 
+    def test_ext4_dates_in_disk_details(self):
+        disk = {"path": "/dev/nvme2n1", "model": "Samsung",
+                "size": 2_000_000_000_000, "transport": "nvme",
+                "filesystem_dates": [
+                    ("2024-02-27 21:11:50", "/dev/nvme2n1p6"),
+                    ("2024-03-20 14:56:20", "/dev/nvme2n1p4")]}
+        smart = {"health": "Passed", "attributes": {}, "messages": []}
+        details = scope["details_text"](disk, smart)
+        self.assertIn("Oldest filesystem created (ext4): 2024-02-27 21:11:50",
+                      details)
+        self.assertIn("/dev/nvme2n1p4 → 2024-03-20 14:56:20", details)
+        disk["filesystem_dates"] = []
+        self.assertIn("Filesystem creation dates (ext4): Not available",
+                      scope["details_text"](disk, smart))
+
     def test_disk_details_show_current_mounts(self):
         smart = {"health": "Passed", "attributes": {}, "messages": []}
         disk = {"path": "/dev/nvme0n1", "model": "NVMe",
