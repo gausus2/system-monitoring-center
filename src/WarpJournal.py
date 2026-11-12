@@ -24,6 +24,14 @@ FILTER_PRIORITY = {
 }
 
 
+def timestamp_microseconds(entry):
+    """Journal timestamps used to normalize normal and reverse query output."""
+    try:
+        return int(entry.get("__REALTIME_TIMESTAMP", 0))
+    except (TypeError, ValueError, AttributeError):
+        return 0
+
+
 def message_text(value):
     """journalctl JSON encodes non-UTF8/binary MESSAGE fields as byte lists."""
     if isinstance(value, list) and all(
