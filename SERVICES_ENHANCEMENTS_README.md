@@ -708,8 +708,14 @@ device. A missing or zero (not reported) count shows `-`.
 (1 GB = 10^9 bytes, 1 TB = 10^12, 1 PB = 10^15).
 Auto picks GB/TB/PB from magnitude. Changing the selector instantly
 reformats the data already loaded; it does **not** rerun smartctl or
-reauthenticate. ATA/SATA vendor-specific writes counters are not
-assumed to use the same units; they remain `-` unless a safe
-conversion is implemented in a later revision.
+reauthenticate. ATA/SATA vendor-specific writes counters are **never converted
+solely by SMART ID**. The code currently recognizes selected, documented
+model/name combinations: Samsung SATA SSD attribute 241 named
+`Total_LBAs_Written` uses 512 bytes per LBA, while Kingston SATA SSD
+attribute 241 explicitly named `Host_Writes_GB` or
+`Lifetime_Writes_from_Host_System` uses decimal GB. The model name and
+attribute name must both match; unknown variants remain `-`.
+Disk details expose `Writes source` for traceability. In particular,
+NAND writes and host writes are not interchangeable.
 Tests: `tests/test_smartctl_formatting.py` and
 `tests/test_smartctl_data.py`.
