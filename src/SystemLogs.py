@@ -6,11 +6,14 @@ existing Services journal or the main window's tab implementation.
 """
 from tkinter import ttk
 import glob
+import queue
 import re
 import subprocess
+import threading
 
 from . import Common
 from .ServiceJournal import ServiceJournal
+from . import JournalUnitTypes
 
 
 class SystemLogs(ttk.Frame):
@@ -81,6 +84,10 @@ class SystemLogs(ttk.Frame):
         self.journal.grid(row=1, column=0, sticky="nsew")
         self._loaded = False
         self._namespaces_discovered = False
+        self._type_cache = {}
+        self._type_pending = set()
+        self._type_results = queue.Queue()
+        self.after(200, self._poll_unit_types)
 
     def refresh_namespaces(self):
         """Refresh selectable names without changing the current selection."""
@@ -100,7 +107,40 @@ class SystemLogs(ttk.Frame):
                 "*" if selected == "All namespaces" else selected
             )
             self.journal.open_system(name, namespace=namespace)
+            if name == "system":
+                self._load_unit_types(namespace)
         self._loaded = True
+
+    def _load_unit_types(self, namespace):
+        """Enumerate available journal unit types outside the Tk event loop."""
+        if namespace in self._type_cache:
+            self.journal.set_available_unit_types(self._type_cache[namespace])
+            return
+        self.journal.set_available_unit_types([])
+        if namespace in self._type_pending:
+            return
+        self._type_pending.add(namespace)
+
+        def worker():
+            found = JournalUnitTypes.discover_types(namespace)
+            self._type_results.put((namespace, found))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _poll_unit_types(self):
+        try:
+            while True:
+                namespace, found = self._type_results.get_nowait()
+                self._type_pending.discard(namespace)
+                self._type_cache[namespace] = found
+                selected = self.namespace.get()
+                current = (None if selected == "Default"
+                           else "*" if selected == "All namespaces" else selected)
+                if self.source.get() == "System journal" and current == namespace:
+                    self.journal.set_available_unit_types(found)
+        except queue.Empty:
+            pass
+        self.after(200, self._poll_unit_types)
 
     def activate(self):
         """Load the default source only once when the user first opens the tab."""
