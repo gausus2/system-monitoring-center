@@ -62,7 +62,8 @@ def display_sender(entry):
         return manager_unit
 
     unit = entry.get("_SYSTEMD_UNIT")
-    if unit_type(unit) == "service" and sender != unit:
+    if (unit_type(unit) == "service" and sender != unit
+            and not sender.startswith(unit + "[")):
         return unit + " " + sender
     return sender
 
