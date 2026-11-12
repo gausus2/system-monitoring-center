@@ -24,6 +24,16 @@ class SmartFormattingTests(unittest.TestCase):
         self.assertEqual(format_hours(0), "0 d 0 h")
         self.assertEqual(format_hours(None), "-")
 
+    def test_disk_details_firmware(self):
+        disk = {"path": "/dev/nvme0n1", "model": "Test",
+                "size": 1_000_000_000_000, "transport": "nvme"}
+        smart = {"health": "Passed", "firmware": "S5Z42105",
+                 "attributes": {}, "messages": []}
+        self.assertIn("Firmware: S5Z42105",
+                      scope["details_text"](disk, smart))
+        smart.pop("firmware")
+        self.assertIn("Firmware: -", scope["details_text"](disk, smart))
+
     def test_disk_details_show_current_mounts(self):
         smart = {"health": "Passed", "attributes": {}, "messages": []}
         disk = {"path": "/dev/nvme0n1", "model": "NVMe",
