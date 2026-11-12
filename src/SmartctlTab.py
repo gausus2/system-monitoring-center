@@ -58,6 +58,15 @@ def details_text(disk, smart, writes_unit="Auto"):
             if smart.get("rated_tbw_used_pct") is not None else "-"),
         "Rating source: " + (smart.get("rated_tbw_source") or "-"),
     ]
+    dates = disk.get("filesystem_dates") or []
+    if dates:
+        parts.append("Oldest filesystem created (ext4): " + dates[0][0])
+        parts.append("Filesystem creation dates (ext4 partitions):")
+        for created, path in dates:
+            parts.append("  " + path + " → " + created)
+    else:
+        parts.append("Filesystem creation dates (ext4): Not available"
+                     " (try Read SMART (Admin))")
     if disk.get("mount_error"):
         parts.append("Mount points: Unavailable (" + disk["mount_error"] + ")")
     elif disk.get("mount_points"):
