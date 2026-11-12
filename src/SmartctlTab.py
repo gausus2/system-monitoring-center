@@ -127,12 +127,13 @@ class SmartctlTab(ttk.Frame):
         frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=1)
         columns = ("device", "model", "size", "health", "temp", "hours",
-                   "writes", "rated_tbw", "tbw_used")
+                   "writes", "rated_tbw", "tbw_used", "nvme_used", "nvme_errors")
         self.table = ttk.Treeview(
             frame, columns=columns, show="headings", selectmode="browse")
-        widths = (132, 215, 90, 112, 75, 100, 110, 90, 90)
+        widths = (132, 215, 90, 112, 75, 100, 110, 90, 90, 125, 135)
         labels = ("Disk", "Model", "Size", "SMART", "Temp °C",
-                  "Power-on", "Total writes", "Rated TBW", "TBW used %")
+                  "Power-on", "Total writes", "Rated TBW", "TBW used %",
+                  "NVMe used %", "NVMe media errors")
         for column, label, width in zip(columns, labels, widths):
             self.table.heading(column, text=label)
             self.table.column(column, width=width, stretch=(column == "model"))
@@ -145,6 +146,14 @@ class SmartctlTab(ttk.Frame):
         self.table.configure(yscrollcommand=scroll.set,
                              xscrollcommand=hscroll.set)
         self.table.bind("<<TreeviewSelect>>", self._select)
+        self.table.bind("<Control-c>", self._copy_table_row)
+        self.table.bind("<Control-C>", self._copy_table_row)
+        self.table.bind("<Button-3>", self._show_table_menu)
+        self._table_context_cell = None
+        self.table_menu = tk.Menu(self.table, tearoff=False)
+        self.table_menu.add_command(label="Copy cell", command=self._copy_table_cell)
+        self.table_menu.add_command(label="Copy model", command=self._copy_table_model)
+        self.table_menu.add_command(label="Copy selected row", command=self._copy_table_row)
 
         detail_frame = ttk.Frame(self)
         detail_frame.grid(row=3, column=0, sticky="nsew", pady=(8, 0))
@@ -156,15 +165,10 @@ class SmartctlTab(ttk.Frame):
             detail_frame, text="Copy details", command=self._copy_all_details,
             style="SmartAdmin.TButton")
         self.copy_details_button.grid(row=0, column=0, sticky="e")
-        # The details view scales with the configured GUI font size.
-        self.details_font = Common.font_normal.copy()
-        original_size = self.details_font.actual("size")
-        scaled_size = max(1, round(abs(original_size) * 1.2))
-        self.details_font.configure(
-            size=scaled_size if original_size >= 0 else -scaled_size)
+        # Match the application's configured GUI font size exactly.
         self.details = tk.Text(
             detail_frame, height=9, state="disabled", wrap="word",
-            font=self.details_font, cursor="xterm", exportselection=False)
+            font=Common.font_normal, cursor="xterm", exportselection=False)
         self.details.grid(row=1, column=0, sticky="nsew", pady=(4, 0))
         self.details.bind("<Control-c>", self._copy_selected_details)
         self.details.bind("<Control-C>", self._copy_selected_details)
@@ -208,6 +212,49 @@ class SmartctlTab(ttk.Frame):
             except (OSError, RuntimeError, ValueError) as error:
                 self._queue.put((generation, [], str(error)))
         threading.Thread(target=worker, daemon=True).start()
+
+    def _clipboard_text(self, value):
+        self.clipboard_clear()
+        self.clipboard_append(str(value))
+
+    def _selected_table_item(self):
+        selected = self.table.selection()
+        return selected[0] if selected else None
+
+    def _copy_table_row(self, event=None):
+        item = self._selected_table_item()
+        if item:
+            values = self.table.item(item, "values")
+            self._clipboard_text("\\t".join(map(str, values)))
+        return "break"
+
+    def _copy_table_model(self):
+        item = self._selected_table_item()
+        if item:
+            self._clipboard_text(self.table.set(item, "model"))
+
+    def _copy_table_cell(self):
+        item = self._selected_table_item()
+        if item and self._table_context_cell:
+            self._clipboard_text(self.table.set(item, self._table_context_cell))
+
+    def _show_table_menu(self, event):
+        item = self.table.identify_row(event.y)
+        column = self.table.identify_column(event.x)
+        if not item:
+            return
+        self.table.selection_set(item)
+        self.table.focus(item)
+        columns = tuple(self.table["columns"])
+        index = int(column[1:]) - 1 if column.startswith("#") else -1
+        self._table_context_cell = (
+            columns[index] if 0 <= index < len(columns) else None)
+        self.table_menu.entryconfigure(
+            "Copy cell", state="normal" if self._table_context_cell else "disabled")
+        try:
+            self.table_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.table_menu.grab_release()
 
     def _copy_selected_details(self, event=None):
         try:
@@ -270,7 +317,11 @@ class SmartctlTab(ttk.Frame):
                 "-" if smart.get("rated_tbw") is None else
                     "%s TB" % smart["rated_tbw"],
                 "-" if smart.get("rated_tbw_used_pct") is None else
-                    "%.2f %%" % smart["rated_tbw_used_pct"]))
+                    "%.2f %%" % smart["rated_tbw_used_pct"],
+                "-" if smart.get("percentage_used") is None else
+                    "%s %%" % smart["percentage_used"],
+                "-" if smart.get("media_errors") is None else
+                    str(smart["media_errors"])))
             self._rows[path] = disk, smart
         if self._data:
             unavailable = sum(
