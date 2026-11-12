@@ -1,5 +1,49 @@
 # System Monitoring Center – Services enhancements
 
+## System Logs test branch
+
+**Branch:** `system-logs-development` (created from the working `services-enhancements` production branch). Production and `services-stable` are not modified.
+
+This experiment introduces a **sixth main tab: System Logs**, next to System. Its
+initial log-source selector supports **System journal** and **Kernel journal**.
+Both use the existing `ServiceJournal.py` filtering, search, JSON decoding,
+background loading, severity colors and font scaling. The service-specific
+journal under Services is unchanged. The new `SystemLogs.py` has a small source
+registry, so future file-log readers can be added as separate providers without
+redesigning the page. Regular file logs are **not implemented yet**.
+
+System journal uses `journalctl --namespace=* --output=json` without a unit
+restriction; Kernel journal adds `--kernel`. The usual boot, priority, time,
+line-count and search controls remain available. Reads follow the current
+user's journal permissions; the displayed results are snapshots, not live
+follow. The tab deliberately does not save index 5 as the default tab, so
+switching back to production does not leave a config value that the five-tab
+build cannot restore. During this test the new tab reuses System's icon.
+
+### Install for testing
+
+Close System Monitoring Center, then run in the local clone:
+
+```bash
+git fetch origin
+git switch -c system-logs-development --track origin/system-logs-development
+bash ./update-services.sh
+```
+
+If this test branch already exists locally, use `git switch system-logs-development` instead. The test-branch updater checks that the current branch is `system-logs-development` and installs `SystemLogs.py` alongside the existing modified files.
+
+### Restore production
+
+```bash
+git switch services-enhancements
+bash ./update-services.sh
+```
+
+Close and restart the application after installing either version. In testing,
+check that Services and the service journal continue to work and that the
+new System Logs tab loads both journal sources without opening a terminal.
+
+
 ## Integrated journal viewer (production)
 
 The journal viewer was tested on the `journal-development` branch and promoted to
