@@ -152,10 +152,28 @@ class SmartctlTab(ttk.Frame):
         detail_frame.rowconfigure(1, weight=1)
         ttk.Label(detail_frame, text="Disk details",
                   font=Common.font_bold).grid(row=0, column=0, sticky="w")
+        self.copy_details_button = ttk.Button(
+            detail_frame, text="Copy details", command=self._copy_all_details,
+            style="SmartAdmin.TButton")
+        self.copy_details_button.grid(row=0, column=0, sticky="e")
+        # The details view scales with the configured GUI font size.
+        self.details_font = Common.font_normal.copy()
+        original_size = self.details_font.actual("size")
+        scaled_size = max(1, round(abs(original_size) * 1.2))
+        self.details_font.configure(
+            size=scaled_size if original_size >= 0 else -scaled_size)
         self.details = tk.Text(
             detail_frame, height=9, state="disabled", wrap="word",
-            font=Common.font_normal)
+            font=self.details_font, cursor="xterm", exportselection=False)
         self.details.grid(row=1, column=0, sticky="nsew", pady=(4, 0))
+        self.details.bind("<Control-c>", self._copy_selected_details)
+        self.details.bind("<Control-C>", self._copy_selected_details)
+        self.details.bind("<Control-a>", self._select_all_details)
+        self.details.bind("<Control-A>", self._select_all_details)
+        self.details_menu = tk.Menu(self.details, tearoff=False)
+        self.details_menu.add_command(label="Copy selection", command=self._copy_selected_details)
+        self.details_menu.add_command(label="Copy all", command=self._copy_all_details)
+        self.details.bind("<Button-3>", self._show_details_menu)
         details_scrollbar = ttk.Scrollbar(
             detail_frame, orient="vertical", command=self.details.yview)
         details_scrollbar.grid(row=1, column=1, sticky="ns", pady=(4, 0))
@@ -190,6 +208,32 @@ class SmartctlTab(ttk.Frame):
             except (OSError, RuntimeError, ValueError) as error:
                 self._queue.put((generation, [], str(error)))
         threading.Thread(target=worker, daemon=True).start()
+
+    def _copy_selected_details(self, event=None):
+        try:
+            value = self.details.get("sel.first", "sel.last")
+        except tk.TclError:
+            return "break"
+        self.clipboard_clear()
+        self.clipboard_append(value)
+        return "break"
+
+    def _copy_all_details(self, event=None):
+        value = self.details.get("1.0", "end-1c")
+        self.clipboard_clear()
+        self.clipboard_append(value)
+        return "break"
+
+    def _select_all_details(self, event=None):
+        self.details.tag_add("sel", "1.0", "end-1c")
+        self.details.mark_set("insert", "1.0")
+        return "break"
+
+    def _show_details_menu(self, event):
+        try:
+            self.details_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.details_menu.grab_release()
 
     def _set_details(self, value):
         self.details.configure(state="normal")
