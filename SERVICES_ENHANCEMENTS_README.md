@@ -803,3 +803,18 @@ The SMART disk **table rows and column headings** explicitly use
 inherit a parent font for Treeview. Row height follows font line height
 with a small padding. This avoids modifying the global Treeview style
 used by other tabs and does not affect table copy features.
+
+### Compact SMART table and draggable disk-details area
+
+The SMART table has narrower default column widths and shorter headings
+to keep **all 11 columns** visible at typical desktop window widths,
+while preserving manual column resizing and horizontal scrolling in
+smaller windows. The font still uses `Common.font_normal`.
+
+The disk list and **Disk details** are now two panes in a vertical
+`ttk.Panedwindow`: drag the horizontal divider to give either the
+list or the details more height. The initial layout reserves roughly
+one-third of the available region for the list (capped at 205 px) and
+the rest for details, with an 18-line requested detail height.
+The detail scrollbar, copy button, copy selection and read-only behavior
+are unchanged. No SMART read or data logic is modified.
