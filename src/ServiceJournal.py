@@ -12,6 +12,7 @@ from tkinter import ttk
 from . import Common
 from . import WarpJournal
 from . import JournalUnitTypes
+from . import JournalColors
 
 
 class ServiceJournal(ttk.Frame):
@@ -29,6 +30,7 @@ class ServiceJournal(ttk.Frame):
         self._last_refresh = None
         self._pending = None
         self._closed = False
+        self.advanced_colors = False
 
         # Match the application font scale while keeping the log monospaced.
         fixed_family = tkfont.nametofont("TkFixedFont").actual("family")
@@ -103,6 +105,14 @@ class ServiceJournal(ttk.Frame):
 
         self.refresh_button = ttk.Button(controls, text="Apply / Refresh", command=self.refresh)
         self.refresh_button.grid(row=0, column=refresh_column, sticky="s", padx=(1, 0))
+        if self.system_mode:
+            self.color_button = ttk.Button(
+                controls, text="Colors: Current",
+                command=self.toggle_journal_colors)
+            self.color_button.grid(
+                row=1, column=0, columnspan=2, sticky="w", pady=(6, 0))
+        else:
+            self.color_button = None
 
         searchrow = ttk.Frame(self)
         searchrow.pack(fill="x", pady=(0, 5))
@@ -148,8 +158,22 @@ class ServiceJournal(ttk.Frame):
             ("timestamp-critical", "#e05a60"),
         ):
             self.log.tag_configure(name, foreground=color, font=self.timestamp_font)
+        if self.system_mode:
+            for style, color in JournalColors.STYLES.items():
+                self.log.tag_configure("advanced-" + style, foreground=color)
+            self.log.tag_configure("advanced-timestamp", font=self.timestamp_font)
 
         self.after(100, self._poll_results)
+
+    def toggle_journal_colors(self):
+        """Switch colors without rereading the journal."""
+        if not self.system_mode:
+            return
+        self.advanced_colors = not self.advanced_colors
+        self.color_button.configure(
+            text=("Colors: Log advanced (Kate)" if self.advanced_colors
+                  else "Colors: Current"))
+        self._render_records()
 
     def set_available_unit_types(self, types):
         """Merge journal-discovered unit types with the common predefined ones."""
@@ -393,6 +417,16 @@ class ServiceJournal(ttk.Frame):
                 timestamp_tag = ("timestamp-critical" if priority <= 3
                                  else "timestamp-warning" if priority == 4
                                  else "timestamp-normal")
+                if self.system_mode and self.advanced_colors:
+                    line, base, spans = JournalColors.advanced_line(
+                        when, priority, sender, message)
+                    start = self.log.index("end-1c")
+                    self.log.insert("end", line, "advanced-" + base)
+                    for begin, end, style in spans:
+                        self.log.tag_add(
+                            "advanced-" + style,
+                            f"{start}+{begin}c", f"{start}+{end}c")
+                    continue
                 self.log.insert("end", when, timestamp_tag)
                 prefix = "  %-6s " % names[priority]
                 sender_part = "%-26s " % sender
