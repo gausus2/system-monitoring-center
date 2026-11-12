@@ -58,15 +58,22 @@ def details_text(disk, smart, writes_unit="Auto"):
             if smart.get("rated_tbw_used_pct") is not None else "-"),
         "Rating source: " + (smart.get("rated_tbw_source") or "-"),
     ]
-    dates = disk.get("filesystem_dates") or []
-    if dates:
-        parts.append("Oldest filesystem created (ext4): " + dates[0][0])
-        parts.append("Filesystem creation dates (ext4 partitions):")
-        for created, path in dates:
-            parts.append("  " + path + " → " + created)
+    ext4_dates = disk.get("filesystem_dates") or []
+    ntfs_dates = disk.get("ntfs_root_dates") or []
+    parts.append("Filesystem date information:")
+    if ext4_dates or ntfs_dates:
+        entries = ([(created, path, "ext4", "filesystem created")
+                    for created, path in ext4_dates] +
+                   [(created, path, "NTFS", "root directory created")
+                    for created, path in ntfs_dates])
+        for created, path, fstype, meaning in sorted(entries):
+            parts.append("  %s (%s): %s [%s]" %
+                         (path, fstype, created, meaning))
+        parts.append("Note: These dates do not establish the SSD's age;"
+                     " cloned or reformatted volumes can differ.")
     else:
-        parts.append("Filesystem creation dates (ext4): Not available"
-                     " (try Read SMART (Admin))")
+        parts.append("  Not available (try Read SMART (Admin);"
+                     " NTFS requires ntfsinfo)")
     if disk.get("mount_error"):
         parts.append("Mount points: Unavailable (" + disk["mount_error"] + ")")
     elif disk.get("mount_points"):
