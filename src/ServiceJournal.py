@@ -112,6 +112,16 @@ class ServiceJournal(ttk.Frame):
         self.log.tag_configure("sender", foreground="#65c76b")
         self.log.tag_configure("error", foreground="#e05a60")
         self.log.tag_configure("boot", foreground="#a3b5cb")
+        # Bold the timestamp without overriding the severity color.
+        bold_log_font = self.log_font.copy()
+        bold_log_font.configure(weight="bold")
+        self.timestamp_font = bold_log_font
+        for name, color in (
+            ("timestamp-normal", "#cccccc"),
+            ("timestamp-warning", "#dca640"),
+            ("timestamp-critical", "#e05a60"),
+        ):
+            self.log.tag_configure(name, foreground=color, font=self.timestamp_font)
 
         self.after(100, self._poll_results)
 
@@ -203,8 +213,17 @@ class ServiceJournal(ttk.Frame):
                     except (ValueError, TypeError):
                         continue
                     message = entry.get("MESSAGE", "")
-                    if not isinstance(message, str):
+                    if isinstance(message, list) and all(
+                            isinstance(value, int) and 0 <= value <= 255
+                            for value in message):
+                        # journalctl --output=json represents binary MESSAGE
+                        # fields as arrays of byte values (e.g. Warp logs).
+                        message = bytes(message).decode("utf-8", errors="replace")
+                    elif not isinstance(message, str):
                         message = str(message)
+                    # Do not interpret embedded terminal control sequences
+                    # as source text; this viewer applies its own colors.
+                    message = re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]", "", message)
                     try:
                         priority = int(entry.get("PRIORITY", 6))
                     except (TypeError, ValueError):
@@ -285,7 +304,11 @@ class ServiceJournal(ttk.Frame):
                        else ("info" if priority >= 6 else "normal"))
                 # Keep warning/error lines uniformly colored. For normal
                 # priorities, color only the identifier/PID in green.
-                prefix = "%s  %-6s " % (when, names[priority])
+                timestamp_tag = ("timestamp-critical" if priority <= 3
+                                 else "timestamp-warning" if priority == 4
+                                 else "timestamp-normal")
+                self.log.insert("end", when, timestamp_tag)
+                prefix = "  %-6s " % names[priority]
                 sender_part = "%-26s " % sender
                 message_part = message.replace("\r", "").replace("\n", " ⏎ ") + "\n"
                 self.log.insert("end", prefix, tag)
