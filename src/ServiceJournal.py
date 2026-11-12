@@ -5,7 +5,10 @@ import queue
 import subprocess
 import threading
 import tkinter as tk
+import tkinter.font as tkfont
 from tkinter import ttk
+
+from . import Common
 
 
 class ServiceJournal(ttk.Frame):
@@ -20,9 +23,15 @@ class ServiceJournal(ttk.Frame):
         self._pending = None
         self._closed = False
 
+        # Match the application font scale while keeping the log monospaced.
+        fixed_family = tkfont.nametofont("TkFixedFont").actual("family")
+        self.log_font = tkfont.Font(
+            family=fixed_family, size=Common.font_normal.actual("size")
+        )
+
         header = ttk.Frame(self)
         header.pack(fill="x", pady=(0, 5))
-        self.heading = ttk.Label(header, text="Service Journal", font=("TkDefaultFont", 11, "bold"))
+        self.heading = ttk.Label(header, text="Service Journal", font=Common.font_bold)
         self.heading.pack(side="left")
         self.close_button = ttk.Button(header, text="Close", command=self.close, width=8)
         self.close_button.pack(side="right")
@@ -57,20 +66,20 @@ class ServiceJournal(ttk.Frame):
         )):
             box = ttk.Frame(controls)
             box.grid(row=0, column=column, sticky="w", padx=(0, 7))
-            ttk.Label(box, text=label).pack(anchor="w")
+            ttk.Label(box, text=label, font=Common.font_normal).pack(anchor="w")
             ttk.Combobox(box, textvariable=var, state="readonly",
-                         values=values, width=width).pack(fill="x")
+                         values=values, width=width, font=Common.font_normal).pack(fill="x")
 
         self.refresh_button = ttk.Button(controls, text="Apply / Refresh", command=self.refresh)
         self.refresh_button.grid(row=0, column=4, sticky="s", padx=(1, 0))
 
         searchrow = ttk.Frame(self)
         searchrow.pack(fill="x", pady=(0, 5))
-        ttk.Label(searchrow, text="Search in loaded messages:").pack(side="left", padx=(0, 6))
-        searchentry = ttk.Entry(searchrow, textvariable=self.search_var)
+        ttk.Label(searchrow, text="Search in loaded messages:", font=Common.font_normal).pack(side="left", padx=(0, 6))
+        searchentry = ttk.Entry(searchrow, textvariable=self.search_var, font=Common.font_normal)
         searchentry.pack(side="left", fill="x", expand=True)
         self.search_var.trace_add("write", self._search_changed)
-        self.status = ttk.Label(searchrow, text="Choose a service")
+        self.status = ttk.Label(searchrow, text="Choose a service", font=Common.font_normal)
         self.status.pack(side="right", padx=(8, 0))
 
         logframe = ttk.Frame(self)
@@ -78,7 +87,7 @@ class ServiceJournal(ttk.Frame):
         logframe.columnconfigure(0, weight=1)
         logframe.rowconfigure(0, weight=1)
         self.log = tk.Text(logframe, wrap="none", state="disabled", height=11,
-                           font=("TkFixedFont", 10), takefocus=True)
+                           font=self.log_font, takefocus=True)
         self.log.grid(row=0, column=0, sticky="nsew")
         vertical = ttk.Scrollbar(logframe, orient="vertical", command=self.log.yview)
         vertical.grid(row=0, column=1, sticky="ns")
@@ -112,7 +121,7 @@ class ServiceJournal(ttk.Frame):
         self._generation += 1
         generation = self._generation
         service = self.service
-        command = ["journalctl", "--no-pager", "--quiet", "--output=json",
+        command = ["journalctl", "--namespace=*", "--no-pager", "--quiet", "--output=json",
                    "--unit", service, "--lines", self.lines_var.get()]
         boot = self.boot_values.get(self.boot_var.get())
         level = self.level_values.get(self.level_var.get())
