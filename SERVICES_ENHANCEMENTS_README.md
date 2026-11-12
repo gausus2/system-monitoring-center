@@ -1,5 +1,64 @@
 # System Monitoring Center – Services enhancements
 
+## Warp embedded log levels (isolated test branch)
+
+**Branch:** `warp-log-levels-development` (forked from the working
+`journal-colors-development`). No production or earlier working branch
+is modified.
+
+In **System Logs → System journal → Namespace: warp**, the viewer now
+recognizes the timestamp and embedded Warp log level at the **start** of
+messages written by `warp-svc.service` / `warp-svc`. It maps:
+`TRACE/DEBUG → DEBUG`, `INFO → INFO`, `WARN → WARN`,
+`ERROR → ERROR`. Messages from other processes, and Warp entries that
+do not match the expected format, continue using their original journald
+`PRIORITY`. Colors and displayed level reflect the effective priority.
+
+Unlike ordinary journald `--priority`, selecting **Error and higher** or
+**Warning and higher** in the Warp namespace filters by these effective
+priorities, including Warp errors registered as journald INFO. The reader
+scans the selected journal **newest first** and stops once it has found
+100/500/1000/5000 matching entries. It does not accumulate a huge Warp
+journal in memory. Boot, time range, namespace, and optional text searches
+remain active. An operation without enough matches may still need to scan a
+large journal and may reach the existing 45-second timeout.
+
+This is intentionally limited to **System journal + the named `warp`
+namespace**. The Services journal and all other namespaces retain the
+previous journalctl priority semantics. No other service's logging is
+reinterpreted merely because its message contains the word `error`.
+The approach does not modify Warp's systemd unit or its log files.
+
+### Test
+
+Close System Monitoring Center, then:
+
+```bash
+git fetch origin
+git switch -c warp-log-levels-development --track origin/warp-log-levels-development
+bash ./update-services.sh
+```
+
+If the branch already exists locally, use `git switch warp-log-levels-development`
+instead. The test installer checks the active branch, compiles all modified
+Python files (including the new `WarpJournal.py`) and installs the helper.
+
+Test **Namespace: warp**, **All levels**, **Error and higher**,
+**Warning and higher**, and **Debug (all)**. Compare against the
+embedded levels in `journalctl --namespace=warp -o cat`. Filtering is
+based on Warp's levels, not the journald `PRIORITY=6` field.
+
+To restore the previous color version:
+
+```bash
+git switch journal-colors-development
+bash ./update-services.sh
+```
+
+Restart the application after either installation. The earlier updater does
+not delete the new `WarpJournal.py` helper, but its previous
+`ServiceJournal.py` does not import it.
+
 ## Timestamp emphasis and binary journal messages (test branch)
 
 The timestamp is now **bold for every priority**, retaining the color of its
