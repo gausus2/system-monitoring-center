@@ -18,6 +18,7 @@ class ServiceJournal(ttk.Frame):
         super().__init__(parent, padding=5)
         self.system_mode = system_mode
         self.log_source = "system"
+        self.namespace = "*"  # Existing Services behavior remains all namespaces.
         self.service = None
         self._generation = 0
         self._results = queue.Queue()
@@ -105,12 +106,13 @@ class ServiceJournal(ttk.Frame):
 
         self.after(100, self._poll_results)
 
-    def open_system(self, source="system"):
+    def open_system(self, source="system", namespace=None):
         """Reuse the journal display for system-wide or kernel-only messages."""
         if source not in ("system", "kernel"):
             raise ValueError("Unknown journal source: " + str(source))
         self.system_mode = True
         self.log_source = source
+        self.namespace = namespace  # None means default; "*" means all.
         self.service = None
         self.heading.configure(text="System Journal" if source == "system"
                                else "Kernel Journal")
@@ -135,8 +137,11 @@ class ServiceJournal(ttk.Frame):
         self._generation += 1
         generation = self._generation
         service = self.service
-        command = ["journalctl", "--namespace=*", "--no-pager", "--quiet",
+        command = ["journalctl", "--no-pager", "--quiet",
                    "--output=json", "--lines", self.lines_var.get()]
+        namespace = self.namespace if self.system_mode else "*"
+        if namespace is not None:
+            command.append("--namespace=" + namespace)
         if self.system_mode:
             if self.log_source == "kernel":
                 # Unlike --kernel, this field match does not imply current boot.
