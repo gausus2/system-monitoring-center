@@ -122,8 +122,11 @@ class SmartctlTab(ttk.Frame):
             font=Common.font_normal)
         self.status.grid(row=1, column=0, sticky="w", pady=(0, 6))
 
-        frame = ttk.Frame(self)
-        frame.grid(row=2, column=0, sticky="nsew")
+        # A draggable divider gives Disk details useful space by default
+        # without forcing the disk list to occupy most of the window.
+        self.disk_panes = ttk.Panedwindow(self, orient=tk.VERTICAL)
+        self.disk_panes.grid(row=2, column=0, sticky="nsew")
+        frame = ttk.Frame(self.disk_panes)
         frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=1)
         columns = ("device", "model", "size", "health", "temp", "hours",
@@ -132,16 +135,18 @@ class SmartctlTab(ttk.Frame):
         # Assign an explicit, private style instead of the theme default.
         style.configure(
             "SmartDisk.Treeview", font=Common.font_normal,
-            rowheight=max(20, Common.font_normal.metrics("linespace") + 6))
+            rowheight=max(18, Common.font_normal.metrics("linespace") + 4))
         style.configure(
             "SmartDisk.Treeview.Heading", font=Common.font_normal)
         self.table = ttk.Treeview(
             frame, columns=columns, show="headings", selectmode="browse",
-            style="SmartDisk.Treeview")
-        widths = (132, 215, 90, 112, 75, 100, 110, 90, 90, 125, 135)
-        labels = ("Disk", "Model", "Size", "SMART", "Temp °C",
-                  "Power-on", "Total writes", "Rated TBW", "TBW used %",
-                  "NVMe used %", "NVMe media errors")
+            height=6, style="SmartDisk.Treeview")
+        # Compact headings and widths keep all 11 columns visible on a
+        # typical ~940px window; users can still resize any column.
+        widths = (86, 172, 64, 63, 53, 77, 78, 75, 62, 67, 78)
+        labels = ("Disk", "Model", "Size", "SMART", "°C",
+                  "Power-on", "Writes", "Rated TBW", "TBW %",
+                  "NVMe wear %", "Media errs")
         for column, label, width in zip(columns, labels, widths):
             self.table.heading(column, text=label)
             self.table.column(column, width=width, stretch=(column == "model"))
@@ -163,8 +168,7 @@ class SmartctlTab(ttk.Frame):
         self.table_menu.add_command(label="Copy model", command=self._copy_table_model)
         self.table_menu.add_command(label="Copy selected row", command=self._copy_table_row)
 
-        detail_frame = ttk.Frame(self)
-        detail_frame.grid(row=3, column=0, sticky="nsew", pady=(8, 0))
+        detail_frame = ttk.Frame(self.disk_panes)
         detail_frame.columnconfigure(0, weight=1)
         detail_frame.rowconfigure(1, weight=1)
         ttk.Label(detail_frame, text="Disk details",
@@ -175,7 +179,7 @@ class SmartctlTab(ttk.Frame):
         self.copy_details_button.grid(row=0, column=0, sticky="e")
         # Match the application's configured GUI font size exactly.
         self.details = tk.Text(
-            detail_frame, height=9, state="disabled", wrap="word",
+            detail_frame, height=18, state="disabled", wrap="word",
             font=Common.font_normal, cursor="xterm", exportselection=False)
         self.details.grid(row=1, column=0, sticky="nsew", pady=(4, 0))
         self.details.bind("<Control-c>", self._copy_selected_details)
@@ -190,9 +194,24 @@ class SmartctlTab(ttk.Frame):
             detail_frame, orient="vertical", command=self.details.yview)
         details_scrollbar.grid(row=1, column=1, sticky="ns", pady=(4, 0))
         self.details.configure(yscrollcommand=details_scrollbar.set)
+        self.disk_panes.add(frame, weight=1)
+        self.disk_panes.add(detail_frame, weight=3)
+        self._split_initialized = False
         self.after(150, self._poll)
 
+    def _set_initial_split(self):
+        # Called only once after the pane is actually laid out.
+        height = self.disk_panes.winfo_height()
+        if height < 240:
+            return
+        # Reserve room for the tree heading and a few disk rows; leave
+        # the majority of the remaining height to the SMART details.
+        self.disk_panes.sashpos(0, max(115, min(205, int(height * 0.33))))
+        self._split_initialized = True
+
     def activate(self):
+        if not self._split_initialized:
+            self.after(100, self._set_initial_split)
         if not self._loaded:
             self._loaded = True
             self.refresh()
