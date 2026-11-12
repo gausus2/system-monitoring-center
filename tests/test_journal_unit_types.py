@@ -21,6 +21,23 @@ class UnitTypesTests(unittest.TestCase):
         self.assertIsNone(types.unit_type(None))
         self.assertIsNone(types.unit_type("foo/bar.service"))
 
+    def test_manager_unit_label(self):
+        event = {"SYSLOG_IDENTIFIER": "systemd", "_PID": "1",
+                 "UNIT": "systemd-udevd.service",
+                 "MESSAGE": "Starting systemd-udevd.service"}
+        self.assertEqual(types.manager_unit_label(event), "systemd-udevd.service")
+        self.assertIsNone(types.manager_unit_label(
+            dict(event, _PID="524")))
+        self.assertIsNone(types.manager_unit_label(
+            dict(event, SYSLOG_IDENTIFIER="systemd-udevd")))
+        self.assertIsNone(types.manager_unit_label(
+            {"SYSLOG_IDENTIFIER": "systemd", "_PID": "1",
+             "MESSAGE": "Starting systemd-udevd.service"}))
+        self.assertEqual(types.manager_unit_label({
+            "SYSLOG_IDENTIFIER": "systemd", "_PID": 1,
+            "OBJECT_SYSTEMD_UNIT": "home.mount",
+        }), "home.mount")
+
     def test_glob_is_safe(self):
         self.assertEqual(types.unit_glob("mount"), "*.mount")
         self.assertIsNone(types.unit_glob(None))
