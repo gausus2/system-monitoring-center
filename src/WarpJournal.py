@@ -7,6 +7,7 @@ requested number of matching entries rather than buffering the whole journal.
 import json
 import re
 import subprocess
+import threading
 import time
 
 
@@ -64,12 +65,20 @@ def read_entries(command, max_entries, level, timeout=45):
         stderr=subprocess.PIPE, text=True, errors="replace",
     )
     stopped_early = False
-    timed_out = False
+    expired = threading.Event()
+
+    def stop_on_timeout():
+        if process.poll() is None:
+            expired.set()
+            process.kill()
+
+    watchdog = threading.Timer(timeout, stop_on_timeout)
+    watchdog.daemon = True
+    watchdog.start()
     try:
         for line in process.stdout:
-            if time.monotonic() > deadline:
-                timed_out = True
-                break
+            if expired.is_set() or time.monotonic() > deadline:
+                raise subprocess.TimeoutExpired(command, timeout)
             try:
                 entry = json.loads(line)
             except (ValueError, TypeError):
@@ -81,12 +90,16 @@ def read_entries(command, max_entries, level, timeout=45):
                 if len(collected) >= max_entries:
                     stopped_early = True
                     break
-        if timed_out:
+        if expired.is_set():
             raise subprocess.TimeoutExpired(command, timeout)
         if stopped_early:
             # Do not continue reading a noisy Warp journal after finding
             # the requested N matching messages.
-            process.terminate()
+            if process.poll() is None:
+                try:
+                    process.terminate()
+                except ProcessLookupError:
+                    pass
             try:
                 process.wait(timeout=2)
             except subprocess.TimeoutExpired:
@@ -101,6 +114,7 @@ def read_entries(command, max_entries, level, timeout=45):
             if returncode and not no_match:
                 raise RuntimeError(stderr or "journalctl failed (exit %s)" % returncode)
     finally:
+        watchdog.cancel()
         if process.poll() is None:
             process.kill()
             process.wait()
