@@ -58,6 +58,24 @@ class SmartctlTests(unittest.TestCase):
         self.assertEqual(data["percentage_used"], 7)
         self.assertEqual(data["media_errors"], 5)
 
+    def test_nvme_total_written_uses_decimal_512000_byte_units(self):
+        # NVMe Data Units Written is rounded up in 1000 x 512-byte blocks.
+        data = module.parse_smart({
+            "nvme_smart_health_information_log": {
+                "data_units_written": 2000000, "critical_warning": 0}})
+        self.assertEqual(data["writes_bytes"], 1024000000000)
+        self.assertEqual(
+            module.parse_smart({"nvme_smart_health_information_log": {
+                "data_units_written": "100000000000000000000"}})["writes_bytes"],
+            51200000000000000000000000)
+        self.assertIsNone(
+            module.parse_smart({"nvme_smart_health_information_log": {
+                "data_units_written": 0}})["writes_bytes"])
+        self.assertIsNone(module.parse_smart({})["writes_bytes"])
+        self.assertIsNone(
+            module.parse_smart({"nvme_smart_health_information_log": {
+                "data_units_written": "invalid"}})["writes_bytes"])
+
     def test_status_not_assumed_good_without_evidence(self):
         self.assertEqual(module.parse_smart({})["health"], "Unknown")
         self.assertEqual(module.parse_smart({"smart_status":{"passed":False}})
