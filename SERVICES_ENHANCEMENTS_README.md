@@ -579,3 +579,24 @@ structured journal priority; specific tokens retain their own colors.
 ANSI escape codes are removed from the displayed text rather than executed.
 The original System/Kernel journal display colors and filters are unchanged.
 `tests/test_log_highlight.py` checks matching and overlapping spans.
+
+### Boot filter for Other logs
+
+**Other logs** now has a separate **Boot** dropdown: All available,
+Current boot (default), Previous boot (-1), Boot -2, Boot -3.
+Unlike journal entries, ordinary text files do not contain `_BOOT_ID`.
+The viewer estimates the time range: for the current boot, the kernel's
+`/proc/stat` `btime` (equivalent to `uptime -s`); for earlier boots,
+the first and last journal message timestamps in those boots. It filters
+text-log entries by recognized ISO-8601, syslog or Apache-style dates,
+with undated continuation lines assigned to the preceding dated entry.
+Boot/time filtering happens before search/First/Last line limits.
+
+This is **not exact boot identity**: missing journal history, clock
+changes, unrecognized timestamp formats or absent rotated files can
+mean that no entries are available for a selected boot. When no
+timestamps can be parsed, the viewer explicitly asks for
+**All available** rather than incorrectly claiming zero events.
+Files larger than 64 MiB are scanned from the tail for Last N, and
+from the head for First N; partial scans are flagged in the status.
+The existing System/Kernel journal filters are unchanged.
