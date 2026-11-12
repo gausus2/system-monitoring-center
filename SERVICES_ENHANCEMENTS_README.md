@@ -30,6 +30,14 @@ The suspected Services-tab failure was not conclusively reproduced. Test that th
 
 These are custom changes to [System Monitoring Center](https://github.com/hakandundar34coding/system-monitoring-center) v3.4.1, maintained in the [gausus2 fork](https://github.com/gausus2/system-monitoring-center) on the `services-enhancements` branch. They are **not** part of the original upstream project.
 
+## Journal font scaling (test branch)
+
+The embedded journal now uses the application's existing `Common.font_normal`
+size, derived from the **Settings → Font Scale** preference. Its message text
+remains monospaced, while headings, filter labels, comboboxes and search input
+use the application's scaled fonts. Restart the application after changing
+Font Scale, as with the rest of System Monitoring Center.
+
 ## Journal namespaces (test branch)
 
 The embedded journal now uses `journalctl --namespace=*` for every filtered query. This includes entries from the default journal and named namespaces (such as `netdata`) in time order. The existing boot, priority, time, line-count, and text-search filters remain unchanged. Journal permissions still apply. This change is being tested in `journal-development` before production promotion.
