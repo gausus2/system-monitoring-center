@@ -6,9 +6,24 @@ import subprocess
 import unittest
 from unittest import mock
 
-path = Path(__file__).resolve().parents[1] / "src" / "SmartctlData.py"
-spec = importlib.util.spec_from_file_location("SmartctlData", path)
+import sys
+import types
+
+path = Path(__file__).resolve().parents[1] / "src"
+pkg = types.ModuleType("smarttests")
+pkg.__path__ = []
+sys.modules[pkg.__name__] = pkg
+
+endurance_spec = importlib.util.spec_from_file_location(
+    "smarttests.SmartEndurance", path / "SmartEndurance.py")
+endurance = importlib.util.module_from_spec(endurance_spec)
+sys.modules[endurance_spec.name] = endurance
+endurance_spec.loader.exec_module(endurance)
+
+spec = importlib.util.spec_from_file_location(
+    "smarttests.SmartctlData", path / "SmartctlData.py")
 module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
 spec.loader.exec_module(module)
 
 
