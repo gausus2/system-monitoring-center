@@ -17,6 +17,7 @@ from . import Common
 from .ServiceJournal import ServiceJournal
 from . import JournalUnitTypes
 from .FileLogs import FileLogViewer, available_logs
+from . import FileLogBoot
 
 
 class SystemLogs(ttk.Frame):
@@ -80,6 +81,16 @@ class SystemLogs(ttk.Frame):
         self.file_button.configure(menu=self.file_menu)
         self.file_menu.configure(postcommand=self._build_file_menu)
         self._file_path = None
+        # This selects which filenames appear in Other logs, not which
+        # lines are visible after opening a file.
+        ttk.Label(toolbar, text="Files since:", font=Common.font_normal).grid(
+            row=1, column=3, sticky="e", padx=(16, 6), pady=(5, 0))
+        self.file_menu_boot = tk.StringVar(value="Current boot")
+        self.file_boot_selector = ttk.Combobox(
+            toolbar, textvariable=self.file_menu_boot, state="readonly",
+            values=FileLogBoot.BOOT_LABELS, width=19, font=Common.font_normal)
+        self.file_boot_selector.grid(
+            row=1, column=4, sticky="e", pady=(5, 0))
 
         ttk.Label(toolbar, text="Namespace:", font=Common.font_normal).grid(
             row=0, column=3, sticky="e", padx=(16, 6))
@@ -106,9 +117,16 @@ class SystemLogs(ttk.Frame):
     def _build_file_menu(self):
         """Refresh available /var/log files when the menu opens."""
         self.file_menu.delete(0, "end")
-        paths = available_logs()
+        selection = self.file_menu_boot.get()
+        try:
+            paths = available_logs(selection)
+        except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as error:
+            self.file_menu.add_command(
+                label="Boot history unavailable", state="disabled")
+            return
         if not paths:
-            self.file_menu.add_command(label="No text logs found", state="disabled")
+            self.file_menu.add_command(
+                label="No log files modified in this boot period", state="disabled")
             return
         groups = {}
         for path in paths:
