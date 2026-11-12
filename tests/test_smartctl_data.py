@@ -88,11 +88,11 @@ class SmartctlTests(unittest.TestCase):
                 {"path": "/dev/nvme0n1p2", "type": "part", "fstype": "ntfs"},
                 {"path": "/dev/nvme0n1p3", "type": "part", "fstype": "ntfs"}]}]}
         ntfs_output = (
-            "Dumping Inode 5 (0x5)\\n"
-            "Dumping attribute $STANDARD_INFORMATION (0x10) from mft record 5\\n"
-            " File Creation Time:    {date} UTC\\n"
-            "Dumping attribute $FILE_NAME (0x30) from mft record 5\\n"
-            " File Creation Time:    Tue Nov 10 12:22:20 2026 UTC\\n")
+            "Dumping Inode 5 (0x5)\n"
+            "Dumping attribute $STANDARD_INFORMATION (0x10) from mft record 5\n"
+            " File Creation Time:    {date} UTC\n"
+            "Dumping attribute $FILE_NAME (0x30) from mft record 5\n"
+            " File Creation Time:    Tue Nov 10 12:22:20 2026 UTC\n")
         dates = {
             "/dev/nvme0n1p2": "Fri Sep 29 08:45:11 2017",
             "/dev/nvme0n1p3": "Mon Jul 24 09:34:54 2023"}
