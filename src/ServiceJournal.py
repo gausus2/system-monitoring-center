@@ -271,8 +271,15 @@ class ServiceJournal(ttk.Frame):
                 if warp_mode:
                     # Reverse-stream until N matching effective priorities.
                     # Never read an unbounded Warp journal into Tkinter.
-                    entries = WarpJournal.read_entries(
-                        command, count, level, first=first)
+                    try:
+                        entries = WarpJournal.read_entries(
+                            command, count, level, first=first)
+                    except RuntimeError as error:
+                        if JournalUnitTypes.empty_unit_filter_result(
+                                command, 1, str(error)):
+                            entries = []
+                        else:
+                            raise
                 else:
                     run = subprocess.run(command, capture_output=True, text=True,
                                          errors="replace", timeout=45, check=False)
