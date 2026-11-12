@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Test installer for journal-unit-type-development; production untouched.
+# Production installer for services-enhancements, including journal unit-type filters.
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="journal-unit-type-development"
+BRANCH="services-enhancements"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
