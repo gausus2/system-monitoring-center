@@ -218,7 +218,7 @@ class MainWindow():
         self.main_tab_tb_frame = ttk.Frame(self.main_frame)
         self.main_tab_tb_frame.grid(row=0, column=0, sticky="n", padx=0, pady=0)
         # "equal" is an arbitrary key for the group
-        self.main_tab_tb_frame.columnconfigure((0, 1, 2, 3, 4, 5), minsize=110, uniform="equal")
+        self.main_tab_tb_frame.columnconfigure((0, 1, 2, 3, 4, 5, 6), minsize=100, uniform="equal")
 
         self.main_tab_var = tk.IntVar()
 
@@ -250,6 +250,12 @@ class MainWindow():
             self.image_path + "smc-system.png", self.main_tab_var, 5)
         self.system_logs_tb.grid(row=0, column=5, sticky="ew", padx=0, pady=0)
 
+        # SMART disk health: reuse the built-in disk icon.
+        self.smartctl_tb = Common.main_tab_togglebutton(
+            self.main_tab_tb_frame, "SMART",
+            self.image_path + "smc-disk.png", self.main_tab_var, 6)
+        self.smartctl_tb.grid(row=0, column=6, sticky="ew", padx=0, pady=0)
+
         # Separator between main tab togglebuttons and main tabs
         separator = ttk.Separator(self.main_frame, orient="horizontal")
         separator.grid(row=1, column=0, sticky="new", padx=0, pady=4)
@@ -279,6 +285,8 @@ class MainWindow():
         self.system_tab_main_frame = Common.tab_main_frame(self.main_tab_stack)
         self.system_logs_tab_main_frame = Common.tab_main_frame(self.main_tab_stack)
         self.system_logs_view = None
+        self.smartctl_tab_main_frame = Common.tab_main_frame(self.main_tab_stack)
+        self.smartctl_view = None
 
 
     def performance_tab_sub_tabs(self):
@@ -627,7 +635,7 @@ class MainWindow():
                 tab_refresh_time_difference = 0.4
         elif Config.current_main_tab in [1, 2]:
             tab_refresh_time_difference = 0.4
-        elif Config.current_main_tab in [3, 4, 5]:
+        elif Config.current_main_tab in [3, 4, 5, 6]:
             tab_refresh_time_difference = 1
 
         import time
@@ -650,6 +658,10 @@ class MainWindow():
         elif Config.current_main_tab == 5:
             if self.system_logs_view is not None:
                 self.system_logs_view.refresh()
+            return
+        elif Config.current_main_tab == 6:
+            if self.smartctl_view is not None:
+                self.smartctl_view.refresh()
             return
 
         self.main_gui_tab_loop()
@@ -960,6 +972,17 @@ class MainWindow():
                 self.system_logs_view = SystemLogs(self.system_logs_tab_main_frame)
                 self.system_logs_view.grid(row=0, column=0, sticky="nsew")
             self.system_logs_view.activate()
+            return
+
+        elif "selected" in self.smartctl_tb.state():
+            self.smartctl_tab_main_frame.tkraise()
+            # Keep last-tab preference unchanged for backwards compatibility.
+            Config.current_main_tab = 6
+            if self.smartctl_view is None:
+                from .SmartctlTab import SmartctlTab
+                self.smartctl_view = SmartctlTab(self.smartctl_tab_main_frame)
+                self.smartctl_view.grid(row=0, column=0, sticky="nsew")
+            self.smartctl_view.activate()
             return
 
 
