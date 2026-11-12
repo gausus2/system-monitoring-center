@@ -6,7 +6,7 @@ unprivileged; explicit administrator reads try sudo -n and then pkexec.
 """
 import json
 import os
-from datetime import datetime
+from email.utils import parsedate_to_datetime
 import shutil
 import subprocess
 
@@ -134,9 +134,8 @@ def filesystem_creation_dates(run=subprocess.run, admin=False,
                         if line.startswith("Filesystem created:"):
                             value = line.partition(":")[2].strip()
                             try:
-                                stamp = datetime.strptime(
-                                    value, "%a %b %d %H:%M:%S %Y")
-                            except ValueError:
+                                stamp = parsedate_to_datetime(value)
+                            except (TypeError, ValueError):
                                 break
                             dates.append((stamp.strftime("%Y-%m-%d %H:%M:%S"),
                                           path))
