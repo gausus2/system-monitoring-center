@@ -1,5 +1,17 @@
 # System Monitoring Center – Services enhancements
 
+## Timestamp emphasis and binary journal messages (test branch)
+
+The timestamp is now **bold for every priority**, retaining the color of its
+severity class. Warning and error lines retain their full-line colors.
+Some programs (notably Warp) write binary MESSAGE values; `journalctl
+--output=json` encodes these as an array of byte numbers. The shared
+viewer decodes valid byte arrays as UTF-8 with replacement for invalid bytes,
+then removes terminal escape sequences so its own priority-based coloring
+remains consistent. This does **not** change namespace routing. Named journal
+namespaces can legitimately contain records written by several cooperating
+processes (for example Netdata's plugin helpers).
+
 ## Journal color scheme test
 
 **Branch:** `journal-colors-development`. This is isolated from both the
