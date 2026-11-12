@@ -1,5 +1,26 @@
 # System Monitoring Center – Services enhancements
 
+## Journal color scheme test
+
+**Branch:** `journal-colors-development`. This is isolated from both the
+working `system-logs-development` branch and production
+`services-enhancements`.
+
+The first color experiment changes only rendering in the shared journal
+viewer:
+
+- Normal INFO, NOTICE and DEBUG messages: light gray (`#cccccc`).
+- Sender identifier and PID on normal messages: green (`#65c76b`).
+- WARN: entire line remains yellow (`#dca640`).
+- ERROR, CRITICAL, ALERT and EMERGENCY: entire line remains red (`#e05a60`).
+- Boot markers remain muted gray. Priority labels and all journal filters
+  continue to work as before.
+
+To test: `git switch journal-colors-development`, then
+`bash ./update-services.sh`. Close and restart System Monitoring Center.
+To restore the earlier tested appearance: `git switch system-logs-development`
+and run its own `bash ./update-services.sh`. Restart the program afterward.
+
 ## Empty journal searches (test branch)
 
 A `journalctl --grep` search with no matches can return exit status 1.
