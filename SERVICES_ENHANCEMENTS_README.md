@@ -12,8 +12,14 @@ journal under Services is unchanged. The new `SystemLogs.py` has a small source
 registry, so future file-log readers can be added as separate providers without
 redesigning the page. Regular file logs are **not implemented yet**.
 
-System journal uses `journalctl --namespace=* --output=json` without a unit
-restriction; Kernel journal matches `_TRANSPORT=kernel` (rather than `--kernel`, so **All boots** remains usable). The usual boot, priority, time,
+The System Logs **Namespace** selector defaults to **Default** (journalctl without
+a namespace switch), avoiding noisy named logs. **All namespaces** passes
+`--namespace=*`, while selecting a discovered named namespace passes
+`--namespace=NAME`. Names are discovered from local journal directories
+and `systemd-journald@NAME.service` instances. Kernel journal matches
+`_TRANSPORT=kernel` (rather than `--kernel`, so **All boots** remains usable).
+The namespace choice is independent of the log-source choice. Systemd normally
+records kernel messages only in the default namespace. The usual boot, priority, time,
 line-count and search controls remain available. Reads follow the current
 user's journal permissions; the displayed results are snapshots, not live
 follow. The tab deliberately does not save index 5 as the default tab, so
