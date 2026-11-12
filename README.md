@@ -68,14 +68,6 @@ The script checks the branch, pulls the latest version, runs regression
 tests and installs the updated modules using `sudo`. Close and restart
 System Monitoring Center after installation.
 
-
-
-```bash
-git clone --branch stable --single-branch https://github.com/gausus2/system-monitoring-center.git
-cd system-monitoring-center
-bash ./update-services.sh
-```
-
 ## Notes
 
 - SMART reads are read-only. Some disks require the **Read SMART (Admin)** button.
