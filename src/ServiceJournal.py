@@ -281,7 +281,9 @@ class ServiceJournal(ttk.Frame):
                         and any(arg.startswith("--grep=") for arg in command)
                         and not run.stdout.strip() and not run.stderr.strip()
                     )
-                    if run.returncode and not no_matches:
+                    no_unit_data = JournalUnitTypes.empty_unit_filter_result(
+                        command, run.returncode, run.stderr, run.stdout)
+                    if run.returncode and not (no_matches or no_unit_data):
                         self._results.put((generation, None, (run.stderr.strip()
                                           or "journalctl failed (exit %s)" % run.returncode)))
                         return
