@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Manufacturer-rated host-write endurance; decimal TBW. Ratings are not wear remaining or a failure threshold.",
+  "description": "Curated manufacturer-rated host-write endurance (decimal TBW). Exact model/capacity matching; source URL per entry. TBW is a reference rating, not a predicted failure threshold.",
   "entries": [
     {
       "model_regex": "^KINGSTON SKC3000S512G$",
@@ -141,6 +141,1288 @@
       "tbw": 2400,
       "series": "Samsung 990 PRO",
       "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G1B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 100,
+      "series": "WD Blue SATA SSD",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G1B0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 100,
+      "series": "WD Blue SATA SSD",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G1B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 200,
+      "series": "WD Blue SATA SSD",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G1B0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 200,
+      "series": "WD Blue SATA SSD",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T1B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 400,
+      "series": "WD Blue SATA SSD",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T1B0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 400,
+      "series": "WD Blue SATA SSD",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G2B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 100,
+      "series": "WD Blue 3D NAND",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G2B0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 100,
+      "series": "WD Blue 3D NAND",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G2B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 200,
+      "series": "WD Blue 3D NAND",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T2B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 400,
+      "series": "WD Blue 3D NAND",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T2B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 500,
+      "series": "WD Blue 3D NAND",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T2B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 600,
+      "series": "WD Blue 3D NAND",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G3B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 100,
+      "series": "WD Blue SA510",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G3B0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 100,
+      "series": "WD Blue SA510",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G3B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 200,
+      "series": "WD Blue SA510",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G3B0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 200,
+      "series": "WD Blue SA510",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T3B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 400,
+      "series": "WD Blue SA510",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T3B0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 400,
+      "series": "WD Blue SA510",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T3B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 500,
+      "series": "WD Blue SA510",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T3B0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 500,
+      "series": "WD Blue SA510",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T3B0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 600,
+      "series": "WD Blue SA510",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G1B0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 150,
+      "series": "WD Blue SN500",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G1B0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Blue SN500",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G2B0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 150,
+      "series": "WD Blue SN550",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G2B0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Blue SN550",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G3B0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 150,
+      "series": "WD Blue SN570",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G3B0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Blue SN570",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T3B0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Blue SN570",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T3B0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 900,
+      "series": "WD Blue SN570",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G3B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 150,
+      "series": "WD Blue SN580",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G3B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Blue SN580",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T3B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Blue SN580",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T3B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 900,
+      "series": "WD Blue SN580",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G4B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Blue SN5000",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T4B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Blue SN5000",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T4B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 900,
+      "series": "WD Blue SN5000",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T4B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 1200,
+      "series": "WD Blue SN5000",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G2X0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 200,
+      "series": "WD Black SN700",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G2X0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Black SN700",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T2X0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN700",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G3X0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 200,
+      "series": "WD Black SN750",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G3X0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Black SN750",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G3XHC(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Black SN750",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T3X0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN750",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T3XHC(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN750",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T3X0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN750",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T3XHC(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN750",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T3X0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "WD Black SN750",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G1B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 200,
+      "series": "WD Black SN750 SE",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G1B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Black SN750 SE",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T1B0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN750 SE",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G3X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 200,
+      "series": "WD Black SN770",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G3X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Black SN770",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T3X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN770",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T3X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN770",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G4X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Black SN7100",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T4X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN7100",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T4X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN7100",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T4X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "WD Black SN7100",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G1X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Black SN850",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G1XHE(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Black SN850",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T1X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN850",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T1XHE(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN850",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T1X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN850",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T1XHE(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN850",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T2X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN850X",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T2XHE(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN850X",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T2X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN850X",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T2XHE(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN850X",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T2X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "WD Black SN850X",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T2XHE(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "WD Black SN850X",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS800T2X0E(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 8000,
+      "tbw": 4800,
+      "series": "WD Black SN850X",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS800T2XHE(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 8000,
+      "tbw": 4800,
+      "series": "WD Black SN850X",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T1X0M(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN8100",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T1XHM(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN8100",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T1X0M(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN8100",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T1XHM(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN8100",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T1X0M(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "WD Black SN8100",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T1XHM(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "WD Black SN8100",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G1R0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 350,
+      "series": "WD Red SA500",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G1R0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 350,
+      "series": "WD Red SA500",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T1R0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Red SA500",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T1R0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Red SA500",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T1R0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1300,
+      "series": "WD Red SA500",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T1R0B(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1300,
+      "series": "WD Red SA500",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T1R0A(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 2500,
+      "series": "WD Red SA500",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G1R0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 500,
+      "series": "WD Red SN700",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G1R0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 1000,
+      "series": "WD Red SN700",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T1R0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 2000,
+      "series": "WD Red SN700",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T1R0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 2500,
+      "series": "WD Red SN700",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS400T1R0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 5100,
+      "series": "WD Red SN700",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS240G2G0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 240,
+      "tbw": 40,
+      "series": "WD Green SN350",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS480G2G0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 480,
+      "tbw": 60,
+      "series": "WD Green SN350",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS960G2G0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 960,
+      "tbw": 80,
+      "series": "WD Green SN350",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS250G2G0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 250,
+      "tbw": 40,
+      "series": "WD Green SN350",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS500G2G0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 60,
+      "series": "WD Green SN350",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T2G0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 80,
+      "series": "WD Green SN350",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS100T3G0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 100,
+      "series": "WD Green SN350",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD |SANDISK )?WDS200T3G0C(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 100,
+      "series": "WD Green SN350",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 980 250GB$",
+      "capacity_gb": 250,
+      "tbw": 150,
+      "series": "Samsung 980",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 980 500GB$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "Samsung 980",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 980 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "Samsung 980",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 750 EVO 120GB$",
+      "capacity_gb": 120,
+      "tbw": 35,
+      "series": "Samsung 750 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 750 EVO 250GB$",
+      "capacity_gb": 250,
+      "tbw": 70,
+      "series": "Samsung 750 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 750 EVO 500GB$",
+      "capacity_gb": 500,
+      "tbw": 100,
+      "series": "Samsung 750 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 EVO 120GB$",
+      "capacity_gb": 120,
+      "tbw": 75,
+      "series": "Samsung 850 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 EVO 250GB$",
+      "capacity_gb": 250,
+      "tbw": 75,
+      "series": "Samsung 850 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 EVO 500GB$",
+      "capacity_gb": 500,
+      "tbw": 150,
+      "series": "Samsung 850 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 EVO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 150,
+      "series": "Samsung 850 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 EVO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 300,
+      "series": "Samsung 850 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 EVO 4TB$",
+      "capacity_gb": 4000,
+      "tbw": 300,
+      "series": "Samsung 850 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 PRO 128GB$",
+      "capacity_gb": 128,
+      "tbw": 150,
+      "series": "Samsung 850 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 PRO 256GB$",
+      "capacity_gb": 256,
+      "tbw": 150,
+      "series": "Samsung 850 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 PRO 512GB$",
+      "capacity_gb": 512,
+      "tbw": 300,
+      "series": "Samsung 850 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 PRO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 300,
+      "series": "Samsung 850 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 PRO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 450,
+      "series": "Samsung 850 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 850 PRO 4TB$",
+      "capacity_gb": 4000,
+      "tbw": 600,
+      "series": "Samsung 850 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 PRO 256GB$",
+      "capacity_gb": 256,
+      "tbw": 300,
+      "series": "Samsung 860 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 PRO 512GB$",
+      "capacity_gb": 512,
+      "tbw": 600,
+      "series": "Samsung 860 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 PRO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 1200,
+      "series": "Samsung 860 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 PRO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 2400,
+      "series": "Samsung 860 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 PRO 4TB$",
+      "capacity_gb": 4000,
+      "tbw": 4800,
+      "series": "Samsung 860 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 EVO 250GB$",
+      "capacity_gb": 250,
+      "tbw": 150,
+      "series": "Samsung 860 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 EVO 500GB$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "Samsung 860 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 EVO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "Samsung 860 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 EVO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "Samsung 860 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 EVO 4TB$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "Samsung 860 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 QVO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 360,
+      "series": "Samsung 860 QVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 QVO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 720,
+      "series": "Samsung 860 QVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 860 QVO 4TB$",
+      "capacity_gb": 4000,
+      "tbw": 1440,
+      "series": "Samsung 860 QVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 870 QVO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 360,
+      "series": "Samsung 870 QVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 870 QVO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 720,
+      "series": "Samsung 870 QVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 870 QVO 4TB$",
+      "capacity_gb": 4000,
+      "tbw": 1440,
+      "series": "Samsung 870 QVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 870 QVO 8TB$",
+      "capacity_gb": 8000,
+      "tbw": 2880,
+      "series": "Samsung 870 QVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 950 PRO 256GB$",
+      "capacity_gb": 256,
+      "tbw": 200,
+      "series": "Samsung 950 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 950 PRO 512GB$",
+      "capacity_gb": 512,
+      "tbw": 400,
+      "series": "Samsung 950 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 960 EVO 250GB$",
+      "capacity_gb": 250,
+      "tbw": 100,
+      "series": "Samsung 960 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 960 EVO 500GB$",
+      "capacity_gb": 500,
+      "tbw": 200,
+      "series": "Samsung 960 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 960 EVO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 400,
+      "series": "Samsung 960 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 960 PRO 512GB$",
+      "capacity_gb": 512,
+      "tbw": 400,
+      "series": "Samsung 960 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 960 PRO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 800,
+      "series": "Samsung 960 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 960 PRO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "Samsung 960 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 970 EVO 250GB$",
+      "capacity_gb": 250,
+      "tbw": 150,
+      "series": "Samsung 970 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 970 EVO 500GB$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "Samsung 970 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 970 EVO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "Samsung 970 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 970 EVO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "Samsung 970 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 970 EVO Plus 250GB$",
+      "capacity_gb": 250,
+      "tbw": 150,
+      "series": "Samsung 970 EVO Plus",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 970 EVO Plus 500GB$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "Samsung 970 EVO Plus",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 970 EVO Plus 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "Samsung 970 EVO Plus",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 970 EVO Plus 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "Samsung 970 EVO Plus",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 970 PRO 512GB$",
+      "capacity_gb": 512,
+      "tbw": 600,
+      "series": "Samsung 970 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 970 PRO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 1200,
+      "series": "Samsung 970 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 990 EVO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "Samsung 990 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 990 EVO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "Samsung 990 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 990 EVO Plus 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "Samsung 990 EVO Plus",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 990 EVO Plus 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "Samsung 990 EVO Plus",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 990 EVO Plus 4TB$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "Samsung 990 EVO Plus",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 9100 PRO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "Samsung 9100 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 9100 PRO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "Samsung 9100 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 9100 PRO 4TB$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "Samsung 9100 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 9100 PRO 8TB$",
+      "capacity_gb": 8000,
+      "tbw": 4800,
+      "series": "Samsung 9100 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT250MX500SSD1(?:T)?$",
+      "capacity_gb": 250,
+      "tbw": 100,
+      "series": "Crucial MX500",
+      "source": "https://content.crucial.com/content/dam/crucial/ssd-products/mx500/flyer/crucial-mx500-ssd-productflyer-en.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT500MX500SSD1(?:T)?$",
+      "capacity_gb": 500,
+      "tbw": 180,
+      "series": "Crucial MX500",
+      "source": "https://content.crucial.com/content/dam/crucial/ssd-products/mx500/flyer/crucial-mx500-ssd-productflyer-en.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT1000MX500SSD1(?:T)?$",
+      "capacity_gb": 1000,
+      "tbw": 360,
+      "series": "Crucial MX500",
+      "source": "https://content.crucial.com/content/dam/crucial/ssd-products/mx500/flyer/crucial-mx500-ssd-productflyer-en.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT2000MX500SSD1(?:T)?$",
+      "capacity_gb": 2000,
+      "tbw": 700,
+      "series": "Crucial MX500",
+      "source": "https://content.crucial.com/content/dam/crucial/ssd-products/mx500/flyer/crucial-mx500-ssd-productflyer-en.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT4000MX500SSD1(?:T)?$",
+      "capacity_gb": 4000,
+      "tbw": 1000,
+      "series": "Crucial MX500",
+      "source": "https://content.crucial.com/content/dam/crucial/ssd-products/mx500/flyer/crucial-mx500-ssd-productflyer-en.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT500P3SSD8(?:T)?$",
+      "capacity_gb": 500,
+      "tbw": 110,
+      "series": "Crucial P3",
+      "source": "https://eu.crucial.com/content/dam/crucial/ssd-products/p3/flyers/b2c/crucial-p3-productflyer-consumer.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT1000P3SSD8(?:T)?$",
+      "capacity_gb": 1000,
+      "tbw": 220,
+      "series": "Crucial P3",
+      "source": "https://eu.crucial.com/content/dam/crucial/ssd-products/p3/flyers/b2c/crucial-p3-productflyer-consumer.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT2000P3SSD8(?:T)?$",
+      "capacity_gb": 2000,
+      "tbw": 440,
+      "series": "Crucial P3",
+      "source": "https://eu.crucial.com/content/dam/crucial/ssd-products/p3/flyers/b2c/crucial-p3-productflyer-consumer.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT4000P3SSD8(?:T)?$",
+      "capacity_gb": 4000,
+      "tbw": 800,
+      "series": "Crucial P3",
+      "source": "https://eu.crucial.com/content/dam/crucial/ssd-products/p3/flyers/b2c/crucial-p3-productflyer-consumer.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT500P3PSSD8(?:T)?$",
+      "capacity_gb": 500,
+      "tbw": 110,
+      "series": "Crucial P3 Plus",
+      "source": "https://www.crucial.com/content/dam/crucial/ssd-products/p3-plus/flyers/b2c/crucial-p3plus-productflyer-consumer.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT1000P3PSSD8(?:T)?$",
+      "capacity_gb": 1000,
+      "tbw": 220,
+      "series": "Crucial P3 Plus",
+      "source": "https://www.crucial.com/content/dam/crucial/ssd-products/p3-plus/flyers/b2c/crucial-p3plus-productflyer-consumer.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT2000P3PSSD8(?:T)?$",
+      "capacity_gb": 2000,
+      "tbw": 440,
+      "series": "Crucial P3 Plus",
+      "source": "https://www.crucial.com/content/dam/crucial/ssd-products/p3-plus/flyers/b2c/crucial-p3plus-productflyer-consumer.pdf"
+    },
+    {
+      "model_regex": "^(?:CRUCIAL )?CT4000P3PSSD8(?:T)?$",
+      "capacity_gb": 4000,
+      "tbw": 800,
+      "series": "Crucial P3 Plus",
+      "source": "https://www.crucial.com/content/dam/crucial/ssd-products/p3-plus/flyers/b2c/crucial-p3plus-productflyer-consumer.pdf"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SNV2S/?250G$",
+      "capacity_gb": 250,
+      "tbw": 80,
+      "series": "Kingston NV2",
+      "source": "https://www.kingston.com/datasheets/snv2s_en.pdf"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SNV2S/?500G$",
+      "capacity_gb": 500,
+      "tbw": 160,
+      "series": "Kingston NV2",
+      "source": "https://www.kingston.com/datasheets/snv2s_en.pdf"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SNV2S/?1000G$",
+      "capacity_gb": 1000,
+      "tbw": 320,
+      "series": "Kingston NV2",
+      "source": "https://www.kingston.com/datasheets/snv2s_en.pdf"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SNV2S/?2000G$",
+      "capacity_gb": 2000,
+      "tbw": 640,
+      "series": "Kingston NV2",
+      "source": "https://www.kingston.com/datasheets/snv2s_en.pdf"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SNV2S/?4000G$",
+      "capacity_gb": 4000,
+      "tbw": 1280,
+      "series": "Kingston NV2",
+      "source": "https://www.kingston.com/datasheets/snv2s_en.pdf"
+    },
+    {
+      "model_regex": "^ZP500GM3(?:0|A)013$",
+      "capacity_gb": 500,
+      "tbw": 640,
+      "series": "Seagate FireCuda 530",
+      "source": "https://www.seagate.com/files/www-content/datasheets/pdfs/firecuda-530-ssd-DS2059-3-2112US-en_US.pdf"
+    },
+    {
+      "model_regex": "^ZP1000GM3(?:0|A)013$",
+      "capacity_gb": 1000,
+      "tbw": 1275,
+      "series": "Seagate FireCuda 530",
+      "source": "https://www.seagate.com/files/www-content/datasheets/pdfs/firecuda-530-ssd-DS2059-3-2112US-en_US.pdf"
+    },
+    {
+      "model_regex": "^ZP2000GM3(?:0|A)013$",
+      "capacity_gb": 2000,
+      "tbw": 2550,
+      "series": "Seagate FireCuda 530",
+      "source": "https://www.seagate.com/files/www-content/datasheets/pdfs/firecuda-530-ssd-DS2059-3-2112US-en_US.pdf"
+    },
+    {
+      "model_regex": "^ZP4000GM3(?:0|A)013$",
+      "capacity_gb": 4000,
+      "tbw": 5100,
+      "series": "Seagate FireCuda 530",
+      "source": "https://www.seagate.com/files/www-content/datasheets/pdfs/firecuda-530-ssd-DS2059-3-2112US-en_US.pdf"
     }
-  ]
+  ],
+  "catalog_updated": "2026-11-12"
 }
