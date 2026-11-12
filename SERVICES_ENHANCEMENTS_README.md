@@ -1,5 +1,28 @@
 # System Monitoring Center – Services enhancements
 
+## Search the full journal before loading (test branch)
+
+System Logs now includes two **journalctl-side** filters above the existing
+local search field:
+
+- **Unit (full journal):** enter a complete unit name, e.g.
+  `webmin.service`. Uses `journalctl --unit=webmin.service` to retrieve
+  service messages and systemd manager messages about that unit. Applies to
+  **System journal**, not the kernel-only source.
+- **Message (full journal):** literal case-insensitive message search, using
+  `journalctl --grep=...` with escaped text. The journal is searched before
+  `--lines` limits the returned results. Available for both sources.
+
+Press **Apply / Refresh** or Return in one of these fields. The pre-existing
+**Search in loaded messages** only filters the entries already returned to
+the screen, including sender names. There is deliberately **no unlimited
+output option**: the existing 100–5000 entry cap protects the interface.
+To find older messages select **All boots** and **All available**; then use
+the unit or message filter to fetch up to 5000 matching records. Full-journal
+search is constrained by the chosen namespace and journal permissions.
+On very large journals a search may take longer than the viewer's
+45-second timeout.
+
 ## Journal sender and PID (test branch)
 
 The shared journal viewer now displays **Timestamp | Level | Source [PID] |
