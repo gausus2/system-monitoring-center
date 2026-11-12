@@ -128,8 +128,16 @@ class SmartctlTab(ttk.Frame):
         frame.rowconfigure(0, weight=1)
         columns = ("device", "model", "size", "health", "temp", "hours",
                    "writes", "rated_tbw", "tbw_used", "nvme_used", "nvme_errors")
+        # Treeview does not inherit the font from its parent frame.
+        # Assign an explicit, private style instead of the theme default.
+        style.configure(
+            "SmartDisk.Treeview", font=Common.font_normal,
+            rowheight=max(20, Common.font_normal.metrics("linespace") + 6))
+        style.configure(
+            "SmartDisk.Treeview.Heading", font=Common.font_normal)
         self.table = ttk.Treeview(
-            frame, columns=columns, show="headings", selectmode="browse")
+            frame, columns=columns, show="headings", selectmode="browse",
+            style="SmartDisk.Treeview")
         widths = (132, 215, 90, 112, 75, 100, 110, 90, 90, 125, 135)
         labels = ("Disk", "Model", "Size", "SMART", "Temp °C",
                   "Power-on", "Total writes", "Rated TBW", "TBW used %",
