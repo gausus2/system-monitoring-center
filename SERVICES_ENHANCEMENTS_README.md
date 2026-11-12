@@ -34,6 +34,16 @@ log text; manager messages without a suitable unit field remain
 `systemd[1]`. Original journal metadata is untouched; this affects
 only the displayed sender label.
 
+Service-owned helper processes additionally show their service context from
+`_SYSTEMD_UNIT` before the original process name, for example
+`systemd-udevd.service mtp-probe[648]` or
+`systemd-udevd.service (udev-worker)[552]`. This deliberately differs from
+the standard `journalctl -u` presentation, which prints the sender alone.
+Messages from systemd PID 1 still use the referenced `UNIT` label when
+available. Non-service records retain their normal sender, and when
+`SYSLOG_IDENTIFIER` already names the service the unit is not repeated.
+This is only a display change: filtering and journal content are unaffected.
+
 Close the application and test with:
 
 ```bash
