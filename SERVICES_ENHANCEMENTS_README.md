@@ -1,34 +1,19 @@
 # System Monitoring Center – Services enhancements
 
-## Journal development test (isolated branch)
+## Integrated journal viewer (production)
 
-This branch contains an **experimental integrated journal panel**. Unlike the first prototype, it leaves the upstream Services treeview and its original parent/geometry unchanged, adding the journal only as a separate grid row when requested. This avoids reparenting the service list into a Panedwindow, which was suspected of breaking the Services tab on the test machine. The divider above the journal supports vertical dragging; Close hides only the journal section.
+The journal viewer was tested on the `journal-development` branch and promoted to
+`services-enhancements`. It adds a resizable embedded journal panel below the
+existing Services list **without reparenting the original Treeview**. The panel
+supports boot, priority, time range and line-count filters, search, color-coded
+messages, and refresh. The original `services-stable` branch retains the
+pre-journal version as a rollback reference.
 
-**Do not merge into `services-stable` or `services-enhancements` before testing.**
-
-To try this branch on the system-package installation:
-
-```bash
-git fetch origin
-git switch -c journal-development --track origin/journal-development
-bash ./update-services.sh
-```
-
-If the branch already exists locally, use `git switch journal-development` instead of the switch command above.
-
-To restore the known-good version:
+The usual production installer remains:
 
 ```bash
-git switch services-enhancements
 bash ./update-services.sh
 ```
-
-Close System Monitoring Center before each install and restart it afterward. The `update-services.sh` in **this branch** requires `journal-development`; the stable branch has its own original updater. Uncommitted local changes must be committed or stashed before switching branches.
-
-The suspected Services-tab failure was not conclusively reproduced. Test that the Services tab still loads **before** opening the embedded journal; then test close, service selection and the draggable divider. This remains experimental.
-
-
-These are custom changes to [System Monitoring Center](https://github.com/hakandundar34coding/system-monitoring-center) v3.4.1, maintained in the [gausus2 fork](https://github.com/gausus2/system-monitoring-center) on the `services-enhancements` branch. They are **not** part of the original upstream project.
 
 ## Changes
 
@@ -155,6 +140,6 @@ Integrate upstream updates in a separate test branch and review conflicts, espec
 
 - **Confirmed:** The Services tab loads using the single-process workaround on Xubuntu 24.04.5.
 - **Confirmed by the user:** The context-menu editor launches successfully.
-- **Not fully tested:** All services, other desktop environments, or future upstream versions.
+- **Confirmed by the user:** The integrated Service Journal works with service selection, boot filters, priority highlighting and loaded entries in Xubuntu.\n- **Not fully tested:** All services, other desktop environments, or future upstream versions.
 
 The original project is licensed under **GNU GPL v3**. Retain upstream copyright notices and license terms when redistributing modified versions.
