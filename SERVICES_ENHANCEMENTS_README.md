@@ -1,5 +1,14 @@
 # System Monitoring Center – Services enhancements
 
+## Journal sender and PID (test branch)
+
+The shared journal viewer now displays **Timestamp | Level | Source [PID] |
+Message**. The source uses `SYSLOG_IDENTIFIER`, falling back to `_COMM`,
+`_SYSTEMD_UNIT`, `_TRANSPORT`, or `-` when identifiers are unavailable.
+The PID is read from `SYSLOG_PID` or `_PID` when provided. Search matches both
+message text and source. This restores information visible in ordinary
+`journalctl` output without removing severity labels or colors.
+
 ## System Logs test branch
 
 **Branch:** `system-logs-development` (created from the working `services-enhancements` production branch). Production and `services-stable` are not modified.
