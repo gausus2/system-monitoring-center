@@ -692,3 +692,24 @@ bash ./update-services.sh
 ```
 Use `git switch smartctl-development` if the branch already exists locally.
 The change remains isolated from `services-enhancements` production.
+
+### SMART Power-on time and Total writes (test branch)
+
+SMART **Power-on** is now displayed as elapsed **days and hours** both
+in the disk table and in Disk details (for example, 14791 hours becomes
+`616 d 7 h`). Raw time is still retained internally from smartctl.
+
+**Total writes** is now shown in the table and Disk details when the
+drive reports a supported counter. For NVMe this uses smartctl JSON
+`nvme_smart_health_information_log.data_units_written`: each reported
+unit represents **1000 × 512 bytes = 512000 bytes**, rounded by the
+device. A missing or zero (not reported) count shows `-`.
+**Writes unit** provides **Auto / GB / TB / PB** in decimal units
+(1 GB = 10^9 bytes, 1 TB = 10^12, 1 PB = 10^15).
+Auto picks GB/TB/PB from magnitude. Changing the selector instantly
+reformats the data already loaded; it does **not** rerun smartctl or
+reauthenticate. ATA/SATA vendor-specific writes counters are not
+assumed to use the same units; they remain `-` unless a safe
+conversion is implemented in a later revision.
+Tests: `tests/test_smartctl_formatting.py` and
+`tests/test_smartctl_data.py`.
