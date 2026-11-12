@@ -110,6 +110,7 @@ class ServiceJournal(ttk.Frame):
         self.log.tag_configure("info", foreground="#5594cc")
         self.log.tag_configure("normal", foreground="#9eacbc")
         self.log.tag_configure("error", foreground="#e05a60")
+        self.log.tag_configure("boot", foreground="#a3b5cb")
 
         self.after(100, self._poll_results)
 
@@ -218,8 +219,12 @@ class ServiceJournal(ttk.Frame):
                     pid = entry.get("SYSLOG_PID") or entry.get("_PID")
                     if pid and sender != "-":
                         sender += "[" + str(pid) + "]"
+                    # Preserve boot boundaries when displaying multiple boots.
+                    boot_id = entry.get("_BOOT_ID") or ""
+                    if not isinstance(boot_id, str):
+                        boot_id = str(boot_id)
                     records.append((when, max(0, min(7, priority)),
-                                    sender, message))
+                                    sender, message, boot_id))
                 self._results.put((generation, records, None))
             except (OSError, subprocess.TimeoutExpired) as error:
                 self._results.put((generation, None, str(error)))
@@ -263,7 +268,12 @@ class ServiceJournal(ttk.Frame):
             self.log.insert("end", "No journal entries match these filters.\n")
         else:
             names = ("EMERG", "ALERT", "CRIT", "ERROR", "WARN", "NOTICE", "INFO", "DEBUG")
-            for when, priority, sender, message in shown:
+            previous_boot = None
+            for when, priority, sender, message, boot_id in shown:
+                if self.boot_var.get() == "All boots" and boot_id:
+                    if previous_boot is not None and boot_id != previous_boot:
+                        self.log.insert("end", "-- Boot " + boot_id + " --\n", "boot")
+                    previous_boot = boot_id
                 tag = "critical" if priority <= 3 else ("warning" if priority == 4
                        else ("info" if priority >= 6 else "normal"))
                 line = "%s  %-6s %-26s %s\n" % (
