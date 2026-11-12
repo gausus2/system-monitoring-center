@@ -912,3 +912,21 @@ caused the parser's date recognition to fail in the test, even though
 real `tune2fs -l` output contains ordinary line breaks. The fixture
 now emits `\n` correctly. No changes to filesystem data, disk
 access permissions, or SMART display logic were required.
+
+### NTFS metadata alongside ext4 dates in SMART Disk details
+
+SMART Disk details now scans both **ext4** and **NTFS** partitions
+under each physical disk. Ext4 dates come from the filesystem superblock
+via `tune2fs -l` (`Filesystem created`). NTFS dates come from
+`ntfsinfo -F / /dev/...`, specifically the root directory's
+`$STANDARD_INFORMATION` `File Creation Time`, displayed in UTC.
+These are different kinds of metadata and are labeled separately.
+The earlier **Oldest filesystem created** summary was removed because
+an NTFS volume may have been cloned from another drive and its root
+directory could predate the present SSD. The list is shown oldest-first
+for convenience but does **not** establish SSD manufacture or first use.
+The ntfs tool must be installed for NTFS dates; regular reads stay
+unprivileged, while explicit **Read SMART (Admin)** may use passwordless
+`sudo -n`. No filesystems are modified. Dates are included in
+**Copy details**. Regression tests cover mixed filesystem display,
+NTFS parsing, privilege fallback, and no-change SMART behavior.
