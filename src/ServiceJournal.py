@@ -10,6 +10,7 @@ import tkinter.font as tkfont
 from tkinter import ttk
 
 from . import Common
+from . import WarpJournal
 
 
 class ServiceJournal(ttk.Frame):
@@ -133,8 +134,10 @@ class ServiceJournal(ttk.Frame):
         self.log_source = source
         self.namespace = namespace  # None means default; "*" means all.
         self.service = None
-        self.heading.configure(text="System Journal" if source == "system"
-                               else "Kernel Journal")
+        heading = "System Journal" if source == "system" else "Kernel Journal"
+        if source == "system" and namespace == "warp":
+            heading += " — Warp levels"
+        self.heading.configure(text=heading)
         self.refresh()
 
     def open_service(self, service, errors=False):
@@ -156,8 +159,11 @@ class ServiceJournal(ttk.Frame):
         self._generation += 1
         generation = self._generation
         service = self.service
-        command = ["journalctl", "--no-pager", "--quiet",
-                   "--output=json", "--lines", self.lines_var.get()]
+        warp_mode = (self.system_mode and self.log_source == "system"
+                     and self.namespace == "warp")
+        command = ["journalctl", "--no-pager", "--quiet", "--output=json"]
+        if not warp_mode:
+            command.extend(["--lines", self.lines_var.get()])
         namespace = self.namespace if self.system_mode else "*"
         if namespace is not None:
             command.append("--namespace=" + namespace)
@@ -182,7 +188,7 @@ class ServiceJournal(ttk.Frame):
         since = self.time_values.get(self.time_var.get())
         if boot is not None:
             command.extend(["--boot", boot])
-        if level:
+        if level and not warp_mode:
             command.extend(["--priority", level])
         if since:
             command.extend(["--since", since])
@@ -194,24 +200,31 @@ class ServiceJournal(ttk.Frame):
 
         def worker():
             try:
-                run = subprocess.run(command, capture_output=True, text=True,
-                                     errors="replace", timeout=45, check=False)
-                # journalctl --grep exits with code 1 when there are no
-                # matching messages. That is an empty result, not a failure.
-                # Keep reporting actual command/permission errors.
-                no_matches = (run.returncode == 1
-                              and any(arg.startswith("--grep=") for arg in command)
-                              and not run.stdout.strip() and not run.stderr.strip())
-                if run.returncode and not no_matches:
-                    self._results.put((generation, None, (run.stderr.strip()
-                                      or "journalctl failed (exit %s)" % run.returncode)))
-                    return
+                if warp_mode:
+                    # Reverse-stream until N matching effective priorities.
+                    # Never read an unbounded Warp journal into Tkinter.
+                    entries = WarpJournal.read_entries(
+                        command, int(self.lines_var.get()), level)
+                else:
+                    run = subprocess.run(command, capture_output=True, text=True,
+                                         errors="replace", timeout=45, check=False)
+                    no_matches = (
+                        run.returncode == 1
+                        and any(arg.startswith("--grep=") for arg in command)
+                        and not run.stdout.strip() and not run.stderr.strip()
+                    )
+                    if run.returncode and not no_matches:
+                        self._results.put((generation, None, (run.stderr.strip()
+                                          or "journalctl failed (exit %s)" % run.returncode)))
+                        return
+                    entries = []
+                    for line in run.stdout.splitlines():
+                        try:
+                            entries.append(json.loads(line))
+                        except (ValueError, TypeError):
+                            continue
                 records = []
-                for line in run.stdout.splitlines():
-                    try:
-                        entry = json.loads(line)
-                    except (ValueError, TypeError):
-                        continue
+                for entry in entries:
                     message = entry.get("MESSAGE", "")
                     if isinstance(message, list) and all(
                             isinstance(value, int) and 0 <= value <= 255
@@ -225,7 +238,7 @@ class ServiceJournal(ttk.Frame):
                     # as source text; this viewer applies its own colors.
                     message = re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]", "", message)
                     try:
-                        priority = int(entry.get("PRIORITY", 6))
+                        priority = int(entry.get("_VIEW_PRIORITY", entry.get("PRIORITY", 6)))
                     except (TypeError, ValueError):
                         priority = 6
                     try:
@@ -252,7 +265,7 @@ class ServiceJournal(ttk.Frame):
                     records.append((when, max(0, min(7, priority)),
                                     sender, message, boot_id))
                 self._results.put((generation, records, None))
-            except (OSError, subprocess.TimeoutExpired) as error:
+            except (OSError, RuntimeError, subprocess.TimeoutExpired) as error:
                 self._results.put((generation, None, str(error)))
         threading.Thread(target=worker, daemon=True).start()
 
