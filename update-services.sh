@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Test installer for the journal-development branch. Stable branch remains unchanged.
+# Production installer for the services-enhancements branch.
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="journal-development"
+BRANCH="services-enhancements"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
