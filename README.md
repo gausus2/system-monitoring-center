@@ -1,202 +1,52 @@
-# System Monitoring Center
+# System Monitoring Center — Stable
 
-<p align="center">
-    <img src="https://github.com/hakandundar34coding/system-monitoring-center/blob/master/data/icons/hicolor/scalable/apps/system-monitoring-center.svg" width="100">
-</p>
+System Monitoring Center for Linux, with expanded **Services**, **System Logs** and **SMART** disk monitoring.
 
+Original project: [hakandundar34coding/system-monitoring-center](https://github.com/hakandundar34coding/system-monitoring-center).
 
-<p align="center">
-    <strong>
-        Multi-featured system monitor
-    </strong>
-</p>
+## Features
 
+- **Services:** search, filter by state (including failed services), sort and copy the visible table; inspect units, dependencies, boot plots, edit overrides and view service logs
+- **System Logs:** system and kernel journal, namespace, boot, time, priority and unit-type filters, searchable logs, optional color highlighting and right-click copy
+- **Other Logs:** view and filter log files under `/var/log`
+- **SMART:** health, temperature, power-on hours, total writes, manufacturer TBW, NVMe wear, media errors and firmware; currently mounted filesystems and ext4/NTFS filesystem date metadata
+- Copy table and Copy details for convenient plain-text output
 
-<p align="center">
-    <strong>
-        <a href="https://github.com/hakandundar34coding/system-monitoring-center/tree/smc_v1">SMC v1.43.12 (GTK3)</a> | <a href="https://github.com/hakandundar34coding/system-monitoring-center/tree/smc_v2">SMC v2.26.0 (GTK3/4)</a> | <a href="https://github.com/hakandundar34coding/system-monitoring-center">SMC v3 (Tk)</a>
-    </strong>
-</p>
+## Install / update
 
+**Prerequisite:** System Monitoring Center must already be installed on the system at
+`/usr/share/system-monitoring-center/systemmonitoringcenter`.
+The script updates its Python modules; it is **not** a standalone
+installer of the original application. For the original application
+and its dependencies, see the link above.
 
-<p align="center">
-    <a href="https://github.com/hakandundar34coding/system-monitoring-center/tags">
-        <img alt="Platform (GNU/Linux)" src="https://img.shields.io/badge/platform-GNU/Linux-blue.svg"/>
-    </a>
-    <a href="https://github.com/hakandundar34coding/system-monitoring-center/tags">
-        <img alt="GitHub tag (latest SemVer)" src="https://img.shields.io/github/v/tag/hakandundar34coding/system-monitoring-center?sort=semver">
-    </a>
-    <a href="https://github.com/hakandundar34coding/system-monitoring-center/tags">
-        <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/hakandundar34coding/system-monitoring-center/total">
-    </a>
-    <a href="https://pypi.org/project/system-monitoring-center/">
-        <img src="https://static.pepy.tech/personalized-badge/system-monitoring-center?period=total&units=international_system&left_color=grey&right_color=green&left_text=downloads"/>
-    </a>
-    <a href="https://flathub.org/apps/details/io.github.hakandundar34coding.system-monitoring-center">
-        <img alt="Flathub" src="https://img.shields.io/flathub/downloads/io.github.hakandundar34coding.system-monitoring-center">
-    </a>
-    <a href="https://github.com/hakandundar34coding/system-monitoring-center/blob/master/Changes.md">
-        <img src="https://img.shields.io/badge/View-Changelog-b37840">
-    </a>
-</p>
+Install `smartmontools` and `ntfs-3g` if you want SMART data and NTFS
+filesystem timestamps. The application uses `lsblk` and `tune2fs`
+for mount information and ext4 filesystem timestamps.
 
+Clone this stable branch and apply the updates:
 
-<p align="center">
-    <a href="https://github.com/hakandundar34coding/system-monitoring-center/tags">
-        <img src="https://img.shields.io/badge/Code-Python3-52a381">
-    </a>
-    <a href="https://github.com/hakandundar34coding/system-monitoring-center/tags">
-        <img src="https://img.shields.io/badge/GUI-Tk (Tkinter)-52a381">
-    </a>
-    <a href="https://github.com/rdbende/Sun-Valley-ttk-theme">
-        <img src="https://img.shields.io/badge/Theme-sv_ttk-52a381">
-    </a>
-</p>
+```bash
+git clone --branch stable --single-branch https://github.com/gausus2/system-monitoring-center.git
+cd system-monitoring-center
+bash ./update-services.sh
+```
 
+To update an existing checkout:
 
-<p align="center">
-    <strong>
-        Translations:
-    </strong>
-    Chinese (Simplified) | Chinese (Traditional) | Czech | German | English | French | Hungarian | Persian | Polish | Portuguese (Brazilian) | Portuguese (Portugal) | Russian | Spanish | Turkish | <a href="docs/translations.md">Notes for translators</a>
-</p>
+```bash
+git switch stable
+bash ./update-services.sh
+```
 
+The script checks the branch, pulls the latest version, runs regression
+tests and installs the updated modules using `sudo`. Close and restart
+System Monitoring Center after installation.
 
-<p align="center">
-    <a href='https://flathub.org/apps/details/io.github.hakandundar34coding.system-monitoring-center'>
-        <img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.svg'/>
-    </a>
-    <a href='https://apps.pardus.org.tr/app/system-monitoring-center'>
-        <img width='240' alt='Install From Pardus Software Center' src='https://github.com/hakandundar34coding/system-monitoring-center/raw/master/docs/download_image_pardus.svg'/>
-    </a>
-    <a href='https://github.com/Botspot/pi-apps'>
-        <img width='240' alt='Install From Pi-Apps' src='https://github.com/Botspot/pi-apps/blob/master/icons/badge.png?raw=true'/>
-    </a>
-</p>
+## Notes
 
+- SMART reads are read-only. Some disks require the **Read SMART (Admin)** button.
+- Filesystem creation timestamps are **not** SSD manufacturing dates or guaranteed first-use dates. NTFS timestamps are taken from the root directory and can be older than the current physical drive after cloning.
+- Backups of original installed modules are kept as `*.pre-services-enhancements`.
 
-<p align="center">
-    <a href="https://repology.org/project/system-monitoring-center/versions">
-        <img src="https://repology.org/badge/vertical-allrepos/system-monitoring-center.svg" alt="Packaging status">
-    </a>
-</p>
-<p align="center">
-    <a href="https://flathub.org/apps/details/io.github.hakandundar34coding.system-monitoring-center">
-        <img alt="Flathub" src="https://img.shields.io/flathub/v/io.github.hakandundar34coding.system-monitoring-center">
-    </a>
-    <a href="https://github.com/Botspot/pi-apps">
-        <img src="https://img.shields.io/badge/dynamic/json?color=blue&label=Pi-Apps&query=%24..%5B%3F%28%40.Name%3D%3D%22System%20Monitoring%20Center%22%29%5D.Version&url=https%3A%2F%2Fraw.githubusercontent.com%2FBotspot%2Fpi-apps-analytics%2Fmain%2Fpackage_data.json" alt="Pi-Apps Packaging Status">
-    </a>
-</p>
-
-
-### Features:
-- Detailed system performance and usage usage monitoring/managing features:
-    - Monitoring CPU, RAM, Disk, Network, GPU hardware/usage information
-    - Monitoring and managing processes and services (systemd)
-    - Monitoring users, sensors and general system information
-- Supports PolicyKit. No need to run the application with "sudo"
-- Hardware selection options (selecting CPU cores, disks, network cards, GPUs)
-- Plotting performance data of multiple devices at the same time
-- Interactive charts for querying performance data on any point
-- Option for showing processes as tree or list
-- Optimized for low CPU usage
-- Customization menus for almost all tabs
-- Supports ARM architecture
-- Free and open source
-
-
-### Installation:
-- There are several options for using System Monitoring Center:
-    - Installing from Flatpak ([Details](docs/flatpak.md))
-    - Installing from application stores (Pardus Application Center, Pi-Apps Store)
-    - Installing from repositories of distributions
-    - Running from source code: in ```src/``` folder, run: ```python3 ./run_from_source.py```
-
-
-### Dependencies:
-<details>
-  <summary><ins>Show</ins></summary>
-
-  ---
-  #### Dependencies
-
-  There is no need to install these dependencies for installing the application from Flatpak.
-  For other installation types:
-
-  - For System Monitoring Center v3.x.x:
-      - `dmidecode, hwdata, iproute2, python3 (>=3.6), python3-cairo, python3-tk, python3-pil, python3-pil.imagetk, util-linux (>=2.31)`
-
-  - Following dependencies may be required on some systems:
-      - `libcairo2-dev` (for systems with .deb packages)
-      - `polkit` (for Arch Linux)
-
-  - Optional dependencies:
-      - `vcgencmd` (for physical RAM size, GPU frequency and video memory information on Raspberry Pi devices)
-      - `xorg-xrandr` (for more accurate screen resolution and refresh rate detection)
-  ---
-
-</details>
-
-
-### Limitations and Known Issues:
-<details>
-  <summary><ins>Show</ins></summary>
-
-  ---
-  #### Limitations
-
-  - GPU usage information availability depends on vendor/driver.
-  - GPU load is not tracked if GPU tab is switched off (for lower CPU usage).
-  - Virtual machines may not provide CPU min-max frequencies, sensors and RAM hardware information.
-  - Non-Flatpak versions of the application has higher performance (start speed, CPU, RAM usage).
-
-  #### Known Issues
-
-  - Not detected so far.
-  ---
-
-</details>
-
-
-### Screenshots:
-
-![System Monitoring Center](screenshots/summary_tab_dark_system_theme.png)
-
-![System Monitoring Center](screenshots/summary_tab_white_system_theme.png)
-
-![System Monitoring Center](screenshots/cpu_tab_dark_system_theme.png)
-
-![System Monitoring Center](screenshots/cpu_tab_white_system_theme.png)
-
-![System Monitoring Center](screenshots/cpu_tab_per_core_dark_system_theme.png)
-
-![System Monitoring Center](screenshots/memory_tab_white_system_theme.png)
-
-![System Monitoring Center](screenshots/disk_tab_menu_white_system_theme.png)
-
-![System Monitoring Center](screenshots/network_tab_dark_system_theme.png)
-
-![System Monitoring Center](screenshots/gpu_tab_dark_system_theme.png)
-
-![System Monitoring Center](screenshots/sensors_tab_dark_system_theme.png)
-
-![System Monitoring Center](screenshots/processes_list_view_dark_system_theme.png)
-
-![System Monitoring Center](screenshots/processes_tree_view_white_system_theme.png)
-
-![System Monitoring Center](screenshots/services_tab_dark_system_theme.png)
-
-![System Monitoring Center](screenshots/system_tab_dark_system_theme.png)
-
-![System Monitoring Center](screenshots/settings_dark_system_theme.png)
-
-![System Monitoring Center](screenshots/process_details__dark_system_theme_1.png)
-
-![System Monitoring Center](screenshots/process_details__dark_system_theme_2.png)
-
-
-
-## Fork: Services enhancements (gausus2)
-
-The `services-enhancements` branch includes a workaround for service loading with multiprocessing and adds **Edit override** / **Edit full unit** to the Services context menu. For installation, updates, usage, and rollback, see [SERVICES_ENHANCEMENTS_README.md](SERVICES_ENHANCEMENTS_README.md). These changes are not part of upstream System Monitoring Center.
+For detailed technical change notes, see [SERVICES_ENHANCEMENTS_README.md](SERVICES_ENHANCEMENTS_README.md).
