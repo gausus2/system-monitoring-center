@@ -855,3 +855,11 @@ query shows **Unavailable** without hiding SMART health. Mounts are
 re-evaluated on **Apply / Refresh** and **Read SMART (Admin)**, and the
 feature does not require sudo. Tests cover nested device mapping,
 multiple mounts, failures and the Disk details display.
+
+### Firmware revision in SMART details
+
+SMART **Disk details** shows **Firmware** using the standard
+`firmware_version` field reported by `smartctl -a -j` for SATA/ATA
+and NVMe devices. If not reported, it displays `-`. This is
+read-only and does not attempt firmware updates. The field is also
+included in **Copy details**.
