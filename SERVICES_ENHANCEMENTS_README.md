@@ -1,5 +1,41 @@
 # System Monitoring Center – Services enhancements
 
+## Experimental time and line-range filters
+
+Branch: `journal-range-development`, created from the tested production
+`services-enhancements` branch. Production has not been changed.
+
+**Time range** now offers **Last minute** and **Last 10 minutes** in addition
+to the existing Last hour / Last 24 hours / Last 7 days / All available.
+
+**Lines** offers **Last 100 / 500 / 1000 / 5000** and
+**First 100 / 500 / 1000 / 5000**. "First" means the oldest matching
+journal entries within the chosen boot, namespace, time range, priority and
+search. "Last" means the newest matching entries. The UI displays records
+chronologically, scrolling to the top for First and to the bottom for Last.
+
+Normal journal queries use systemd's `journalctl --lines=+N` for First
+and `--lines=N` for Last. Warp's internal-priority reader instead uses a
+bounded forward or reverse stream and stops after the specified number of
+priority-matching entries, ensuring its special ERROR/WARN filtering remains
+correct and no unbounded journal is loaded. The initial selection remains
+equivalent to the previous Last 500.
+
+To test, close the app and run:
+
+```bash
+git fetch origin
+git switch -c journal-range-development --track origin/journal-range-development
+bash ./update-services.sh
+```
+
+If the branch exists locally use `git switch journal-range-development`.
+The installer runs Python syntax and Warp parser regression checks before
+copying files. To restore production, close the app, run
+`git switch services-enhancements` and `bash ./update-services.sh`,
+then restart the application.
+
+
 ## Production update: Journal refresh (12 November 2026)
 
 The tested `journal-refresh-development` improvements have been promoted to
