@@ -139,7 +139,8 @@ class ServiceJournal(ttk.Frame):
                    "--output=json", "--lines", self.lines_var.get()]
         if self.system_mode:
             if self.log_source == "kernel":
-                command.append("--kernel")
+                # Unlike --kernel, this field match does not imply current boot.
+                command.append("_TRANSPORT=kernel")
         else:
             command.extend(["--unit", service])
         boot = self.boot_values.get(self.boot_var.get())
