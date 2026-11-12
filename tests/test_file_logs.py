@@ -12,6 +12,12 @@ pkg.__path__ = []
 sys.modules[pkg.__name__] = pkg
 common = types.ModuleType("filelogtests.Common")
 sys.modules[common.__name__] = common
+highlight_spec = importlib.util.spec_from_file_location(
+    "filelogtests.LogHighlight",
+    Path(__file__).resolve().parents[1] / "src" / "LogHighlight.py")
+highlight = importlib.util.module_from_spec(highlight_spec)
+sys.modules[highlight_spec.name] = highlight
+highlight_spec.loader.exec_module(highlight)
 spec = importlib.util.spec_from_file_location(
     "filelogtests.FileLogs", Path(__file__).resolve().parents[1] / "src" / "FileLogs.py")
 logs = importlib.util.module_from_spec(spec)
