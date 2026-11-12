@@ -9,6 +9,8 @@ import os
 import shutil
 import subprocess
 
+from . import SmartEndurance
+
 LSBLK = ["lsblk", "-J", "-d", "-b", "-o", "NAME,PATH,TYPE,MODEL,SIZE,TRAN"]
 SMARTCTL = ["smartctl", "-a", "-j"]
 TIMEOUT = 12
@@ -251,5 +253,5 @@ def collect(run=subprocess.run, admin=False):
     for disk in disks:
         smart = (read_admin(disk["path"], run) if admin
                  else inspect_disk(disk["path"], run))
-        results.append((disk, smart))
+        results.append((disk, SmartEndurance.annotate(disk, smart)))
     return results
