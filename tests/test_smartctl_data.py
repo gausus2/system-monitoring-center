@@ -69,7 +69,7 @@ class SmartctlTests(unittest.TestCase):
                      "/dev/nvme2n1p6": "Tue Feb 27 21:11:50 2024"}
             return subprocess.CompletedProcess(
                 command, 0,
-                "Filesystem created:       " + dates[command[-1]] + "\\n", "")
+                "Filesystem created:       " + dates[command[-1]] + "\n", "")
         which = lambda name: "/usr/bin/" + name
         normal = module.filesystem_creation_dates(runner, admin=False, which=which)
         self.assertEqual(normal["/dev/nvme2n1"], [])
