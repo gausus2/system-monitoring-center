@@ -103,11 +103,24 @@ class ServiceJournal(ttk.Frame):
             self.unit_type_selector = None
             refresh_column = 4
 
-        self.refresh_button = ttk.Button(controls, text="Apply / Refresh", command=self.refresh)
+        style = ttk.Style(self)
+        style.configure(
+            "JournalRefresh.TButton", font=Common.font_normal,
+            foreground="#65c76b", padding=(5, 2))
+        style.map(
+            "JournalRefresh.TButton",
+            foreground=[("disabled", "#777777"), ("!disabled", "#65c76b")])
+        style.configure(
+            "JournalColors.TButton", font=Common.font_normal,
+            padding=(5, 2))
+        self.refresh_button = ttk.Button(
+            controls, text="Apply / Refresh", command=self.refresh,
+            style="JournalRefresh.TButton")
         self.refresh_button.grid(row=0, column=refresh_column, sticky="s", padx=(1, 0))
         if self.system_mode:
             self.color_button = ttk.Button(
                 controls, text="Colors: Current",
+                style="JournalColors.TButton",
                 command=self.toggle_journal_colors)
             self.color_button.grid(
                 row=1, column=0, columnspan=2, sticky="w", pady=(6, 0))
