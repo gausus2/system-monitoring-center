@@ -48,6 +48,7 @@ def details_text(disk, smart, writes_unit="Auto"):
         "Size: " + format_size(disk["size"]),
         "Health: " + smart.get("health", "Unknown"),
         "Total writes: " + format_writes(smart.get("writes_bytes"), writes_unit),
+        "Writes source: " + (smart.get("writes_source") or "Unknown / not supported"),
     ]
     for key, label, suffix in (
         ("temperature", "Temperature", " °C"),
