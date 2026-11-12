@@ -34,7 +34,7 @@ class SmartDetailsUITests(unittest.TestCase):
 
     def test_nvme_endurance_and_error_columns(self):
         self.assertIn('"nvme_used", "nvme_errors"', source)
-        self.assertIn('"NVMe used %", "NVMe media errors"', source)
+        self.assertIn('"NVMe wear %", "Media errs"', source)
         self.assertIn('smart.get("percentage_used")', source)
         self.assertIn('smart.get("media_errors")', source)
 
