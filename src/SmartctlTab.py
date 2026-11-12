@@ -158,6 +158,18 @@ class SmartctlTab(ttk.Frame):
         hscroll.grid(row=1, column=0, sticky="ew")
         self.table.configure(yscrollcommand=scroll.set,
                              xscrollcommand=hscroll.set)
+        # Keep the meaning of these two independent percentages visible.
+        self.wear_help = ttk.Label(
+            frame,
+            text=("TBW % = host data written / manufacturer's rated TBW.  "
+                  "NVMe wear % = the drive's own estimated endurance used "
+                  "(whole %, may differ from TBW %)."),
+            font=Common.font_normal, justify="left", wraplength=850)
+        self.wear_help.grid(row=2, column=0, sticky="ew", pady=(5, 5))
+        self.wear_help.bind(
+            "<Configure>",
+            lambda event: self.wear_help.configure(
+                wraplength=max(150, event.width - 8)))
         self.table.bind("<<TreeviewSelect>>", self._select)
         self.table.bind("<Control-c>", self._copy_table_row)
         self.table.bind("<Control-C>", self._copy_table_row)
