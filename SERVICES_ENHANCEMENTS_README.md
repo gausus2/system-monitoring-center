@@ -25,12 +25,14 @@ not applicable to the Kernel journal; its dropdown is disabled and reset.
 The embedded per-service journal in Services stays unchanged.
 
 For messages emitted by the systemd manager itself (`systemd[1]`),
-the renderer also shows the referenced unit when journald provides a
-structured `UNIT=` (or `OBJECT_SYSTEMD_UNIT=`) field, e.g.
-`systemd[1] [systemd-udevd.service]`. Ordinary messages emitted by
-the service keep their original sender, e.g. `systemd-udevd[524]`.
-The label is not guessed from free-form log text; manager messages
-without a suitable unit field remain `systemd[1]`.
+the sender column shows the referenced unit **instead of** `systemd[1]`
+when journald provides a structured `UNIT=` (or
+`OBJECT_SYSTEMD_UNIT=`) field, e.g. `systemd-udevd.service`.
+Ordinary messages emitted by the service keep their original sender,
+e.g. `systemd-udevd[524]`. The label is not guessed from free-form
+log text; manager messages without a suitable unit field remain
+`systemd[1]`. Original journal metadata is untouched; this affects
+only the displayed sender label.
 
 Close the application and test with:
 
