@@ -188,9 +188,9 @@ class ServiceJournal(ttk.Frame):
                 # journalctl --grep exits with code 1 when there are no
                 # matching messages. That is an empty result, not a failure.
                 # Keep reporting actual command/permission errors.
-                no_matches = (run.returncode == 1 and "--grep=" in
-                              " ".join(command) and not run.stdout.strip()
-                              and not run.stderr.strip())
+                no_matches = (run.returncode == 1
+                              and any(arg.startswith("--grep=") for arg in command)
+                              and not run.stdout.strip() and not run.stderr.strip())
                 if run.returncode and not no_matches:
                     self._results.put((generation, None, (run.stderr.strip()
                                       or "journalctl failed (exit %s)" % run.returncode)))
