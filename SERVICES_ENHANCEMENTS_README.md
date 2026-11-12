@@ -780,3 +780,17 @@ Copy text using **Ctrl+C** after selecting, **Ctrl+A** to select all,
 right-click **Copy selection / Copy all**, or the **Copy details**
 button beside the Disk details heading. These actions copy text to
 the desktop clipboard and do not reread disk data or require admin.
+
+### SMART table copy and NVMe health columns
+
+The SMART table now includes **NVMe used %** (the drive's own
+`nvme_smart_health_information_log.percentage_used`) and **NVMe media
+errors** (`media_errors`). Missing or non-NVMe values display `-`
+rather than zero. These values are independent of the separate
+manufacturer-rated **TBW used %** calculated from host writes.
+
+**Disk details** now uses the application's exact `Common.font_normal`
+GUI size, with no 1.2 multiplier. The table can copy its selected row
+as tab-separated values with **Ctrl+C**. Right-click a table cell for
+**Copy cell**, **Copy model** or **Copy selected row**. The existing
+Disk details text selection and Copy details button remain available.
