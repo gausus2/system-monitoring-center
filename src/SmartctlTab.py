@@ -49,6 +49,13 @@ def details_text(disk, smart, writes_unit="Auto"):
         "Health: " + smart.get("health", "Unknown"),
         "Total writes: " + format_writes(smart.get("writes_bytes"), writes_unit),
         "Writes source: " + (smart.get("writes_source") or "Unknown / not supported"),
+        "Manufacturer rated TBW: " + (
+            ("%s TBW" % smart["rated_tbw"]) if smart.get("rated_tbw") is not None
+            else "Unknown / not in catalog"),
+        "Writes / rated TBW: " + (
+            "%.2f %%" % smart["rated_tbw_used_pct"]
+            if smart.get("rated_tbw_used_pct") is not None else "-"),
+        "Rating source: " + (smart.get("rated_tbw_source") or "-"),
     ]
     for key, label, suffix in (
         ("temperature", "Temperature", " °C"),
@@ -119,19 +126,24 @@ class SmartctlTab(ttk.Frame):
         frame.grid(row=2, column=0, sticky="nsew")
         frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=1)
-        columns = ("device", "model", "size", "health", "temp", "hours", "writes")
+        columns = ("device", "model", "size", "health", "temp", "hours",
+                   "writes", "rated_tbw", "tbw_used")
         self.table = ttk.Treeview(
             frame, columns=columns, show="headings", selectmode="browse")
-        widths = (140, 240, 100, 125, 95, 110, 120)
+        widths = (132, 215, 90, 112, 75, 100, 110, 90, 90)
         labels = ("Disk", "Model", "Size", "SMART", "Temp °C",
-                  "Power-on", "Total writes")
+                  "Power-on", "Total writes", "Rated TBW", "TBW used %")
         for column, label, width in zip(columns, labels, widths):
             self.table.heading(column, text=label)
             self.table.column(column, width=width, stretch=(column == "model"))
         self.table.grid(row=0, column=0, sticky="nsew")
         scroll = ttk.Scrollbar(frame, orient="vertical", command=self.table.yview)
         scroll.grid(row=0, column=1, sticky="ns")
-        self.table.configure(yscrollcommand=scroll.set)
+        hscroll = ttk.Scrollbar(frame, orient="horizontal",
+                                command=self.table.xview)
+        hscroll.grid(row=1, column=0, sticky="ew")
+        self.table.configure(yscrollcommand=scroll.set,
+                             xscrollcommand=hscroll.set)
         self.table.bind("<<TreeviewSelect>>", self._select)
 
         detail_frame = ttk.Frame(self)
@@ -205,7 +217,11 @@ class SmartctlTab(ttk.Frame):
                 "-" if temp is None else str(temp),
                 format_hours(smart.get("hours")),
                 format_writes(smart.get("writes_bytes"),
-                              self.writes_unit_var.get())))
+                              self.writes_unit_var.get()),
+                "-" if smart.get("rated_tbw") is None else
+                    "%s TB" % smart["rated_tbw"],
+                "-" if smart.get("rated_tbw_used_pct") is None else
+                    "%.2f %%" % smart["rated_tbw_used_pct"]))
             self._rows[path] = disk, smart
         if self._data:
             unavailable = sum(
