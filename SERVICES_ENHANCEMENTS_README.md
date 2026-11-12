@@ -1,5 +1,30 @@
 # System Monitoring Center – Services enhancements
 
+## Production release: System Logs and Warp-aware priorities (12 November 2026)
+
+The previously tested `warp-log-levels-development` version has now been
+promoted to **`services-enhancements`**, including the standalone sixth
+**System Logs** main tab, kernel/system journal sources, named namespace
+selector, boot boundaries, full-journal search before the line limit,
+journal sender/PID, priority colors and the optional Warp-specific embedded
+DEBUG/INFO/WARN/ERROR interpretation.
+
+For production installation from the `services-enhancements` branch:
+
+```bash
+git switch services-enhancements
+bash ./update-services.sh
+```
+
+The production updater now targets `services-enhancements` and installs
+`SystemLogs.py` and `WarpJournal.py` alongside the other helpers, including
+the Warp parser regression-test check. The development branches
+(`warp-log-levels-development`, `journal-colors-development`,
+`system-logs-development`) and the earlier `services-stable` backup
+remain available and unchanged. Older sections below document the development
+history and test instructions, not the current production installation.
+
+
 ## Warp embedded log levels (isolated test branch)
 
 **Branch:** `warp-log-levels-development` (forked from the working
