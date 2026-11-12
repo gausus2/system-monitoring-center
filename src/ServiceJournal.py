@@ -49,7 +49,7 @@ class ServiceJournal(ttk.Frame):
         self.boot_var = tk.StringVar(value="Current boot")
         self.level_var = tk.StringVar(value="All levels")
         self.time_var = tk.StringVar(value="Last 24 hours")
-        self.lines_var = tk.StringVar(value="500")
+        self.lines_var = tk.StringVar(value="Last 500")
         self.search_var = tk.StringVar()
         self.boot_values = {
             "Current boot": "-0", "Previous boot": "-1", "All boots": None,
@@ -61,6 +61,7 @@ class ServiceJournal(ttk.Frame):
             "Debug (all)": "debug",
         }
         self.time_values = {
+            "Last minute": "1 minute ago", "Last 10 minutes": "10 minutes ago",
             "Last hour": "1 hour ago", "Last 24 hours": "24 hours ago",
             "Last 7 days": "7 days ago", "All available": None,
         }
@@ -69,7 +70,9 @@ class ServiceJournal(ttk.Frame):
             ("Boot", self.boot_var, tuple(self.boot_values), 15),
             ("Priority", self.level_var, tuple(self.level_values), 19),
             ("Time range", self.time_var, tuple(self.time_values), 19),
-            ("Lines", self.lines_var, ("100", "500", "1000", "5000"), 7),
+            ("Lines", self.lines_var, (
+                "Last 100", "Last 500", "Last 1000", "Last 5000",
+                "First 100", "First 500", "First 1000", "First 5000"), 12),
         )):
             box = ttk.Frame(controls)
             box.grid(row=0, column=column, sticky="w", padx=(0, 7))
@@ -160,11 +163,13 @@ class ServiceJournal(ttk.Frame):
         self._generation += 1
         generation = self._generation
         service = self.service
+        count, first = WarpJournal.parse_line_selection(self.lines_var.get())
         warp_mode = (self.system_mode and self.log_source == "system"
                      and self.namespace == "warp")
         command = ["journalctl", "--no-pager", "--quiet", "--output=json"]
         if not warp_mode:
-            command.extend(["--lines", self.lines_var.get()])
+            # journalctl -n +N selects the first N matching entries.
+            command.extend(["--lines", ("+" if first else "") + str(count)])
         namespace = self.namespace if self.system_mode else "*"
         if namespace is not None:
             command.append("--namespace=" + namespace)
@@ -205,7 +210,7 @@ class ServiceJournal(ttk.Frame):
                     # Reverse-stream until N matching effective priorities.
                     # Never read an unbounded Warp journal into Tkinter.
                     entries = WarpJournal.read_entries(
-                        command, int(self.lines_var.get()), level)
+                        command, count, level, first=first)
                 else:
                     run = subprocess.run(command, capture_output=True, text=True,
                                          errors="replace", timeout=45, check=False)
@@ -337,7 +342,7 @@ class ServiceJournal(ttk.Frame):
                                 tag if priority <= 4 else "sender")
                 self.log.insert("end", message_part, tag)
         self.log.configure(state="disabled")
-        self.log.yview_moveto(1.0)
+        self.log.yview_moveto(0.0 if self.lines_var.get().startswith("First ") else 1.0)
 
     def _set_text(self, text, tag=None):
         self.log.configure(state="normal")
