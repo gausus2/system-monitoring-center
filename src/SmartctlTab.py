@@ -284,9 +284,11 @@ class SmartctlTab(ttk.Frame):
 
     def _copy_table(self):
         """Copy every displayed disk row and the current column headers."""
-        columns = tuple(self.table["displaycolumns"])
-        if columns == ("#all",):
+        displayed = self.table["displaycolumns"]
+        if displayed == "#all" or displayed == ("#all",):
             columns = tuple(self.table["columns"])
+        else:
+            columns = tuple(displayed)
         headings = [self.table.heading(column, "text") for column in columns]
         rows = [
             [self.table.set(item, column) for column in columns]
