@@ -41,6 +41,7 @@ python3 tests/test_services_failed_filter.py
 python3 tests/test_smartctl_data.py
 python3 tests/test_smartctl_formatting.py
 python3 tests/test_smart_endurance.py
+python3 tests/test_smart_details_ui.py
 python3 tests/test_smart_tab_signal.py
 
 if [[ ! -f "$DEST/Services.py" || ! -f "$DEST/Libsysmon.py" || ! -f "$DEST/MainWindow.py" ]]; then
