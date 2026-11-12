@@ -27,6 +27,21 @@ def unit_glob(suffix):
     return "*." + suffix
 
 
+def manager_unit_label(entry):
+    """Return the unit referenced by a PID 1 manager event, if recorded.
+
+    UNIT= describes the unit that systemd is reporting about, while
+    _SYSTEMD_UNIT describes the process emitting an ordinary log message.
+    Never infer unit names by parsing free-form MESSAGE text.
+    """
+    sender = entry.get("SYSLOG_IDENTIFIER") or entry.get("_COMM")
+    pid = str(entry.get("SYSLOG_PID") or entry.get("_PID") or "")
+    if sender != "systemd" or pid != "1":
+        return None
+    name = entry.get("UNIT") or entry.get("OBJECT_SYSTEMD_UNIT")
+    return name if unit_type(name) else None
+
+
 def discover_types(namespace=None, timeout=7):
     """Enumerate unit suffixes recorded in the selected journal namespace.
 
