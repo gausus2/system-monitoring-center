@@ -25,6 +25,7 @@ class ServiceJournal(ttk.Frame):
         self._generation = 0
         self._results = queue.Queue()
         self._records = []
+        self._last_refresh = None
         self._pending = None
         self._closed = False
 
@@ -223,6 +224,9 @@ class ServiceJournal(ttk.Frame):
                             entries.append(json.loads(line))
                         except (ValueError, TypeError):
                             continue
+                # journalctl --grep combined with --lines implies reverse
+                # output; normalize before showing newest entries at bottom.
+                entries.sort(key=WarpJournal.timestamp_microseconds)
                 records = []
                 for entry in entries:
                     message = entry.get("MESSAGE", "")
@@ -283,6 +287,7 @@ class ServiceJournal(ttk.Frame):
                     self._set_text("Unable to read journal:\n" + error + "\n", "error")
                 else:
                     self._records = records
+                    self._last_refresh = datetime.datetime.now().strftime("%H:%M:%S")
                     self._render_records()
         except queue.Empty:
             pass
@@ -300,7 +305,10 @@ class ServiceJournal(ttk.Frame):
                  [record for record in self._records
                   if not needle or needle in record[2].casefold()
                   or needle in record[3].casefold()])
-        self.status.configure(text="%s / %s entries" % (len(shown), len(self._records)))
+        status = "%s / %s entries" % (len(shown), len(self._records))
+        if self._last_refresh:
+            status += " · Updated " + self._last_refresh
+        self.status.configure(text=status)
         self.log.configure(state="normal")
         self.log.delete("1.0", "end")
         if not shown:
