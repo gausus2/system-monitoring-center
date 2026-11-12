@@ -11,7 +11,9 @@ to the existing Last hour / Last 24 hours / Last 7 days / All available.
 **Lines** offers **Last 100 / 500 / 1000 / 5000** and
 **First 100 / 500 / 1000 / 5000**. "First" means the oldest matching
 journal entries within the chosen boot, namespace, time range, priority and
-search. "Last" means the newest matching entries. The UI displays records
+search. Selecting any **First** option automatically changes **Time range** to
+**All available**; the user can manually select a narrower range afterward.
+"Last" means the newest matching entries and does not change Time range. The UI displays records
 chronologically, scrolling to the top for First and to the bottom for Last.
 
 Normal journal queries use systemd's `journalctl --lines=+N` for First
