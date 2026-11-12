@@ -1,5 +1,15 @@
 # System Monitoring Center – Services enhancements
 
+## Boot boundaries in journal results (test branch)
+
+When **All boots** is selected, the viewer retains the journal's `_BOOT_ID`
+for each returned entry and inserts a separator of the form
+`-- Boot UUID --` whenever the boot ID changes. It does not count these
+visual separators toward the Lines limit. Timestamps, severity highlighting,
+sender/PID and log messages remain unchanged. A separator is only shown
+between boots present among the returned entries; there is no synthetic
+separator before the first displayed entry.
+
 ## Single System Logs search with full-journal filtering (test branch)
 
 System Logs has **one search box**, immediately above the messages. Enter a
