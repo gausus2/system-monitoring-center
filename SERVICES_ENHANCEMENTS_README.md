@@ -840,3 +840,18 @@ in plain-text editors, terminals and chats, without requiring another
 SMART scan or authentication. Existing **Ctrl+C** on a selected row,
 **Copy cell**, **Copy model** and **Copy details** remain unchanged.
 Test: `tests/test_smart_copy_table.py`.
+
+### Active filesystem mount points in SMART details
+
+**Disk details** now reports the currently mounted filesystems belonging
+to the selected physical disk. A separate read-only
+`lsblk -J -T -o PATH,TYPE,MOUNTPOINTS` query walks the disk's
+partitions, LUKS mappings and LVM descendants, and lists each mounted
+path alongside its source device. Multiple mounts (including Btrfs
+subvolumes) are supported. Pseudo-values such as `[SWAP]` are not
+reported as mounted filesystems. A disk with no active mounts shows
+**Mount points: Not mounted**, while an unreadable/missing lsblk mount
+query shows **Unavailable** without hiding SMART health. Mounts are
+re-evaluated on **Apply / Refresh** and **Read SMART (Admin)**, and the
+feature does not require sudo. Tests cover nested device mapping,
+multiple mounts, failures and the Disk details display.
