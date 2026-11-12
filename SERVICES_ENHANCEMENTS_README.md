@@ -580,25 +580,27 @@ ANSI escape codes are removed from the displayed text rather than executed.
 The original System/Kernel journal display colors and filters are unchanged.
 `tests/test_log_highlight.py` checks matching and overlapping spans.
 
-### Boot filter for Other logs
+### Boot-based file selection for Other logs
 
-**Other logs** now has a separate **Boot** dropdown: All available,
-Current boot (default), Previous boot (-1), Boot -2, Boot -3.
-Unlike journal entries, ordinary text files do not contain `_BOOT_ID`.
-The viewer estimates the time range: for the current boot, the kernel's
-`/proc/stat` `btime` (equivalent to `uptime -s`); for earlier boots,
-the first and last journal message timestamps in those boots. It filters
-text-log entries by recognized ISO-8601, syslog or Apache-style dates,
-with undated continuation lines assigned to the preceding dated entry.
-Boot/time filtering happens before search/First/Last line limits.
+The **Files since** selector in System Logs (beside the **Other logs**
+menu) controls **which files are listed**, not what lines are shown
+within an opened file. Available choices: **All available**,
+**Current boot** (default), **Previous boot (-1)**, **Boot -2**, and
+**Boot -3**. The menu discovers non-rotated readable-format candidates
+below `/var/log` and filters their filesystem **last-modified time**
+(`mtime`) against the chosen boot interval. **Current boot** uses
+`/proc/stat` `btime` (as in `uptime -s`); earlier boots use the
+first/last known journald message timestamp.
 
-This is **not exact boot identity**: missing journal history, clock
-changes, unrecognized timestamp formats or absent rotated files can
-mean that no entries are available for a selected boot. When no
-timestamps can be parsed, the viewer automatically shows the **unfiltered
-plain-text log**, preserving first/last line counts, search, and syntax colors.
-The status says **plain text (boot filter unavailable)** so the unfiltered
-view is never mistaken for a boot-specific result.
-Files larger than 64 MiB are scanned from the tail for Last N, and
-from the head for First N; partial scans are flagged in the status.
-The existing System/Kernel journal filters are unchanged.
+**Important limitation:** `mtime` is the **file's most recent
+modification**, not a record of each boot in which it contained
+messages. A file updated later than the chosen old boot will not be
+listed for that older boot, even if it contains older lines. Missing
+journal history can prevent calculating historical boot ranges.
+The menu intentionally excludes rotated/compressed files, as before.
+
+**Once a file is opened, the file viewer shows unfiltered text from
+that file**, regardless of the menu's boot choice. **First/Last
+100–5000 lines**, search, syntax coloring and refresh remain available.
+The existing System journal and Kernel journal controls remain
+unchanged.
