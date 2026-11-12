@@ -77,8 +77,11 @@ class ServiceJournal(ttk.Frame):
             box = ttk.Frame(controls)
             box.grid(row=0, column=column, sticky="w", padx=(0, 7))
             ttk.Label(box, text=label, font=Common.font_normal).pack(anchor="w")
-            ttk.Combobox(box, textvariable=var, state="readonly",
-                         values=values, width=width, font=Common.font_normal).pack(fill="x")
+            selector = ttk.Combobox(box, textvariable=var, state="readonly",
+                                    values=values, width=width, font=Common.font_normal)
+            selector.pack(fill="x")
+            if label == "Lines":
+                selector.bind("<<ComboboxSelected>>", self.on_lines_selected)
 
         self.refresh_button = ttk.Button(controls, text="Apply / Refresh", command=self.refresh)
         self.refresh_button.grid(row=0, column=4, sticky="s", padx=(1, 0))
@@ -156,6 +159,11 @@ class ServiceJournal(ttk.Frame):
         elif changed:
             self.level_var.set("All levels")
         self.refresh()
+
+    def on_lines_selected(self, event=None):
+        """Default First N selections to the full available time range."""
+        if self.lines_var.get().startswith("First "):
+            self.time_var.set("All available")
 
     def refresh(self):
         if self._closed or (not self.system_mode and not self.service):
