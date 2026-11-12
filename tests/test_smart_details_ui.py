@@ -17,6 +17,12 @@ class SmartDetailsUITests(unittest.TestCase):
         self.assertIn("font=Common.font_normal", source)
         self.assertNotIn("round(abs(original_size) * 1.2)", source)
 
+    def test_treeview_uses_actual_gui_font(self):
+        self.assertIn('"SmartDisk.Treeview", font=Common.font_normal', source)
+        self.assertIn('"SmartDisk.Treeview.Heading", font=Common.font_normal', source)
+        self.assertIn('style="SmartDisk.Treeview"', source)
+        self.assertIn('Common.font_normal.metrics("linespace") + 6', source)
+
     def test_nvme_endurance_and_error_columns(self):
         self.assertIn('"nvme_used", "nvme_errors"', source)
         self.assertIn('"NVMe used %", "NVMe media errors"', source)
