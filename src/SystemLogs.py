@@ -75,7 +75,13 @@ class SystemLogs(ttk.Frame):
         self.source.bind("<<ComboboxSelected>>", self.select_source)
 
         # Separate file-log dropdown below the original Log source control.
-        self.file_button = ttk.Menubutton(toolbar, text="Other logs ▾", width=21)
+        style = ttk.Style(self)
+        style.configure(
+            "CompactLogs.TMenubutton", font=Common.font_normal,
+            padding=(5, 2))
+        self.file_button = ttk.Menubutton(
+            toolbar, text="Other logs ▾", width=17,
+            style="CompactLogs.TMenubutton")
         self.file_button.grid(row=1, column=2, sticky="ew", pady=(5, 0))
         self.file_menu = tk.Menu(self.file_button, tearoff=False)
         self.file_button.configure(menu=self.file_menu)
