@@ -44,6 +44,7 @@ def details_text(disk, smart, writes_unit="Auto"):
         "Device: " + disk["path"],
         "Model: " + (smart.get("model") or disk["model"] or "-"),
         "Serial: " + (smart.get("serial") or "-"),
+        "Firmware: " + (smart.get("firmware") or "-"),
         "Transport: " + disk["transport"],
         "Size: " + format_size(disk["size"]),
         "Health: " + smart.get("health", "Unknown"),
