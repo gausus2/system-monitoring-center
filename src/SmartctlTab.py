@@ -75,6 +75,26 @@ def details_text(disk, smart, writes_unit="Auto"):
     return "\n".join(parts) + "\n"
 
 
+def format_table_text(headings, rows):
+    """Copy the visible SMART table as aligned plain text.
+
+    The source is the Treeview, so headings, order, displayed units and
+    refreshed values always match the screen. This is not a SMART read.
+    """
+    if not headings:
+        return ""
+    lines = [tuple(str(cell) for cell in headings)]
+    lines.extend(tuple(str(cell) for cell in row) for row in rows)
+    widths = [
+        max(len(line[index]) for line in lines)
+        for index in range(len(headings))
+    ]
+    return "\n".join(
+        "  ".join(cell.ljust(widths[index]) for index, cell in enumerate(line)).rstrip()
+        for line in lines
+    ) + "\n"
+
+
 class SmartctlTab(ttk.Frame):
     """Load once on activation; refresh via button or global F5."""
     def __init__(self, parent):
@@ -103,6 +123,10 @@ class SmartctlTab(ttk.Frame):
         self.refresh_button.pack(side="right")
         style.configure(
             "SmartAdmin.TButton", font=Common.font_normal, padding=(5, 2))
+        self.copy_table_button = ttk.Button(
+            toolbar, text="Copy table", command=self._copy_table,
+            style="SmartAdmin.TButton")
+        self.copy_table_button.pack(side="left", padx=(10, 0))
         self.admin_button = ttk.Button(
             toolbar, text="Read SMART (Admin)", command=self.refresh_admin,
             style="SmartAdmin.TButton")
@@ -179,6 +203,8 @@ class SmartctlTab(ttk.Frame):
         self.table_menu.add_command(label="Copy cell", command=self._copy_table_cell)
         self.table_menu.add_command(label="Copy model", command=self._copy_table_model)
         self.table_menu.add_command(label="Copy selected row", command=self._copy_table_row)
+        self.table_menu.add_separator()
+        self.table_menu.add_command(label="Copy table", command=self._copy_table)
 
         detail_frame = ttk.Frame(self.disk_panes)
         detail_frame.columnconfigure(0, weight=1)
@@ -255,6 +281,18 @@ class SmartctlTab(ttk.Frame):
     def _clipboard_text(self, value):
         self.clipboard_clear()
         self.clipboard_append(str(value))
+
+    def _copy_table(self):
+        """Copy every displayed disk row and the current column headers."""
+        columns = tuple(self.table["displaycolumns"])
+        if columns == ("#all",):
+            columns = tuple(self.table["columns"])
+        headings = [self.table.heading(column, "text") for column in columns]
+        rows = [
+            [self.table.set(item, column) for column in columns]
+            for item in self.table.get_children("")
+        ]
+        self._clipboard_text(format_table_text(headings, rows))
 
     def _selected_table_item(self):
         selected = self.table.selection()
