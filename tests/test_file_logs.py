@@ -1,4 +1,5 @@
 """Regression tests for the /var/log text-file reader."""
+import datetime
 import importlib.util
 from pathlib import Path
 import sys
@@ -54,6 +55,44 @@ class FileLogsTests(unittest.TestCase):
             with mock.patch.object(logs, "ROOT", directory):
                 self.assertEqual(logs.available_logs(),
                                  [str(root / "syslog"), str(sub / "error.log")])
+
+    def test_boot_filter_applies_before_last_line_count(self):
+        tz = datetime.timezone(datetime.timedelta(hours=1))
+        start = datetime.datetime(2026, 11, 12, 12, 8, 22, tzinfo=tz)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "syslog"
+            path.write_text(
+                "Nov 12 00:10:56 Stopped logrotate.timer\\n"
+                "Nov 12 12:08:30 System started\\n"
+                "    continuation of startup\\n"
+                "Nov 12 12:10:00 ERROR failed\\n"
+                "Nov 12 21:11:00 Ready\\n", encoding="utf-8")
+            with mock.patch.object(logs, "ROOT", directory), \
+                 mock.patch.object(logs.FileLogBoot, "boot_window",
+                                   return_value=(start, None)):
+                lines, truncated = logs.read_lines(
+                    str(path), 2, needle="", boot="Current boot")
+                self.assertEqual(lines, [
+                    "Nov 12 12:10:00 ERROR failed",
+                    "Nov 12 21:11:00 Ready"])
+                self.assertFalse(truncated)
+                lines, _ = logs.read_lines(
+                    str(path), 2, first=True, boot="Current boot")
+                self.assertEqual(lines, [
+                    "Nov 12 12:08:30 System started",
+                    "    continuation of startup"])
+
+    def test_boot_filter_rejects_undated_file(self):
+        tz = datetime.timezone.utc
+        start = datetime.datetime(2026, 11, 12, 12, tzinfo=tz)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "plain.log"
+            path.write_text("foo\\nbar\\n", encoding="utf-8")
+            with mock.patch.object(logs, "ROOT", directory), \
+                 mock.patch.object(logs.FileLogBoot, "boot_window",
+                                   return_value=(start, None)):
+                with self.assertRaisesRegex(ValueError, "No recognizable"):
+                    logs.read_lines(str(path), 2, boot="Current boot")
 
     def test_binary_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
