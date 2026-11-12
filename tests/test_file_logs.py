@@ -98,7 +98,8 @@ class FileLogsTests(unittest.TestCase):
             with mock.patch.object(logs, "ROOT", directory), \
                  mock.patch.object(logs.os.path, "getmtime", return_value=start.timestamp()), \
                  mock.patch.object(logs.FileLogBoot, "boot_window",
-                                   return_value=(start, None)):
+                                   side_effect=lambda selected: None if selected == "All available"
+                                   else (start, None)):
                 with self.assertRaises(logs.NoRecognizableTimestamps):
                     logs.read_lines(str(path), 2, boot="Current boot")
                 lines, partial, fallback = logs.read_with_boot_fallback(
