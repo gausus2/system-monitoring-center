@@ -42,11 +42,22 @@ class SmartFormattingTests(unittest.TestCase):
                     ("2024-03-20 14:56:20", "/dev/nvme2n1p4")]}
         smart = {"health": "Passed", "attributes": {}, "messages": []}
         details = scope["details_text"](disk, smart)
-        self.assertIn("Oldest filesystem created (ext4): 2024-02-27 21:11:50",
+        self.assertIn("Filesystem date information:", details)
+        self.assertIn("/dev/nvme2n1p6 (ext4): 2024-02-27 21:11:50"
+                      " [filesystem created]", details)
+        self.assertIn("/dev/nvme2n1p4 (ext4): 2024-03-20 14:56:20",
                       details)
-        self.assertIn("/dev/nvme2n1p4 → 2024-03-20 14:56:20", details)
+        self.assertNotIn("Oldest filesystem", details)
+        disk["ntfs_root_dates"] = [
+            ("2017-09-29 08:45:11 UTC", "/dev/nvme2n1p2")]
+        details = scope["details_text"](disk, smart)
+        self.assertIn("/dev/nvme2n1p2 (NTFS): 2017-09-29 08:45:11 UTC"
+                      " [root directory created]", details)
+        self.assertLess(details.index("/dev/nvme2n1p2 (NTFS)"),
+                        details.index("/dev/nvme2n1p6 (ext4)"))
         disk["filesystem_dates"] = []
-        self.assertIn("Filesystem creation dates (ext4): Not available",
+        disk["ntfs_root_dates"] = []
+        self.assertIn("Not available (try Read SMART (Admin)",
                       scope["details_text"](disk, smart))
 
     def test_disk_details_show_current_mounts(self):
