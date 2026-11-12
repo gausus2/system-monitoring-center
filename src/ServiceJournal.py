@@ -107,8 +107,9 @@ class ServiceJournal(ttk.Frame):
         self.log.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
         self.log.tag_configure("critical", foreground="#e05a60")
         self.log.tag_configure("warning", foreground="#dca640")
-        self.log.tag_configure("info", foreground="#5594cc")
-        self.log.tag_configure("normal", foreground="#9eacbc")
+        self.log.tag_configure("info", foreground="#cccccc")
+        self.log.tag_configure("normal", foreground="#cccccc")
+        self.log.tag_configure("sender", foreground="#65c76b")
         self.log.tag_configure("error", foreground="#e05a60")
         self.log.tag_configure("boot", foreground="#a3b5cb")
 
@@ -282,11 +283,15 @@ class ServiceJournal(ttk.Frame):
                     previous_boot = boot_id
                 tag = "critical" if priority <= 3 else ("warning" if priority == 4
                        else ("info" if priority >= 6 else "normal"))
-                line = "%s  %-6s %-26s %s\n" % (
-                    when, names[priority], sender,
-                    message.replace("\r", "").replace("\n", " ⏎ ")
-                )
-                self.log.insert("end", line, tag)
+                # Keep warning/error lines uniformly colored. For normal
+                # priorities, color only the identifier/PID in green.
+                prefix = "%s  %-6s " % (when, names[priority])
+                sender_part = "%-26s " % sender
+                message_part = message.replace("\r", "").replace("\n", " ⏎ ") + "\n"
+                self.log.insert("end", prefix, tag)
+                self.log.insert("end", sender_part,
+                                tag if priority <= 4 else "sender")
+                self.log.insert("end", message_part, tag)
         self.log.configure(state="disabled")
         self.log.yview_moveto(1.0)
 
