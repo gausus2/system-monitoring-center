@@ -9,7 +9,7 @@ import subprocess
 
 COMMON_TYPES = ("service", "mount", "socket", "timer", "target",
                 "device", "swap", "path", "automount", "slice", "scope")
-UNIT_NAME = re.compile(r"^[^\\s/]+\\.([a-z][a-z0-9-]*)$")
+UNIT_NAME = re.compile(r"^[^\s/]+\.([a-z][a-z0-9-]*)$")
 
 
 def unit_type(name):
