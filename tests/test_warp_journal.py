@@ -78,6 +78,24 @@ class WarpJournalTests(unittest.TestCase):
         self.assertEqual(warp.timestamp_microseconds(
             {"__REALTIME_TIMESTAMP": "invalid"}), 0)
 
+    def test_line_selection(self):
+        self.assertEqual(warp.parse_line_selection("Last 500"), (500, False))
+        self.assertEqual(warp.parse_line_selection("First 100"), (100, True))
+        self.assertEqual(warp.parse_line_selection("5000"), (5000, False))
+        with self.assertRaises(ValueError):
+            warp.parse_line_selection("First 999999")
+
+    def test_first_reader_filters_before_counting(self):
+        entries = [record("INFO"), record("WARN"), record("DEBUG"),
+                   record("ERROR"), record("WARN")]
+        fake = FakeProcess(entries)
+        with mock.patch.object(warp.subprocess, "Popen", return_value=fake) as popen:
+            results = warp.read_entries(
+                ["journalctl", "--namespace=warp", "--output=json"],
+                2, "warning", first=True)
+        self.assertEqual([row["_VIEW_PRIORITY"] for row in results], [4, 3])
+        self.assertNotIn("--reverse", popen.call_args.args[0])
+
     def test_reverse_reader_limits_after_effective_filter(self):
         # Input is newest-first, as emitted by journalctl --reverse.
         entries = [record("ERROR"), record("INFO"), record("WARN"), record("DEBUG")]
