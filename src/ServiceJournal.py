@@ -189,7 +189,20 @@ class ServiceJournal(ttk.Frame):
                         when = datetime.datetime.fromtimestamp(stamp).strftime("%Y-%m-%d %H:%M:%S")
                     except (ValueError, OSError, OverflowError):
                         when = "unknown time"
-                    records.append((when, max(0, min(7, priority)), message))
+                    # Preserve the source shown by journalctl's short format.
+                    # Some records have no unit or SYSLOG_IDENTIFIER.
+                    sender = (entry.get("SYSLOG_IDENTIFIER")
+                              or entry.get("_COMM")
+                              or entry.get("_SYSTEMD_UNIT")
+                              or entry.get("_TRANSPORT")
+                              or "-")
+                    if not isinstance(sender, str):
+                        sender = str(sender)
+                    pid = entry.get("SYSLOG_PID") or entry.get("_PID")
+                    if pid and sender != "-":
+                        sender += "[" + str(pid) + "]"
+                    records.append((when, max(0, min(7, priority)),
+                                    sender, message))
                 self._results.put((generation, records, None))
             except (OSError, subprocess.TimeoutExpired) as error:
                 self._results.put((generation, None, str(error)))
@@ -223,7 +236,8 @@ class ServiceJournal(ttk.Frame):
         self._pending = None
         needle = self.search_var.get().casefold()
         shown = [record for record in self._records
-                 if not needle or needle in record[2].casefold()]
+                 if not needle or needle in record[2].casefold()
+                 or needle in record[3].casefold()]
         self.status.configure(text="%s / %s entries" % (len(shown), len(self._records)))
         self.log.configure(state="normal")
         self.log.delete("1.0", "end")
@@ -231,11 +245,13 @@ class ServiceJournal(ttk.Frame):
             self.log.insert("end", "No journal entries match these filters.\n")
         else:
             names = ("EMERG", "ALERT", "CRIT", "ERROR", "WARN", "NOTICE", "INFO", "DEBUG")
-            for when, priority, message in shown:
+            for when, priority, sender, message in shown:
                 tag = "critical" if priority <= 3 else ("warning" if priority == 4
                        else ("info" if priority >= 6 else "normal"))
-                line = "%s  %-6s %s\n" % (when, names[priority],
-                                           message.replace("\r", "").replace("\n", " ⏎ "))
+                line = "%s  %-6s %-26s %s\n" % (
+                    when, names[priority], sender,
+                    message.replace("\r", "").replace("\n", " ⏎ ")
+                )
                 self.log.insert("end", line, tag)
         self.log.configure(state="disabled")
         self.log.yview_moveto(1.0)
