@@ -1,27 +1,20 @@
 # System Monitoring Center – Services enhancements
 
-## Search the full journal before loading (test branch)
+## Single System Logs search with full-journal filtering (test branch)
 
-System Logs now includes two **journalctl-side** filters above the existing
-local search field:
+System Logs has **one search box**, immediately above the messages. Enter a
+query and press **Enter** or **Apply / Refresh** to search the selected journal
+*before* applying the **Lines** limit. A query such as `webmin.service` uses
+`journalctl --unit=webmin.service`, including manager messages about the unit;
+the latest 100 matching records are returned when Lines is 100. Other queries
+use a case-insensitive, literal `journalctl --grep` search of the MESSAGE
+field. Choose **All boots** and **All available** to include older entries.
+Boot, priority and namespace filters apply as usual.
 
-- **Unit (full journal):** enter a complete unit name, e.g.
-  `webmin.service`. Uses `journalctl --unit=webmin.service` to retrieve
-  service messages and systemd manager messages about that unit. Applies to
-  **System journal**, not the kernel-only source.
-- **Message (full journal):** literal case-insensitive message search, using
-  `journalctl --grep=...` with escaped text. The journal is searched before
-  `--lines` limits the returned results. Available for both sources.
-
-Press **Apply / Refresh** or Return in one of these fields. The pre-existing
-**Search in loaded messages** only filters the entries already returned to
-the screen, including sender names. There is deliberately **no unlimited
-output option**: the existing 100–5000 entry cap protects the interface.
-To find older messages select **All boots** and **All available**; then use
-the unit or message filter to fetch up to 5000 matching records. Full-journal
-search is constrained by the chosen namespace and journal permissions.
-On very large journals a search may take longer than the viewer's
-45-second timeout.
+The search box inside **Services → Service Journal** is intentionally unchanged:
+it still filters only the bounded messages already loaded for that service.
+Neither view has unbounded output; available line limits are 100–5000, to
+protect GUI responsiveness.
 
 ## Journal sender and PID (test branch)
 
