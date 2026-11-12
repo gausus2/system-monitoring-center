@@ -38,6 +38,31 @@ class UnitTypesTests(unittest.TestCase):
             "OBJECT_SYSTEMD_UNIT": "home.mount",
         }), "home.mount")
 
+    def test_sender_includes_service_context_for_udev_helpers(self):
+        self.assertEqual(types.display_sender({
+            "_SYSTEMD_UNIT": "systemd-udevd.service",
+            "SYSLOG_IDENTIFIER": "mtp-probe", "_PID": 648,
+        }), "systemd-udevd.service mtp-probe[648]")
+        self.assertEqual(types.display_sender({
+            "_SYSTEMD_UNIT": "systemd-udevd.service",
+            "_COMM": "(udev-worker)", "_PID": 552,
+        }), "systemd-udevd.service (udev-worker)[552]")
+        self.assertEqual(types.display_sender({
+            "SYSLOG_IDENTIFIER": "systemd", "_PID": 1,
+            "UNIT": "modprobe@loop.service",
+        }), "modprobe@loop.service")
+        self.assertEqual(types.display_sender({
+            "SYSLOG_IDENTIFIER": "systemd", "_PID": 1,
+        }), "systemd[1]")
+        self.assertEqual(types.display_sender({
+            "_SYSTEMD_UNIT": "home.mount",
+            "SYSLOG_IDENTIFIER": "some-process", "_PID": 100,
+        }), "some-process[100]")
+        self.assertEqual(types.display_sender({
+            "_SYSTEMD_UNIT": "warp-svc.service",
+            "SYSLOG_IDENTIFIER": "warp-svc.service", "_PID": 1836,
+        }), "warp-svc.service[1836]")
+
     def test_glob_is_safe(self):
         self.assertEqual(types.unit_glob("mount"), "*.mount")
         self.assertIsNone(types.unit_glob(None))
