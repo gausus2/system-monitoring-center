@@ -89,7 +89,7 @@ class Services:
         self.state_filter = ttk.Combobox(
             search_frame, textvariable=self.state_filter_var, state="readonly",
             width=16, values=(
-                "All states", "Enabled", "Disabled", "Static", "Masked",
+                "All states", "Failed", "Enabled", "Disabled", "Static", "Masked",
                 "Generated", "Indirect", "Enabled-runtime", "Masked-runtime",
                 "Linked", "Linked-runtime", "Alias", "Transient", "Bad", "-"
             )
@@ -121,7 +121,13 @@ class Services:
                 continue
             raw_state = states.get(name, {}).get("unit_file_state", "")
             display_state = _tr(raw_state) if raw_state else "-"
-            if chosen != "All states" and display_state.casefold() != chosen.casefold():
+            if chosen == "Failed":
+                # systemctl --failed --type=service selects ActiveState=failed,
+                # not UnitFileState (enabled/disabled/static/etc.).
+                active_state = states.get(name, {}).get("active_state", "")
+                if active_state.casefold() != _tr("Failed").casefold():
+                    continue
+            elif chosen != "All states" and display_state.casefold() != chosen.casefold():
                 continue
             item = self.piter_dict.get(name)
             if item is not None:
