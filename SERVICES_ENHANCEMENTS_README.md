@@ -1,5 +1,34 @@
 # System Monitoring Center – Services enhancements
 
+## Journal refresh ordering (experimental branch)
+
+The `journal-refresh-development` branch tests a fix for a subtle
+`journalctl` behavior: combining `--grep` with `--lines` implicitly
+enables reverse chronological output. The viewer previously displayed that
+output without sorting and then scrolled to the bottom, which could make the
+newest matching entries appear to be missing after **Apply / Refresh**.
+
+All journal entries are now sorted by their `__REALTIME_TIMESTAMP`
+before display, so the newest entry appears at the bottom for both regular
+journal queries and grep searches. The status shows `Updated HH:MM:SS`
+after every successful read, even if there are no new matching entries.
+All boot/namespace/priority/line-count and Warp-specific filtering is
+unchanged.
+
+Close the application, then test with:
+
+```bash
+git fetch origin
+git switch -c journal-refresh-development --track origin/journal-refresh-development
+bash ./update-services.sh
+```
+
+If the branch exists locally, use `git switch journal-refresh-development`.
+To revert to production, close the app and run
+`git switch services-enhancements` followed by `bash ./update-services.sh`,
+then restart the app. No production code is changed by this experiment.
+
+
 ## Production release: System Logs and Warp-aware priorities (12 November 2026)
 
 The previously tested `warp-log-levels-development` version has now been
