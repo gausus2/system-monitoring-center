@@ -637,3 +637,17 @@ font and compact padding. **Apply / Refresh** uses the
 green enabled-state text (`#65c76b`) and grey disabled-state text.
 This does not alter log retrieval, highlighting, or the Services
 journal embedded outside System Logs.
+
+### Failed filter in Services (test branch)
+
+The Services tab's **All states** dropdown now includes **Failed**.
+This is based on the existing `ActiveState=failed` field, not the
+unit-file `State` (Enabled/Disabled/Static/etc.). It matches the
+**service units** shown by `systemctl --failed --type=service`;
+plain `systemctl --failed` can also include non-service units that
+are outside the Services tab. Name search and existing state filters
+are unchanged. As before, refresh the Services tab to load changed
+service statuses.
+
+Test on branch `services-failed-filter-development` with
+`bash ./update-services.sh`. No production changes yet.
