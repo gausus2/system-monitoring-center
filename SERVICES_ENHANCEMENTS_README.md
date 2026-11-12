@@ -15,6 +15,16 @@ The usual production installer remains:
 bash ./update-services.sh
 ```
 
+## Production update — State filtering and journal improvements
+
+The tested improvements from `journal-development` are included in production:
+
+- **Services State filter:** A drop-down next to the existing name search, with options such as All states, Enabled, Disabled, Static, and Masked. State and name search work together; column-header sorting remains available.
+- **All journal namespaces:** The embedded viewer uses `journalctl --namespace=*`, so it can display service logs in both the default journal and named namespaces such as `netdata`. Journal permissions still apply.
+- **Font Scale support:** Journal labels and controls use the application's configured scaled font. Log messages retain a monospaced font sized to the application's Font Scale setting.
+
+The original `services-stable` branch remains unchanged for rollback. The `journal-development` branch is retained for further experiments.
+
 ## Changes
 
 - **Single-process Services loading:** In `src/Libsysmon.py`, `get_services_information()` uses the existing single-process code path by setting `number_of_logical_cores = 2` locally. This worked around a Services-tab loading failure on Xubuntu 24.04.5 / AMD Ryzen 7 5700G. The setting does **not** change actual CPU core availability or other CPU-monitoring features.
