@@ -902,3 +902,13 @@ filesystem was created, **not** when the SSD was manufactured or first
 powered on. Dates are included in **Copy details**. Regression tests
 are in `tests/test_smartctl_data.py` and
 `tests/test_smartctl_formatting.py`.
+
+### Regression fixture correction (ext4 creation timestamps)
+
+The `test_ext4_filesystem_created_dates_and_admin_retry` fixture
+accidentally used the two literal characters `\\n` at the end of
+its mocked `tune2fs` output, instead of an actual newline. This
+caused the parser's date recognition to fail in the test, even though
+real `tune2fs -l` output contains ordinary line breaks. The fixture
+now emits `\n` correctly. No changes to filesystem data, disk
+access permissions, or SMART display logic were required.
