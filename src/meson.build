@@ -48,9 +48,22 @@ system_monitoring_center_sources = [
     'System.py',
     'Users.py',
     'UsersDetails.py',
+    'ServiceBootPlot.py',
+    'ServiceJournal.py',
+    'SystemLogs.py',
+    'WarpJournal.py',
+    'JournalUnitTypes.py',
+    'FileLogs.py',
+    'LogHighlight.py',
+    'FileLogBoot.py',
+    'JournalColors.py',
+    'SmartctlData.py',
+    'SmartctlTab.py',
+    'SmartEndurance.py',
     '__version__',
 ]
 
 install_data(system_monitoring_center_sources, install_dir: moduledir)
+install_data('SmartEndurance.json', install_dir: moduledir)
 
 install_subdir('sv_ttk', install_dir: moduledir)
