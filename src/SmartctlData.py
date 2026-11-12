@@ -149,6 +149,70 @@ def filesystem_creation_dates(run=subprocess.run, admin=False,
     return result
 
 
+def ntfs_root_creation_dates(run=subprocess.run, admin=False,
+                             which=shutil.which):
+    """Read NTFS root-directory creation time, not SSD/partition birth.
+
+    The timestamp can predate the physical SSD when a volume was cloned.
+    Ordinary reads are unprivileged; Admin may try passwordless sudo.
+    """
+    process = run(MOUNT_LSBLK, capture_output=True, text=True,
+                  timeout=TIMEOUT, check=False)
+    if process.returncode != 0:
+        raise RuntimeError(process.stderr.strip() or "lsblk failed")
+    try:
+        blocks = json.loads(process.stdout).get("blockdevices", [])
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("Invalid lsblk JSON") from exc
+
+    result = {}
+
+    def walk(node):
+        dates = []
+        for child in node.get("children") or []:
+            dates.extend(walk(child))
+        path = node.get("path")
+        fstype = str(node.get("fstype") or "").lower()
+        if (fstype in ("ntfs", "ntfs3") and isinstance(path, str)
+                and path.startswith("/dev/")):
+            commands = [["ntfsinfo", "-F", "/", path]]
+            binary = which("ntfsinfo") if admin else None
+            if admin and which("sudo") and binary and os.path.isabs(binary):
+                commands.append(["sudo", "-n", "--", binary, "-F", "/", path])
+            for command in commands:
+                try:
+                    output = run(command, capture_output=True, text=True,
+                                 errors="replace", timeout=TIMEOUT,
+                                 check=False, env=dict(os.environ, LC_ALL="C"))
+                except (OSError, subprocess.TimeoutExpired):
+                    break
+                if output.returncode != 0:
+                    continue
+                # Inode 5 is the NTFS root. Use only $STANDARD_INFORMATION,
+                # never the later duplicate timestamp in $FILE_NAME.
+                in_standard = False
+                for line in output.stdout.splitlines():
+                    if line.startswith("Dumping attribute "):
+                        in_standard = "$STANDARD_INFORMATION" in line
+                    elif in_standard and line.strip().startswith("File Creation Time:"):
+                        value = line.partition(":")[2].strip()
+                        try:
+                            stamp = parsedate_to_datetime(value)
+                        except (TypeError, ValueError):
+                            break
+                        dates.append((stamp.strftime("%Y-%m-%d %H:%M:%S UTC"),
+                                      path))
+                        break
+                break
+        if node.get("type") == "disk" and isinstance(path, str):
+            result[path] = sorted(set(dates))
+        return dates
+
+    for block in blocks:
+        walk(block)
+    return result
+
+
 def _number(value):
     if isinstance(value, dict):
         value = value.get("value")
@@ -356,8 +420,13 @@ def collect(run=subprocess.run, admin=False):
         filesystem_dates = filesystem_creation_dates(run, admin=admin)
     except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired):
         filesystem_dates = {}
+    try:
+        ntfs_dates = ntfs_root_creation_dates(run, admin=admin)
+    except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired):
+        ntfs_dates = {}
     results = []
     for disk in disks:
+        disk["ntfs_root_dates"] = ntfs_dates.get(disk["path"], [])
         disk["filesystem_dates"] = filesystem_dates.get(disk["path"], [])
         disk["mount_points"] = mounts.get(disk["path"], [])
         disk["mount_error"] = mount_error
