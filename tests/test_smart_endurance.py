@@ -22,7 +22,12 @@ class RatedTBWTests(unittest.TestCase):
 
     def test_do_not_guess_unknown_wrong_capacity_or_neighbor_model(self):
         self.assertIsNone(module.lookup("NE-256", 256_000_000_000))
-        self.assertIsNone(module.lookup("Samsung SSD 970 EVO 2TB", 2_000_000_000_000))
+        # 970 EVO is now in the expanded catalog. A made-up neighboring
+        # model must still not be matched to 970 EVO or 970 EVO Plus.
+        self.assertIsNone(module.lookup("Samsung SSD 970 EVO Ultra 2TB", 2_000_000_000_000))
+        self.assertEqual(
+            module.lookup("Samsung SSD 970 EVO 2TB", 2_000_000_000_000)["tbw"],
+            1200)
         self.assertIsNone(module.lookup("Samsung SSD 970 EVO Plus 2TB", 500_000_000_000))
         self.assertIsNone(module.lookup("KINGSTON SKC3000D2048G", 1_000_000_000_000))
         self.assertIsNone(module.lookup("Samsung SSD 970 EVO Plus 2TB", None))
