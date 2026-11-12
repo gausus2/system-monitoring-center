@@ -232,8 +232,8 @@ class ServiceJournal(ttk.Frame):
                 command.append("_TRANSPORT=kernel")
             query = self.search_var.get().strip()
             if query:
-                if (self.log_source == "system" and query.endswith(".service")
-                        and " " not in query):
+                if (self.log_source == "system"
+                        and JournalUnitTypes.unit_type(query) is not None):
                     # -u includes manager messages about the unit.
                     if unit_glob is not None:
                         # Avoid OR semantics of two --unit flags. An exact
