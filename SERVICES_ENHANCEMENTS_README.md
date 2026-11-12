@@ -1,5 +1,45 @@
 # System Monitoring Center – Services enhancements
 
+## Journal unit-type filter (experimental)
+
+Branch `journal-unit-type-development`, based on production
+`services-enhancements`. **No production branch changes.**
+
+The System Logs **System journal** view gains a **Type** dropdown:
+**All types**, **Service**, **Mount**, **Socket**, **Timer**, **Target**,
+**Device**, **Swap**, **Path**, **Automount**, **Slice**, and **Scope**.
+Additional suffixes discovered in journal records can appear automatically.
+Types are enumerated asynchronously from `journalctl --field=_SYSTEMD_UNIT`
+and `journalctl --field=UNIT` for the selected namespace. The baseline
+options remain available when discovery is slow, incomplete, or denied.
+The list is deliberately **not** derived from just the loaded 100–5000 rows.
+
+The type selection is applied by `journalctl --unit=*.service`,
+`--unit=*.mount`, etc. The glob is matched against unit names **in the
+journal** and includes systemd manager messages about those units. This
+filter is applied before the First/Last N limit. Other filters, including
+search, priority, boot, time and namespace, remain operative. Exact unit
+searches such as `warp-svc.service` are not accidentally OR'ed with the
+selected type: a mismatching type gives an empty result. Type filtering is
+not applicable to the Kernel journal; its dropdown is disabled and reset.
+The embedded per-service journal in Services stays unchanged.
+
+Close the application and test with:
+
+```bash
+git fetch origin
+git switch -c journal-unit-type-development --track origin/journal-unit-type-development
+bash ./update-services.sh
+```
+
+If that branch exists locally, use `git switch journal-unit-type-development`.
+The installer checks Python syntax, runs the existing Warp tests and new
+unit-type tests, then installs the helper `JournalUnitTypes.py`.
+
+To restore production, close the app, run `git switch services-enhancements`
+and `bash ./update-services.sh`, then restart the app.
+
+
 ## Production release: minute filters and First/Last line windows
 
 The tested changes from `journal-range-development` are now in
