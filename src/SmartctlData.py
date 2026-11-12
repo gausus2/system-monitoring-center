@@ -79,12 +79,48 @@ def nvme_total_written_bytes(log):
     return units * 512000 if units else None
 
 
+def ata_total_written_bytes(data, attributes):
+    """Decode a few documented model-specific host-write counters.
+
+    ATA SMART IDs alone do not establish units. Only accept a
+    recognized model family AND a matching vendor attribute name.
+    Never confuse NAND writes (flash wear) with host writes.
+    """
+    model = str(data.get("model_name") or "").upper()
+    for item in attributes:
+        if item.get("id") != 241:
+            continue
+        name = str(item.get("name") or "").upper()
+        raw = _counter((item.get("raw") or {}).get("value"))
+        if raw is None:
+            continue
+        # Samsung SATA SSD documentation: attr 241 is the number of
+        # 512-byte logical blocks written by the host.
+        if (model.startswith("SAMSUNG SSD ")
+                and name in ("TOTAL_LBAS_WRITTEN", "TOTAL_LBA_WRITTEN")):
+            return raw * 512, "ATA Samsung attribute 241 (512-byte LBAs)"
+        # Kingston SSD family documentation: attr 241 host writes in
+        # decimal gigabytes. Require an explicitly descriptive name,
+        # not an unknown generic vendor-specific SMART attribute.
+        if (model.startswith("KINGSTON ")
+                and name in ("HOST_WRITES_GB", "HOST_WRITES_GBYTES",
+                             "HOST_WRITES_GIGABYTES",
+                             "LIFETIME_WRITES_FROM_HOST_SYSTEM")):
+            return raw * 10**9, "ATA Kingston attribute 241 (GB)"
+    return None, None
+
+
 def parse_smart(data, returncode=0):
     """Turn smartctl -a -j into a conservative, readable summary."""
     device = data.get("device") or {}
     passed = (data.get("smart_status") or {}).get("passed")
     nvme = data.get("nvme_smart_health_information_log") or {}
     ata = (data.get("ata_smart_attributes") or {}).get("table") or []
+    if nvme_total_written_bytes(nvme) is not None:
+        written = nvme_total_written_bytes(nvme)
+        written_source = "NVMe Data Units Written (512000 bytes/unit)"
+    else:
+        written, written_source = ata_total_written_bytes(data, ata)
     attributes = {}
     for item in ata:
         identifier = item.get("id")
@@ -127,7 +163,8 @@ def parse_smart(data, returncode=0):
         "health": health,
         "temperature": temp,
         "hours": hours,
-        "writes_bytes": nvme_total_written_bytes(nvme),
+        "writes_bytes": written,
+        "writes_source": written_source,
         "percentage_used": percentage_used,
         "media_errors": media_errors,
         "attributes": attributes,
