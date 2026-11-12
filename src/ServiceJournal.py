@@ -2,6 +2,7 @@
 import datetime
 import json
 import queue
+import re
 import subprocess
 import threading
 import tkinter as tk
@@ -48,6 +49,10 @@ class ServiceJournal(ttk.Frame):
         self.time_var = tk.StringVar(value="Last 24 hours")
         self.lines_var = tk.StringVar(value="500")
         self.search_var = tk.StringVar()
+        # Backend filters operate on journalctl's entire selected time/boot
+        # range, before the number-of-lines limit is applied.
+        self.unit_filter_var = tk.StringVar()
+        self.message_filter_var = tk.StringVar()
         self.boot_values = {
             "Current boot": "-0", "Previous boot": "-1", "All boots": None,
         }
@@ -76,6 +81,24 @@ class ServiceJournal(ttk.Frame):
 
         self.refresh_button = ttk.Button(controls, text="Apply / Refresh", command=self.refresh)
         self.refresh_button.grid(row=0, column=4, sticky="s", padx=(1, 0))
+
+        if self.system_mode:
+            backend = ttk.Frame(self)
+            backend.pack(fill="x", pady=(0, 5))
+            ttk.Label(backend, text="Unit (full journal):",
+                      font=Common.font_normal).pack(side="left", padx=(0, 5))
+            self.unit_filter_entry = ttk.Entry(
+                backend, textvariable=self.unit_filter_var, width=25,
+                font=Common.font_normal)
+            self.unit_filter_entry.pack(side="left", padx=(0, 12))
+            ttk.Label(backend, text="Message (full journal):",
+                      font=Common.font_normal).pack(side="left", padx=(0, 5))
+            self.message_filter_entry = ttk.Entry(
+                backend, textvariable=self.message_filter_var,
+                font=Common.font_normal)
+            self.message_filter_entry.pack(side="left", fill="x", expand=True)
+            self.unit_filter_entry.bind("<Return>", lambda event: self.refresh())
+            self.message_filter_entry.bind("<Return>", lambda event: self.refresh())
 
         searchrow = ttk.Frame(self)
         searchrow.pack(fill="x", pady=(0, 5))
@@ -146,6 +169,14 @@ class ServiceJournal(ttk.Frame):
             if self.log_source == "kernel":
                 # Unlike --kernel, this field match does not imply current boot.
                 command.append("_TRANSPORT=kernel")
+            elif self.unit_filter_var.get().strip():
+                command.append("--unit=" + self.unit_filter_var.get().strip())
+            query = self.message_filter_var.get().strip()
+            if query:
+                # --grep searches MESSAGE on disk before --lines takes effect.
+                # Treat the search term literally rather than as user regex.
+                command.append("--grep=" + re.escape(query))
+                command.append("--case-sensitive=no")
         else:
             command.extend(["--unit", service])
         boot = self.boot_values.get(self.boot_var.get())
