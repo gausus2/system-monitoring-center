@@ -81,6 +81,44 @@ class SmartctlTests(unittest.TestCase):
             ("2024-03-20 14:56:20", "/dev/nvme2n1p4")])
         self.assertEqual(sum(cmd[0] == "sudo" for cmd in calls), 2)
 
+    def test_ntfs_root_creation_standard_information_and_admin(self):
+        tree = {"blockdevices": [{
+            "path": "/dev/nvme0n1", "type": "disk", "children": [
+                {"path": "/dev/nvme0n1p1", "type": "part", "fstype": "ext4"},
+                {"path": "/dev/nvme0n1p2", "type": "part", "fstype": "ntfs"},
+                {"path": "/dev/nvme0n1p3", "type": "part", "fstype": "ntfs"}]}]}
+        ntfs_output = (
+            "Dumping Inode 5 (0x5)\\n"
+            "Dumping attribute $STANDARD_INFORMATION (0x10) from mft record 5\\n"
+            " File Creation Time:    {date} UTC\\n"
+            "Dumping attribute $FILE_NAME (0x30) from mft record 5\\n"
+            " File Creation Time:    Tue Nov 10 12:22:20 2026 UTC\\n")
+        dates = {
+            "/dev/nvme0n1p2": "Fri Sep 29 08:45:11 2017",
+            "/dev/nvme0n1p3": "Mon Jul 24 09:34:54 2023"}
+        calls = []
+        def runner(command, **kwargs):
+            calls.append(command)
+            if command[0] == "lsblk":
+                return process(tree)
+            if command[0] == "ntfsinfo":
+                return subprocess.CompletedProcess(command, 1, "",
+                                                   "Permission denied")
+            return subprocess.CompletedProcess(
+                command, 0, ntfs_output.format(date=dates[command[-1]]), "")
+        which = lambda name: "/usr/bin/" + name
+        regular = module.ntfs_root_creation_dates(runner, admin=False,
+                                                  which=which)
+        self.assertEqual(regular["/dev/nvme0n1"], [])
+        self.assertFalse(any(cmd[0] == "sudo" for cmd in calls))
+        calls.clear()
+        elevated = module.ntfs_root_creation_dates(runner, admin=True,
+                                                   which=which)
+        self.assertEqual(elevated["/dev/nvme0n1"], [
+            ("2017-09-29 08:45:11 UTC", "/dev/nvme0n1p2"),
+            ("2023-07-24 09:34:54 UTC", "/dev/nvme0n1p3")])
+        self.assertEqual(sum(cmd[0] == "sudo" for cmd in calls), 2)
+
     def test_mounts_on_partitions_and_nested_mappers(self):
         tree = {"blockdevices": [
             {"path": "/dev/nvme0n1", "type": "disk", "mountpoints": [None],
@@ -114,6 +152,8 @@ class SmartctlTests(unittest.TestCase):
              mock.patch.object(module, "mounted_paths",
                                side_effect=RuntimeError("cannot list mounts")), \
              mock.patch.object(module, "filesystem_creation_dates",
+                               return_value={}), \
+             mock.patch.object(module, "ntfs_root_creation_dates",
                                return_value={}), \
              mock.patch.object(module, "inspect_disk",
                                return_value={"health": "Passed"}):
@@ -303,6 +343,8 @@ class SmartctlTests(unittest.TestCase):
         with mock.patch.object(module, "physical_disks", return_value=[disk]), \
              mock.patch.object(module, "mounted_paths", return_value={}), \
              mock.patch.object(module, "filesystem_creation_dates",
+                               return_value={}), \
+             mock.patch.object(module, "ntfs_root_creation_dates",
                                return_value={}), \
              mock.patch.object(module, "inspect_disk",
                                return_value={"health":"Unavailable"}) as plain, \
