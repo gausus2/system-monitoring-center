@@ -49,10 +49,6 @@ class ServiceJournal(ttk.Frame):
         self.time_var = tk.StringVar(value="Last 24 hours")
         self.lines_var = tk.StringVar(value="500")
         self.search_var = tk.StringVar()
-        # Backend filters operate on journalctl's entire selected time/boot
-        # range, before the number-of-lines limit is applied.
-        self.unit_filter_var = tk.StringVar()
-        self.message_filter_var = tk.StringVar()
         self.boot_values = {
             "Current boot": "-0", "Previous boot": "-1", "All boots": None,
         }
@@ -82,30 +78,18 @@ class ServiceJournal(ttk.Frame):
         self.refresh_button = ttk.Button(controls, text="Apply / Refresh", command=self.refresh)
         self.refresh_button.grid(row=0, column=4, sticky="s", padx=(1, 0))
 
-        if self.system_mode:
-            backend = ttk.Frame(self)
-            backend.pack(fill="x", pady=(0, 5))
-            ttk.Label(backend, text="Unit (full journal):",
-                      font=Common.font_normal).pack(side="left", padx=(0, 5))
-            self.unit_filter_entry = ttk.Entry(
-                backend, textvariable=self.unit_filter_var, width=25,
-                font=Common.font_normal)
-            self.unit_filter_entry.pack(side="left", padx=(0, 12))
-            ttk.Label(backend, text="Message (full journal):",
-                      font=Common.font_normal).pack(side="left", padx=(0, 5))
-            self.message_filter_entry = ttk.Entry(
-                backend, textvariable=self.message_filter_var,
-                font=Common.font_normal)
-            self.message_filter_entry.pack(side="left", fill="x", expand=True)
-            self.unit_filter_entry.bind("<Return>", lambda event: self.refresh())
-            self.message_filter_entry.bind("<Return>", lambda event: self.refresh())
-
         searchrow = ttk.Frame(self)
         searchrow.pack(fill="x", pady=(0, 5))
-        ttk.Label(searchrow, text="Search in loaded messages:", font=Common.font_normal).pack(side="left", padx=(0, 6))
+        search_label = ("Search journal (Enter / Apply):" if self.system_mode
+                        else "Search in loaded messages:")
+        ttk.Label(searchrow, text=search_label, font=Common.font_normal).pack(side="left", padx=(0, 6))
         searchentry = ttk.Entry(searchrow, textvariable=self.search_var, font=Common.font_normal)
         searchentry.pack(side="left", fill="x", expand=True)
-        self.search_var.trace_add("write", self._search_changed)
+        if self.system_mode:
+            # Search across journal entries only when explicitly submitted.
+            searchentry.bind("<Return>", lambda event: self.refresh())
+        else:
+            self.search_var.trace_add("write", self._search_changed)
         self.status = ttk.Label(searchrow, text="Ready" if self.system_mode else "Choose a service", font=Common.font_normal)
         self.status.pack(side="right", padx=(8, 0))
 
@@ -169,14 +153,16 @@ class ServiceJournal(ttk.Frame):
             if self.log_source == "kernel":
                 # Unlike --kernel, this field match does not imply current boot.
                 command.append("_TRANSPORT=kernel")
-            elif self.unit_filter_var.get().strip():
-                command.append("--unit=" + self.unit_filter_var.get().strip())
-            query = self.message_filter_var.get().strip()
+            query = self.search_var.get().strip()
             if query:
-                # --grep searches MESSAGE on disk before --lines takes effect.
-                # Treat the search term literally rather than as user regex.
-                command.append("--grep=" + re.escape(query))
-                command.append("--case-sensitive=no")
+                if (self.log_source == "system" and query.endswith(".service")
+                        and " " not in query):
+                    # -u includes manager messages about the unit.
+                    command.append("--unit=" + query)
+                else:
+                    # Search MESSAGE on disk before limiting the results.
+                    command.append("--grep=" + re.escape(query))
+                    command.append("--case-sensitive=no")
         else:
             command.extend(["--unit", service])
         boot = self.boot_values.get(self.boot_var.get())
@@ -266,9 +252,10 @@ class ServiceJournal(ttk.Frame):
     def _render_records(self):
         self._pending = None
         needle = self.search_var.get().casefold()
-        shown = [record for record in self._records
-                 if not needle or needle in record[2].casefold()
-                 or needle in record[3].casefold()]
+        shown = (list(self._records) if self.system_mode else
+                 [record for record in self._records
+                  if not needle or needle in record[2].casefold()
+                  or needle in record[3].casefold()])
         self.status.configure(text="%s / %s entries" % (len(shown), len(self._records)))
         self.log.configure(state="normal")
         self.log.delete("1.0", "end")
