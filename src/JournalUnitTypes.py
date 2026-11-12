@@ -68,6 +68,19 @@ def display_sender(entry):
     return sender
 
 
+def empty_unit_filter_result(command, returncode, stderr, stdout=""):
+    """journalctl errors when --unit=*.device expands to no known units.
+
+    Only classify the specific missing-unit-data error as an empty result,
+    and never suppress ordinary journalctl permission or command failures.
+    """
+    return (
+        returncode != 0 and not stdout.strip()
+        and any(arg.startswith("--unit=*.") for arg in command)
+        and "Failed to add filter for units: No data available" in stderr
+    )
+
+
 def discover_types(namespace=None, timeout=7):
     """Enumerate unit suffixes recorded in the selected journal namespace.
 
