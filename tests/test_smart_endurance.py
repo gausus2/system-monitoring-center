@@ -27,6 +27,40 @@ class RatedTBWTests(unittest.TestCase):
         self.assertIsNone(module.lookup("KINGSTON SKC3000D2048G", 1_000_000_000_000))
         self.assertIsNone(module.lookup("Samsung SSD 970 EVO Plus 2TB", None))
 
+    def test_catalog_has_broad_verified_model_coverage(self):
+        rows = module.load_catalog()
+        self.assertGreaterEqual(len(rows), 200)
+        self.assertTrue(all(row.get("source", "").startswith("https://")
+                            for row in rows))
+        self.assertEqual(len({
+            (row["model_regex"], row["capacity_gb"]) for row in rows
+        }), len(rows))
+
+    def test_other_manufacturer_families_and_wd_suffix(self):
+        samples = (
+            ("WDC WDS200T2X0E-00BCA0", 2_000_000_000_000, 1200),
+            ("WDS100T3X0E", 1_000_000_000_000, 600),
+            ("WDS200T1R0C", 2_000_000_000_000, 2500),
+            ("CT2000MX500SSD1", 2_000_000_000_000, 700),
+            ("CT4000P3PSSD8", 4_000_000_000_000, 800),
+            ("SNV2S/1000G", 1_000_000_000_000, 320),
+            ("ZP2000GM3A013", 2_000_000_000_000, 2550),
+            ("Samsung SSD 9100 PRO 4TB", 4_000_000_000_000, 2400),
+        )
+        for name, size, rated_tbw in samples:
+            with self.subTest(name=name):
+                entry = module.lookup(name, size)
+                self.assertIsNotNone(entry)
+                self.assertEqual(entry["tbw"], rated_tbw)
+
+    def test_invalid_sizes_must_not_match_even_if_model_code_matches(self):
+        self.assertIsNone(
+            module.lookup("WDC WDS200T2X0E-00BCA0", 1_000_000_000_000))
+        self.assertIsNone(
+            module.lookup("CT2000MX500SSD1", 500_000_000_000))
+        self.assertIsNone(
+            module.lookup("SNV2S/1000G", 2_000_000_000_000))
+
     def test_usage_pct_is_not_nvme_percentage_used(self):
         disk = {"model": "KINGSTON SKC3000D2048G", "size": 2_048_000_000_000}
         smart = {"writes_bytes": 400_000_000_000_000, "percentage_used": 4}
