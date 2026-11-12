@@ -887,3 +887,18 @@ special `#0` service-name column. Text is aligned in plain-text columns
 and copied to the clipboard, with no additional service query or changes
 to filters. A filter with no matches copies headings alone.
 Regression test: `tests/test_services_copy_table.py`.
+
+### Filesystem creation dates in SMART Disk details
+
+SMART Disk details now lists ext4 **Filesystem created** timestamps,
+read from partition superblocks using read-only `tune2fs -l`, and
+highlights the earliest timestamp among readable partitions on the
+selected disk. Partitions are found from an `lsblk` tree (including
+nested device-mapper descendants). Regular refresh does not escalate;
+**Read SMART (Admin)** may use passwordless `sudo -n` for a
+permission-denied filesystem inspection. Missing dates remain
+unavailable rather than being guessed. This timestamp indicates when a
+filesystem was created, **not** when the SSD was manufactured or first
+powered on. Dates are included in **Copy details**. Regression tests
+are in `tests/test_smartctl_data.py` and
+`tests/test_smartctl_formatting.py`.
