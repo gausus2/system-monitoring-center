@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Production installer for services-enhancements, including First/Last journal ranges.
+# Test installer for journal-unit-type-development; production untouched.
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="services-enhancements"
+BRANCH="journal-unit-type-development"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
@@ -24,7 +24,7 @@ printf '==> Checking Python syntax\n'
 python3 - <<'PY'
 from pathlib import Path
 
-for name in ("Services.py", "Libsysmon.py", "MainWindow.py", "ServiceBootPlot.py", "ServiceJournal.py", "SystemLogs.py", "WarpJournal.py"):
+for name in ("Services.py", "Libsysmon.py", "MainWindow.py", "ServiceBootPlot.py", "ServiceJournal.py", "SystemLogs.py", "WarpJournal.py", "JournalUnitTypes.py"):
     path = Path("src") / name
     compile(path.read_bytes(), str(path), "exec")
     print(f"{name}: syntax OK")
@@ -32,6 +32,7 @@ PY
 
 printf '==> Testing Warp internal-priority parser\n'
 python3 tests/test_warp_journal.py
+python3 tests/test_journal_unit_types.py
 
 if [[ ! -f "$DEST/Services.py" || ! -f "$DEST/Libsysmon.py" || ! -f "$DEST/MainWindow.py" ]]; then
     printf 'ERROR: System Monitoring Center installation not found at %s\n' "$DEST" >&2
@@ -49,7 +50,7 @@ for name in Services.py Libsysmon.py MainWindow.py; do
 done
 
 # Install the new helper (not present in original upstream packages).
-for name in ServiceBootPlot.py ServiceJournal.py SystemLogs.py WarpJournal.py; do
+for name in ServiceBootPlot.py ServiceJournal.py SystemLogs.py WarpJournal.py JournalUnitTypes.py; do
     sudo install -m 644 -- "src/$name" "$DEST/$name"
     printf 'Installed %s\n' "$name"
 done
