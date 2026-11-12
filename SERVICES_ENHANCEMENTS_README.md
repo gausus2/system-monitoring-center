@@ -566,3 +566,16 @@ bash ./update-services.sh
 If the test branch already exists locally, simply
 `git switch file-logs-development && bash ./update-services.sh`.
 Production remains on `services-enhancements`.
+
+### Generic syntax colors in Other logs
+
+The test branch colors file-log text with a lightweight, Kate-inspired
+highlighting engine (`src/LogHighlight.py`): bold blue timestamps,
+red error/failure/fatal indicators, amber warnings and timeouts,
+green success/started/completed status, purple IP addresses and hex values,
+cyan file paths and key=value names, and muted green quoted strings.
+Whole-line severity is visual only, inferred from words rather than a
+structured journal priority; specific tokens retain their own colors.
+ANSI escape codes are removed from the displayed text rather than executed.
+The original System/Kernel journal display colors and filters are unchanged.
+`tests/test_log_highlight.py` checks matching and overlapping spans.
