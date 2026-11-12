@@ -875,3 +875,15 @@ untouched. Ordinary left-drag selection and Ctrl+C still work. The
 shared ServiceJournal widget also offers the menu in embedded service
 logs; journal retrieval, color modes and filters are unchanged.
 Regression test: `tests/test_journal_context_copy.py`.
+
+### Services filtered Copy table
+
+The **Services** toolbar now includes **Copy table**, next to the state
+filter. It exports the Treeview's current visible attached rows only:
+the active **Search** filter and **All states / Failed / Enabled / ...**
+selection are respected. The row order follows the current column sort,
+and headings and values follow the displayed columns, including the
+special `#0` service-name column. Text is aligned in plain-text columns
+and copied to the clipboard, with no additional service query or changes
+to filters. A filter with no matches copies headings alone.
+Regression test: `tests/test_services_copy_table.py`.
