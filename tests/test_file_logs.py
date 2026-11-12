@@ -19,6 +19,12 @@ highlight_spec = importlib.util.spec_from_file_location(
 highlight = importlib.util.module_from_spec(highlight_spec)
 sys.modules[highlight_spec.name] = highlight
 highlight_spec.loader.exec_module(highlight)
+boot_spec = importlib.util.spec_from_file_location(
+    "filelogtests.FileLogBoot",
+    Path(__file__).resolve().parents[1] / "src" / "FileLogBoot.py")
+boot = importlib.util.module_from_spec(boot_spec)
+sys.modules[boot_spec.name] = boot
+boot_spec.loader.exec_module(boot)
 spec = importlib.util.spec_from_file_location(
     "filelogtests.FileLogs", Path(__file__).resolve().parents[1] / "src" / "FileLogs.py")
 logs = importlib.util.module_from_spec(spec)
