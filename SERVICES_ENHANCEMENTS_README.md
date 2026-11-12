@@ -663,10 +663,19 @@ power-on hours. Select a disk to see serial, protocol/transport, SATA SMART
 attributes (reallocated/pending/uncorrectable sectors, CRC errors), and NVMe
 critical warning, endurance percentage and media errors where reported.
 
-The GUI **does not run as root, invoke sudo/pkexec, initiate SMART tests,
-or modify any disk**. Some drives may report **Unavailable** due to
-permissions, an unsupported USB bridge, RAID, or a missing smartmontools
-installation. **Unknown** means SMART health is not reported; it is not
+The GUI **does not run as root, initiate SMART tests,
+or modify any disk**. Normal **Apply / Refresh** uses unprivileged
+`smartctl -a -j`. If SMART returns an explicit **Permission denied**,
+the optional **Read SMART (Admin)** button uses `sudo -n` (no password
+prompt or terminal interaction) and then, only when needed, `pkexec`
+with a polkit graphical authentication dialog. These execute only
+`smartctl -a -j` against discovered block disks; no shell or
+privileged application-wide session is started. Multiple disks may
+require multiple polkit authentications depending on the local agent.
+Missing polkit, cancelled authentication, and refused permissions
+appear as **Unavailable** with details. Some drives may also report
+**Unavailable** due to an unsupported USB bridge, RAID, or missing
+smartmontools. **Unknown** means SMART health is not reported; it is not
 the same as Passed. SMART data may not predict all failures. A disk reporting
 Passed may still have noteworthy error counters: inspect its details.
 
