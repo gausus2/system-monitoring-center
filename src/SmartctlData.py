@@ -12,6 +12,7 @@ import subprocess
 from . import SmartEndurance
 
 LSBLK = ["lsblk", "-J", "-d", "-b", "-o", "NAME,PATH,TYPE,MODEL,SIZE,TRAN"]
+MOUNT_LSBLK = ["lsblk", "-J", "-T", "-o", "PATH,TYPE,MOUNTPOINTS"]
 SMARTCTL = ["smartctl", "-a", "-j"]
 TIMEOUT = 12
 ATTRIBUTE_NAMES = {
@@ -51,6 +52,43 @@ def physical_disks(run=subprocess.run):
         and not os.path.basename(item["path"]).startswith(
             ("zram", "ram", "loop", "nbd", "fd", "sr"))
     ]
+
+
+def mounted_paths(run=subprocess.run):
+    """Map physical disks to active mounts of the disk or its descendants.
+
+    lsblk --tree supplies partition/LVM/crypto relationships. A separate
+    read-only query avoids modifying physical disk discovery or SMART access.
+    """
+    process = run(MOUNT_LSBLK, capture_output=True, text=True,
+                  timeout=TIMEOUT, check=False)
+    if process.returncode != 0:
+        raise RuntimeError(process.stderr.strip() or "lsblk mounts failed")
+    try:
+        blocks = json.loads(process.stdout).get("blockdevices", [])
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("Invalid lsblk mounts JSON") from exc
+
+    result = {}
+    def walk(node):
+        path = node.get("path")
+        found = []
+        for child in (node.get("children") or []):
+            found.extend(walk(child))
+        mounts = node.get("mountpoints") or []
+        # Prefer the full MOUNTPOINTS array: btrfs/subvolumes may have
+        # several distinct mount paths on one block device.
+        if isinstance(mounts, str):
+            mounts = [mounts]
+        for point in mounts:
+            if isinstance(point, str) and point:
+                found.append((path, point))
+        if node.get("type") == "disk" and isinstance(path, str):
+            result[path] = sorted(set(found), key=lambda pair: (pair[1], pair[0] or ""))
+        return found
+    for block in blocks:
+        walk(block)
+    return result
 
 
 def _number(value):
@@ -249,8 +287,16 @@ def read_admin(path, run=subprocess.run, which=shutil.which):
 def collect(run=subprocess.run, admin=False):
     """Return (disk, smart summary) pairs, optionally escalating read only."""
     disks = physical_disks(run)
+    try:
+        mounts = mounted_paths(run)
+        mount_error = None
+    except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as exc:
+        mounts = {}
+        mount_error = str(exc)
     results = []
     for disk in disks:
+        disk["mount_points"] = mounts.get(disk["path"], [])
+        disk["mount_error"] = mount_error
         smart = (read_admin(disk["path"], run) if admin
                  else inspect_disk(disk["path"], run))
         results.append((disk, SmartEndurance.annotate(disk, smart)))
