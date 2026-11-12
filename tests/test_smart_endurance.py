@@ -61,6 +61,42 @@ class RatedTBWTests(unittest.TestCase):
         self.assertIsNone(
             module.lookup("SNV2S/1000G", 2_000_000_000_000))
 
+    def test_more_manufacturers_and_source_records(self):
+        samples = (
+            ("SHPP41-2000GM", 2_000_000_000_000, 1200),
+            ("SHGP31-1000GM-2", 1_000_000_000_000, 750),
+            ("LNM790X002T-RNNNG", 2_000_000_000_000, 1500),
+            ("SFYRD/4000G", 4_000_000_000_000, 4000),
+            ("WDS800T2XHE-00CDD0", 8_000_000_000_000, 4800),
+        )
+        for model, size, rated in samples:
+            with self.subTest(model=model):
+                row = module.lookup(model, size)
+                self.assertIsNotNone(row)
+                self.assertEqual(row["tbw"], rated)
+
+    def test_missing_catalog_does_not_hide_smart_health(self):
+        module.load_catalog.cache_clear()
+        from unittest import mock
+        with mock.patch.object(module, "load_catalog",
+                               side_effect=FileNotFoundError("catalog")):
+            disk = {"model": "KINGSTON SKC3000D2048G",
+                    "size": 2_048_000_000_000}
+            row = module.annotate(disk, {"health": "Passed"})
+            self.assertEqual(row["health"], "Passed")
+            self.assertIsNone(row["rated_tbw"])
+
+    def test_old_samsung_970_evo_plus_matches_exactly_one_row(self):
+        name = "Samsung SSD 970 EVO Plus 2TB"
+        rows = module.load_catalog()
+        import re
+        matches = [
+            row for row in rows
+            if row["capacity_gb"] == 2000
+            and re.fullmatch(row["model_regex"], name, flags=re.IGNORECASE)
+        ]
+        self.assertEqual(len(matches), 1)
+
     def test_usage_pct_is_not_nvme_percentage_used(self):
         disk = {"model": "KINGSTON SKC3000D2048G", "size": 2_048_000_000_000}
         smart = {"writes_bytes": 400_000_000_000_000, "percentage_used": 4}
