@@ -62,12 +62,13 @@ class FileLogsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "syslog"
             path.write_text(
-                "Nov 12 00:10:56 Stopped logrotate.timer\\n"
-                "Nov 12 12:08:30 System started\\n"
-                "    continuation of startup\\n"
-                "Nov 12 12:10:00 ERROR failed\\n"
-                "Nov 12 21:11:00 Ready\\n", encoding="utf-8")
+                "Nov 12 00:10:56 Stopped logrotate.timer\n"
+                "Nov 12 12:08:30 System started\n"
+                "    continuation of startup\n"
+                "Nov 12 12:10:00 ERROR failed\n"
+                "Nov 12 21:11:00 Ready\n", encoding="utf-8")
             with mock.patch.object(logs, "ROOT", directory), \
+                 mock.patch.object(logs.os.path, "getmtime", return_value=start.timestamp()), \
                  mock.patch.object(logs.FileLogBoot, "boot_window",
                                    return_value=(start, None)):
                 lines, truncated = logs.read_lines(
@@ -87,8 +88,9 @@ class FileLogsTests(unittest.TestCase):
         start = datetime.datetime(2026, 11, 12, 12, tzinfo=tz)
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "plain.log"
-            path.write_text("foo\\nbar\\n", encoding="utf-8")
+            path.write_text("foo\\nbar\n", encoding="utf-8")
             with mock.patch.object(logs, "ROOT", directory), \
+                 mock.patch.object(logs.os.path, "getmtime", return_value=start.timestamp()), \
                  mock.patch.object(logs.FileLogBoot, "boot_window",
                                    return_value=(start, None)):
                 with self.assertRaisesRegex(ValueError, "No recognizable"):
