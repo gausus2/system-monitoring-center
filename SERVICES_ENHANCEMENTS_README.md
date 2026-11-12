@@ -604,3 +604,25 @@ that file**, regardless of the menu's boot choice. **First/Last
 100–5000 lines**, search, syntax coloring and refresh remain available.
 The existing System journal and Kernel journal controls remain
 unchanged.
+
+### Journal advanced colors (test branch)
+
+The `journal-advanced-colors-development` test branch adds a
+**Colors: Current** button inside the System Logs journal viewer.
+Clicking it switches between **Current** (the existing priority-based
+scheme, default) and **Log advanced (Kate)** (the same Kate-inspired
+timestamp, keyword, IP, path, hex, quoted-string and key/value coloring
+as Other logs). The button is available for **System journal** and
+**Kernel journal**. Switching colors rerenders already loaded records
+without rerunning journalctl or altering boot, namespace, type, priority,
+search, and line selection. The embedded service log viewer in the
+Services tab and **Other logs** are unchanged.
+
+Test with:
+```bash
+git fetch origin
+git switch -c journal-advanced-colors-development --track origin/journal-advanced-colors-development
+bash ./update-services.sh
+```
+If the local branch already exists: `git switch journal-advanced-colors-development`
+then run the installer. Production stays on `services-enhancements`.
