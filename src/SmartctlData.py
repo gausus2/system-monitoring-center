@@ -1,8 +1,8 @@
 """Read-only disk discovery and SMART health collection.
 
 Never starts SMART tests or changes device state. JSON from smartctl is
-preferred over locale-dependent terminal output. No sudo invocation:
-unreadable devices remain visible with an explicit permissions status.
+preferred over locale-dependent terminal output. Normal reads are
+unprivileged; explicit administrator reads try sudo -n and then pkexec.
 """
 import json
 import os
