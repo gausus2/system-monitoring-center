@@ -595,8 +595,10 @@ Boot/time filtering happens before search/First/Last line limits.
 This is **not exact boot identity**: missing journal history, clock
 changes, unrecognized timestamp formats or absent rotated files can
 mean that no entries are available for a selected boot. When no
-timestamps can be parsed, the viewer explicitly asks for
-**All available** rather than incorrectly claiming zero events.
+timestamps can be parsed, the viewer automatically shows the **unfiltered
+plain-text log**, preserving first/last line counts, search, and syntax colors.
+The status says **plain text (boot filter unavailable)** so the unfiltered
+view is never mistaken for a boot-specific result.
 Files larger than 64 MiB are scanned from the tail for Last N, and
 from the head for First N; partial scans are flagged in the status.
 The existing System/Kernel journal filters are unchanged.
