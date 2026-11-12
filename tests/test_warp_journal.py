@@ -65,6 +65,19 @@ class WarpJournalTests(unittest.TestCase):
         entry["MESSAGE"] = "2026-11-12T11:08:45.699Z INFO no ERROR should override INFO"
         self.assertEqual(warp.effective_priority(entry), 6)
 
+    def test_chronological_sort_after_reverse_grep_output(self):
+        entries = [
+            {"__REALTIME_TIMESTAMP": "200", "MESSAGE": "newer"},
+            {"__REALTIME_TIMESTAMP": "100", "MESSAGE": "older"},
+        ]
+        entries.sort(key=warp.timestamp_microseconds)
+        self.assertEqual([e["MESSAGE"] for e in entries], ["older", "newer"])
+
+    def test_timestamp_missing_or_invalid(self):
+        self.assertEqual(warp.timestamp_microseconds({}), 0)
+        self.assertEqual(warp.timestamp_microseconds(
+            {"__REALTIME_TIMESTAMP": "invalid"}), 0)
+
     def test_reverse_reader_limits_after_effective_filter(self):
         # Input is newest-first, as emitted by journalctl --reverse.
         entries = [record("ERROR"), record("INFO"), record("WARN"), record("DEBUG")]
