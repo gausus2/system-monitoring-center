@@ -1436,6 +1436,139 @@
       "tbw": 2400,
       "series": "WD Black SN850P",
       "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:SK HYNIX )?SHPP41-500GM(?:-2)?$",
+      "capacity_gb": 500,
+      "tbw": 500,
+      "series": "SK hynix Platinum P41",
+      "source": "https://ssd.skhynix.com/platinum_p41/"
+    },
+    {
+      "model_regex": "^(?:SK HYNIX )?SHPP41-1000GM(?:-2)?$",
+      "capacity_gb": 1000,
+      "tbw": 750,
+      "series": "SK hynix Platinum P41",
+      "source": "https://ssd.skhynix.com/platinum_p41/"
+    },
+    {
+      "model_regex": "^(?:SK HYNIX )?SHPP41-2000GM(?:-2)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "SK hynix Platinum P41",
+      "source": "https://ssd.skhynix.com/platinum_p41/"
+    },
+    {
+      "model_regex": "^(?:SK HYNIX )?SHGP31-500GM(?:-2)?$",
+      "capacity_gb": 500,
+      "tbw": 500,
+      "series": "SK hynix Gold P31",
+      "source": "https://ssd.skhynix.com/gold_p31/"
+    },
+    {
+      "model_regex": "^(?:SK HYNIX )?SHGP31-1000GM(?:-2)?$",
+      "capacity_gb": 1000,
+      "tbw": 750,
+      "series": "SK hynix Gold P31",
+      "source": "https://ssd.skhynix.com/gold_p31/"
+    },
+    {
+      "model_regex": "^(?:SK HYNIX )?SHGP31-2000GM(?:-2)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "SK hynix Gold P31",
+      "source": "https://ssd.skhynix.com/gold_p31/"
+    },
+    {
+      "model_regex": "^(?:LEXAR )?LNM790X512G(?:-RNNN[GU])?$",
+      "capacity_gb": 512,
+      "tbw": 500,
+      "series": "Lexar NM790",
+      "source": "https://resources.lexar.com/download/1048/documents/13165/lexar-productsheet-ssd-nm790-en-202410.pdf"
+    },
+    {
+      "model_regex": "^(?:LEXAR )?LNM790X001T(?:-RNNN[GU])?$",
+      "capacity_gb": 1000,
+      "tbw": 1000,
+      "series": "Lexar NM790",
+      "source": "https://resources.lexar.com/download/1048/documents/13165/lexar-productsheet-ssd-nm790-en-202410.pdf"
+    },
+    {
+      "model_regex": "^(?:LEXAR )?LNM790X002T(?:-RNNN[GU])?$",
+      "capacity_gb": 2000,
+      "tbw": 1500,
+      "series": "Lexar NM790",
+      "source": "https://resources.lexar.com/download/1048/documents/13165/lexar-productsheet-ssd-nm790-en-202410.pdf"
+    },
+    {
+      "model_regex": "^(?:LEXAR )?LNM790X004T(?:-RNNN[GU])?$",
+      "capacity_gb": 4000,
+      "tbw": 3000,
+      "series": "Lexar NM790",
+      "source": "https://resources.lexar.com/download/1048/documents/13165/lexar-productsheet-ssd-nm790-en-202410.pdf"
+    },
+    {
+      "model_regex": "^(?:LEXAR )?LNM790X008T(?:-RNNN[GU])?$",
+      "capacity_gb": 8000,
+      "tbw": 6000,
+      "series": "Lexar NM790",
+      "source": "https://resources.lexar.com/download/1048/documents/13165/lexar-productsheet-ssd-nm790-en-202410.pdf"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SFYRS/?500G$",
+      "capacity_gb": 500,
+      "tbw": 500,
+      "series": "Kingston FURY Renegade",
+      "source": "https://www.kingston.com/unitedkingdom/en/company/press/article/64919"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SFYRSK/?500G$",
+      "capacity_gb": 500,
+      "tbw": 500,
+      "series": "Kingston FURY Renegade",
+      "source": "https://www.kingston.com/unitedkingdom/en/company/press/article/64919"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SFYRS/?1000G$",
+      "capacity_gb": 1000,
+      "tbw": 1000,
+      "series": "Kingston FURY Renegade",
+      "source": "https://www.kingston.com/unitedkingdom/en/company/press/article/64919"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SFYRSK/?1000G$",
+      "capacity_gb": 1000,
+      "tbw": 1000,
+      "series": "Kingston FURY Renegade",
+      "source": "https://www.kingston.com/unitedkingdom/en/company/press/article/64919"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SFYRD/?2000G$",
+      "capacity_gb": 2000,
+      "tbw": 2000,
+      "series": "Kingston FURY Renegade",
+      "source": "https://www.kingston.com/unitedkingdom/en/company/press/article/64919"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SFYRDK/?2000G$",
+      "capacity_gb": 2000,
+      "tbw": 2000,
+      "series": "Kingston FURY Renegade",
+      "source": "https://www.kingston.com/unitedkingdom/en/company/press/article/64919"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SFYRD/?4000G$",
+      "capacity_gb": 4000,
+      "tbw": 4000,
+      "series": "Kingston FURY Renegade",
+      "source": "https://www.kingston.com/unitedkingdom/en/company/press/article/64919"
+    },
+    {
+      "model_regex": "^(?:KINGSTON )?SFYRDK/?4000G$",
+      "capacity_gb": 4000,
+      "tbw": 4000,
+      "series": "Kingston FURY Renegade",
+      "source": "https://www.kingston.com/unitedkingdom/en/company/press/article/64919"
     }
   ],
   "catalog_updated": "2026-11-12"
