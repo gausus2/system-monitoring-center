@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Test installer for smartctl-development; production untouched.
+# Production installer for services-enhancements, including SMART and Services updates.
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="smartctl-development"
+BRANCH="services-enhancements"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
