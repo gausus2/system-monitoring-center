@@ -96,6 +96,15 @@ class Services:
         )
         self.state_filter.grid(row=0, column=1, sticky="e")
         self.state_filter.bind("<<ComboboxSelected>>", self.apply_state_filter)
+        # Copy only Treeview rows currently attached after search and
+        # state filtering, in their actual on-screen sort order.
+        style = ttk.Style(search_frame)
+        style.configure("ServicesCopy.TButton", font=Common.font_normal,
+                        padding=(5, 2))
+        self.copy_table_button = ttk.Button(
+            search_frame, text="Copy table", command=self.copy_visible_table,
+            style="ServicesCopy.TButton")
+        self.copy_table_button.grid(row=0, column=2, padx=(8, 0), sticky="e")
         # Common.searchentry installs its own trace first; this second trace
         # reapplies State after the ordinary name search has run.
         self.searchentry_text_var.trace_add(
@@ -137,6 +146,36 @@ class Services:
                     pass
         Common.sort_columns_on_every_loop(self)
 
+
+    def copy_visible_table(self):
+        """Copy the filtered, sorted Services table exactly as displayed."""
+        tree = self.treeview
+        display = tree["displaycolumns"]
+        columns = (tuple(tree["columns"])
+                   if display == "#all" or display == ("#all",)
+                   else tuple(display))
+        # Unlike SMART, Services uses Treeview's separate #0 name column.
+        columns = ("#0",) + columns
+        headers = [tree.heading(column, "text") for column in columns]
+        rows = []
+        for item in tree.get_children(""):
+            rows.append([
+                tree.item(item, "text") if column == "#0"
+                else tree.set(item, column)
+                for column in columns
+            ])
+        lines = [headers] + rows
+        widths = [
+            max(len(str(line[i])) for line in lines)
+            for i in range(len(headers))
+        ]
+        output = "\n".join(
+            "  ".join(str(value).ljust(widths[i])
+                      for i, value in enumerate(line)).rstrip()
+            for line in lines
+        ) + "\n"
+        self.tab_frame.clipboard_clear()
+        self.tab_frame.clipboard_append(output)
 
     def information_frame(self):
         """
