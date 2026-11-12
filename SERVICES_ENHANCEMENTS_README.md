@@ -651,3 +651,35 @@ service statuses.
 
 Test on branch `services-failed-filter-development` with
 `bash ./update-services.sh`. No production changes yet.
+
+### SMART disk health tab (test branch)
+
+Branch `smartctl-development` adds a seventh main tab, **SMART**, alongside
+System Logs. The view discovers physical disks with `lsblk -J -d -b`
+(excluding loop, zram, ram, optical and other virtual devices). It collects
+SMART data read-only using `smartctl -a -j /dev/DEVICE` in a worker thread.
+The table shows device, model, size, overall SMART result, temperature and
+power-on hours. Select a disk to see serial, protocol/transport, SATA SMART
+attributes (reallocated/pending/uncorrectable sectors, CRC errors), and NVMe
+critical warning, endurance percentage and media errors where reported.
+
+The GUI **does not run as root, invoke sudo/pkexec, initiate SMART tests,
+or modify any disk**. Some drives may report **Unavailable** due to
+permissions, an unsupported USB bridge, RAID, or a missing smartmontools
+installation. **Unknown** means SMART health is not reported; it is not
+the same as Passed. SMART data may not predict all failures. A disk reporting
+Passed may still have noteworthy error counters: inspect its details.
+
+On Debian/Ubuntu, install the dependency if needed:
+`sudo apt install smartmontools`. Diagnostics can be tested separately
+with `sudo smartctl -a -j /dev/sdX` (use the actual disk device).
+The application itself makes no privilege escalation attempts.
+
+To test this branch:
+```bash
+git fetch origin
+git switch -c smartctl-development --track origin/smartctl-development
+bash ./update-services.sh
+```
+Use `git switch smartctl-development` if the branch already exists locally.
+The change remains isolated from `services-enhancements` production.
