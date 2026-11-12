@@ -12,6 +12,33 @@ Original project: [hakandundar34coding/system-monitoring-center](https://github.
 - **SMART:** health, temperature, power-on hours, total writes, manufacturer TBW, NVMe wear, media errors and firmware; currently mounted filesystems and ext4/NTFS filesystem date metadata
 - Copy table and Copy details for convenient plain-text output
 
+## Download a complete Debian package (recommended)
+
+A full `.deb` package of the **gausus2 stable** version is built by
+GitHub Actions and published under
+[GitHub Releases](https://github.com/gausus2/system-monitoring-center/releases).
+
+Download the latest `system-monitoring-center_*_all.deb` from Releases,
+then install it:
+
+```bash
+sudo apt install ./system-monitoring-center_*_all.deb
+```
+
+This package includes the original application's files **and** the
+enhancements in `stable`, so you do **not** need to download or install
+the upstream `.deb` first. A `SHA256SUMS` file is provided with the
+release for integrity checking.
+
+The build runs regression tests and verifies that the package contains
+the SMART and System Logs modules before publishing. Releases are
+created automatically from updates to `stable`.
+
+### Alternative: install the upstream application and apply enhancements
+
+The following method remains available, especially if you already have
+the upstream application installed.
+
 ## Install (Ubuntu / Debian)
 
 This version updates an **existing system-installed** System Monitoring
