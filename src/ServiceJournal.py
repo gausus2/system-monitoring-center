@@ -329,11 +329,12 @@ class ServiceJournal(ttk.Frame):
                     pid = entry.get("SYSLOG_PID") or entry.get("_PID")
                     if pid and sender != "-":
                         sender += "[" + str(pid) + "]"
-                    # For systemd PID 1 manager events, show which unit the
-                    # message refers to (different from the sender itself).
+                    # Show the referenced unit as the label for systemd[1]
+                    # manager events, leaving journal metadata untouched.
+                    # Without a structured UNIT field, keep systemd[1].
                     manager_unit = JournalUnitTypes.manager_unit_label(entry)
                     if manager_unit:
-                        sender += " [" + manager_unit + "]"
+                        sender = manager_unit
                     # Preserve boot boundaries when displaying multiple boots.
                     boot_id = entry.get("_BOOT_ID") or ""
                     if not isinstance(boot_id, str):
