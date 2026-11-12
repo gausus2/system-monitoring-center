@@ -69,6 +69,12 @@ class SmartctlTab(ttk.Frame):
             toolbar, text="Apply / Refresh", command=self.refresh,
             style="SmartRefresh.TButton")
         self.refresh_button.pack(side="right")
+        style.configure(
+            "SmartAdmin.TButton", font=Common.font_normal, padding=(5, 2))
+        self.admin_button = ttk.Button(
+            toolbar, text="Read SMART (Admin)", command=self.refresh_admin,
+            style="SmartAdmin.TButton")
+        self.admin_button.pack(side="right", padx=(0, 8))
         self.status = ttk.Label(
             self, text="SMART data is read-only. Some disks may require root access.",
             font=Common.font_normal)
@@ -109,14 +115,24 @@ class SmartctlTab(ttk.Frame):
             self.refresh()
 
     def refresh(self):
+        self._refresh(admin=False)
+
+    def refresh_admin(self):
+        """Explicit user request to authenticate for read-only SMART data."""
+        self._refresh(admin=True)
+
+    def _refresh(self, admin=False):
         self._generation += 1
         generation = self._generation
         self.refresh_button.configure(state="disabled")
-        self.status.configure(text="Scanning disks and reading SMART status…")
+        self.admin_button.configure(state="disabled")
+        self.status.configure(text=(
+            "Reading SMART with administrator access (authentication may appear)…"
+            if admin else "Scanning disks and reading SMART status…"))
 
         def worker():
             try:
-                data = SmartctlData.collect()
+                data = SmartctlData.collect(admin=admin)
                 self._queue.put((generation, data, None))
             except (OSError, RuntimeError, ValueError) as error:
                 self._queue.put((generation, [], str(error)))
@@ -141,6 +157,7 @@ class SmartctlTab(ttk.Frame):
                 if generation != self._generation:
                     continue
                 self.refresh_button.configure(state="normal")
+                self.admin_button.configure(state="normal")
                 if error:
                     self.status.configure(text="Unable to read disks: " + error)
                     continue
@@ -159,9 +176,12 @@ class SmartctlTab(ttk.Frame):
                         "-" if hours is None else str(hours)))
                     self._rows[path] = disk, smart
                 if data:
-                    self.status.configure(text="%d disk(s) · SMART read-only · "
-                                          "Unavailable may indicate permissions"
-                                          % len(data))
+                    unavailable = sum(
+                        smart.get("health") == "Unavailable" for _, smart in data)
+                    self.status.configure(
+                        text="%d disk(s) · read-only · %d unavailable%s"
+                        % (len(data), unavailable,
+                           " · select a disk for details" if unavailable else ""))
                     self.table.selection_set(current if current in self._rows else
                                              data[0][0]["path"])
                     self._select()
