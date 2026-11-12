@@ -39,6 +39,7 @@ python3 tests/test_file_log_boot.py
 python3 tests/test_journal_colors.py
 python3 tests/test_journal_context_copy.py
 python3 tests/test_services_failed_filter.py
+python3 tests/test_services_copy_table.py
 python3 tests/test_smartctl_data.py
 python3 tests/test_smartctl_formatting.py
 python3 tests/test_smart_endurance.py
