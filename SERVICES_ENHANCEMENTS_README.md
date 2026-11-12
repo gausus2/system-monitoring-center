@@ -818,3 +818,12 @@ one-third of the available region for the list (capped at 205 px) and
 the rest for details, with an 18-line requested detail height.
 The detail scrollbar, copy button, copy selection and read-only behavior
 are unchanged. No SMART read or data logic is modified.
+
+### SMART percentage explanation
+
+A compact note directly below the SMART disk list clarifies:
+**TBW %** is host bytes written relative to the manufacturer's rated TBW;
+**NVMe wear %** is the drive's own integer-percent estimate of endurance
+used. These can legitimately differ, e.g. TBW 1.99 % versus NVMe 0 %.
+The note uses the GUI font and wraps with the available pane width,
+without changing disk status, SMART parsing or the draggable split.
