@@ -21,7 +21,16 @@ class SmartDetailsUITests(unittest.TestCase):
         self.assertIn('"SmartDisk.Treeview", font=Common.font_normal', source)
         self.assertIn('"SmartDisk.Treeview.Heading", font=Common.font_normal', source)
         self.assertIn('style="SmartDisk.Treeview"', source)
-        self.assertIn('Common.font_normal.metrics("linespace") + 6', source)
+        self.assertIn('Common.font_normal.metrics("linespace") + 4', source)
+
+    def test_compact_columns_and_adjustable_details(self):
+        self.assertIn("ttk.Panedwindow(self, orient=tk.VERTICAL)", source)
+        self.assertIn("self.disk_panes.add(frame, weight=1)", source)
+        self.assertIn("self.disk_panes.add(detail_frame, weight=3)", source)
+        self.assertIn("self.disk_panes.sashpos(0,", source)
+        self.assertIn('detail_frame, height=18, state="disabled"', source)
+        self.assertIn('"NVMe wear %", "Media errs"', source)
+        self.assertIn('widths = (86, 172, 64, 63, 53, 77, 78, 75, 62, 67, 78)', source)
 
     def test_nvme_endurance_and_error_columns(self):
         self.assertIn('"nvme_used", "nvme_errors"', source)
