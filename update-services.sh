@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Isolated journal-refresh test installer; production remains unchanged.
+# Production installer for services-enhancements (including journal refresh fix).
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="journal-refresh-development"
+BRANCH="services-enhancements"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
