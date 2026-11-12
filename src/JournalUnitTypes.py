@@ -42,6 +42,31 @@ def manager_unit_label(entry):
     return name if unit_type(name) else None
 
 
+
+def display_sender(entry):
+    """Present the service context and actual emitting process.
+
+    systemd PID 1 messages show their referenced UNIT, as before.
+    For other senders, _SYSTEMD_UNIT is an actual cgroup association,
+    distinct from the SYSLOG_IDENTIFIER/_COMM process identity.
+    """
+    sender = (entry.get("SYSLOG_IDENTIFIER") or entry.get("_COMM")
+              or entry.get("_SYSTEMD_UNIT") or entry.get("_TRANSPORT") or "-")
+    sender = str(sender)
+    pid = entry.get("SYSLOG_PID") or entry.get("_PID")
+    if pid and sender != "-":
+        sender += "[" + str(pid) + "]"
+
+    manager_unit = manager_unit_label(entry)
+    if manager_unit:
+        return manager_unit
+
+    unit = entry.get("_SYSTEMD_UNIT")
+    if unit_type(unit) == "service" and sender != unit:
+        return unit + " " + sender
+    return sender
+
+
 def discover_types(namespace=None, timeout=7):
     """Enumerate unit suffixes recorded in the selected journal namespace.
 
