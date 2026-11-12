@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Production installer for services-enhancements, including advanced journal colors.
+# Test installer for services-failed-filter-development; production untouched.
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="services-enhancements"
+BRANCH="services-failed-filter-development"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
@@ -37,6 +37,7 @@ python3 tests/test_file_logs.py
 python3 tests/test_log_highlight.py
 python3 tests/test_file_log_boot.py
 python3 tests/test_journal_colors.py
+python3 tests/test_services_failed_filter.py
 
 if [[ ! -f "$DEST/Services.py" || ! -f "$DEST/Libsysmon.py" || ! -f "$DEST/MainWindow.py" ]]; then
     printf 'ERROR: System Monitoring Center installation not found at %s\n' "$DEST" >&2
