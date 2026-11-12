@@ -81,7 +81,55 @@ class Services:
 
         # SearchEntry
         self.searchentry, self.searchentry_text_var = Common.searchentry(search_frame, self)
-        self.searchentry.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
+        self.searchentry.grid(row=0, column=0, sticky="nsew", padx=(0, 8), pady=0)
+
+        # State filters the already loaded services; the existing name search
+        # and column-header sorting remain unchanged.
+        self.state_filter_var = tk.StringVar(value="All states")
+        self.state_filter = ttk.Combobox(
+            search_frame, textvariable=self.state_filter_var, state="readonly",
+            width=16, values=(
+                "All states", "Enabled", "Disabled", "Static", "Masked",
+                "Generated", "Indirect", "Enabled-runtime", "Masked-runtime",
+                "Linked", "Linked-runtime", "Alias", "Transient", "Bad", "-"
+            )
+        )
+        self.state_filter.grid(row=0, column=1, sticky="e")
+        self.state_filter.bind("<<ComboboxSelected>>", self.apply_state_filter)
+        # Common.searchentry installs its own trace first; this second trace
+        # reapplies State after the ordinary name search has run.
+        self.searchentry_text_var.trace_add(
+            "write", lambda *_: self.apply_state_filter()
+        )
+
+
+    def apply_state_filter(self, event=None):
+        """Combine the existing service-name search with exact State matches."""
+        if not hasattr(self, "selected_data_rows") or not hasattr(self, "piter_dict"):
+            return
+        chosen = self.state_filter_var.get()
+        name_query = self.searchentry_text_var.get().strip().casefold()
+        # Ignore Common.searchentry's informational placeholder.
+        if name_query.startswith(_tr("Search...").casefold()):
+            name_query = ""
+        tree = self.treeview
+        for item in tree.get_children(""):
+            tree.detach(item)
+        states = getattr(self, "rows_data_dict_prev", {})
+        for name, row in self.selected_data_rows.items():
+            if name_query and name_query not in str(row[0]).casefold():
+                continue
+            raw_state = states.get(name, {}).get("unit_file_state", "")
+            display_state = _tr(raw_state) if raw_state else "-"
+            if chosen != "All states" and display_state.casefold() != chosen.casefold():
+                continue
+            item = self.piter_dict.get(name)
+            if item is not None:
+                try:
+                    tree.reattach(item, "", "end")
+                except tk.TclError:
+                    pass
+        Common.sort_columns_on_every_loop(self)
 
 
     def information_frame(self):
@@ -698,6 +746,7 @@ fi
         self.selected_data_rows_prev = self.selected_data_rows
 
         Common.sort_columns_on_every_loop(self)
+        self.apply_state_filter()
 
         # reset information status text after loading all services.
         MainWindow.main_window.after(0, lambda: self.processing_label.config(text=_tr("Note: This tab is not reloaded automatically. Manually reload for changes."), background=""))
