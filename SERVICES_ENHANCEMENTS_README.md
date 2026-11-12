@@ -769,3 +769,14 @@ drive has failed. It is intentionally labelled **TBW used %**, not
 "remaining health".
 The catalog is copied with the modules by `update-services.sh`, with
 matching and ambiguity tests in `tests/test_smart_endurance.py`.
+
+### SMART Disk details font and copying (test branch)
+
+The **Disk details** text uses a font copied from `Common.font_normal`,
+with size multiplied by **1.2** (rounded to the nearest available
+font size). This follows the existing GUI font scale without changing
+the general SMART table font. The panel remains **read-only**.
+Copy text using **Ctrl+C** after selecting, **Ctrl+A** to select all,
+right-click **Copy selection / Copy all**, or the **Copy details**
+button beside the Disk details heading. These actions copy text to
+the desktop clipboard and do not reread disk data or require admin.
