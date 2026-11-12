@@ -154,6 +154,14 @@ class ServiceJournal(ttk.Frame):
         horizontal = ttk.Scrollbar(logframe, orient="horizontal", command=self.log.xview)
         horizontal.grid(row=1, column=0, sticky="ew")
         self.log.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
+        # Explicit menu for the read-only Text widget; relying on a
+        # theme/system context menu does not reliably copy selections.
+        self.log_menu = tk.Menu(self.log, tearoff=False)
+        self.log_menu.add_command(
+            label="Copy", command=self._copy_journal_selection)
+        self.log_menu.add_command(
+            label="Select all", command=self._select_all_journal)
+        self.log.bind("<Button-3>", self._show_journal_menu)
         self.log.tag_configure("critical", foreground="#e05a60")
         self.log.tag_configure("warning", foreground="#dca640")
         self.log.tag_configure("info", foreground="#cccccc")
@@ -177,6 +185,32 @@ class ServiceJournal(ttk.Frame):
             self.log.tag_configure("advanced-timestamp", font=self.timestamp_font)
 
         self.after(100, self._poll_results)
+
+    def _copy_journal_selection(self):
+        """Copy the selection regardless of Text's disabled state."""
+        try:
+            value = self.log.get("sel.first", "sel.last")
+        except tk.TclError:
+            return
+        self.clipboard_clear()
+        self.clipboard_append(value)
+
+    def _select_all_journal(self):
+        self.log.tag_add("sel", "1.0", "end-1c")
+        self.log.mark_set("insert", "1.0")
+        self.log.focus_set()
+
+    def _show_journal_menu(self, event):
+        # Right-click should preserve the text selection made with
+        # the left mouse button.
+        self.log_menu.entryconfigure(
+            "Copy", state="normal" if self.log.tag_ranges("sel")
+            else "disabled")
+        try:
+            self.log_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.log_menu.grab_release()
+        return "break"
 
     def toggle_journal_colors(self):
         """Switch colors without rereading the journal."""
