@@ -81,7 +81,9 @@ def mounted_paths(run=subprocess.run):
         if isinstance(mounts, str):
             mounts = [mounts]
         for point in mounts:
-            if isinstance(point, str) and point:
+            if isinstance(point, str) and point and not (
+                    point.startswith("[") and point.endswith("]")):
+                # [SWAP] and similar lsblk markers are not mount paths.
                 found.append((path, point))
         if node.get("type") == "disk" and isinstance(path, str):
             result[path] = sorted(set(found), key=lambda pair: (pair[1], pair[0] or ""))
