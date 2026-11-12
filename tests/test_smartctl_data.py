@@ -51,6 +51,45 @@ class SmartctlTests(unittest.TestCase):
         self.assertEqual([d["path"] for d in disks],
                          ["/dev/sda", "/dev/nvme0n1"])
 
+    def test_mounts_on_partitions_and_nested_mappers(self):
+        tree = {"blockdevices": [
+            {"path": "/dev/nvme0n1", "type": "disk", "mountpoints": [None],
+             "children": [
+                 {"path": "/dev/nvme0n1p1", "type": "part",
+                  "mountpoints": ["/boot/efi"]},
+                 {"path": "/dev/nvme0n1p2", "type": "part",
+                  "mountpoints": [None],
+                  "children": [
+                      {"path": "/dev/mapper/cryptroot", "type": "crypt",
+                       "mountpoints": ["/", "/home", None]}]}]},
+            {"path": "/dev/sda", "type": "disk", "mountpoints": [None],
+             "children": [{"path": "/dev/sda1", "type": "part",
+                           "mountpoints": ["/mnt/backup", "/mnt/backup"]}]},
+            {"path": "/dev/nvme1n1", "type": "disk", "mountpoints": [None]},
+        ]}
+        mounts = module.mounted_paths(run=lambda *a, **kw: process(tree))
+        self.assertEqual(mounts["/dev/nvme0n1"], [
+            ("/dev/mapper/cryptroot", "/"),
+            ("/dev/nvme0n1p1", "/boot/efi"),
+            ("/dev/mapper/cryptroot", "/home"),
+        ])
+        self.assertEqual(mounts["/dev/sda"],
+                         [("/dev/sda1", "/mnt/backup")])
+        self.assertEqual(mounts["/dev/nvme1n1"], [])
+
+    def test_mount_error_does_not_hide_smart_results(self):
+        disk = {"path": "/dev/nvme0n1", "model": "Test",
+                "size": 2_000_000_000_000, "transport": "nvme"}
+        with mock.patch.object(module, "physical_disks", return_value=[disk]), \
+             mock.patch.object(module, "mounted_paths",
+                               side_effect=RuntimeError("cannot list mounts")), \
+             mock.patch.object(module, "inspect_disk",
+                               return_value={"health": "Passed"}):
+            results = module.collect()
+        self.assertEqual(results[0][1]["health"], "Passed")
+        self.assertEqual(results[0][0]["mount_error"], "cannot list mounts")
+        self.assertEqual(results[0][0]["mount_points"], [])
+
     def test_sata_health_and_wear_attributes(self):
         raw = {"smart_status":{"passed":True}, "temperature":{"current":33},
                "power_on_time":{"hours":7500}, "device":{"protocol":"ATA"},
@@ -221,6 +260,7 @@ class SmartctlTests(unittest.TestCase):
         disk = {"path":"/dev/nvme0n1", "model":"Test",
                 "size":1000, "transport":"nvme"}
         with mock.patch.object(module, "physical_disks", return_value=[disk]), \
+             mock.patch.object(module, "mounted_paths", return_value={}), \
              mock.patch.object(module, "inspect_disk",
                                return_value={"health":"Unavailable"}) as plain, \
              mock.patch.object(module, "read_admin") as admin:
