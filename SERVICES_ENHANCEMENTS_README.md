@@ -1,5 +1,28 @@
 # System Monitoring Center – Services enhancements
 
+## Production release: minute filters and First/Last line windows
+
+The tested changes from `journal-range-development` are now in
+**`services-enhancements`**. Time range adds **Last minute** and
+**Last 10 minutes**. Lines supports **First/Last 100, 500, 1000, and
+5000**. Choosing a First value automatically sets Time range to
+**All available**, while allowing a manual time-range change afterward.
+Last preserves the selected range. Warp's special priority filtering
+remains supported in both directions.
+
+Production update (close System Monitoring Center first):
+
+```bash
+git switch services-enhancements
+bash ./update-services.sh
+```
+
+The production updater validates Python syntax and runs the Warp journal
+regression checks before installing. The earlier development instructions
+below are preserved as history. The `journal-range-development` branch and
+`services-stable` backup remain unchanged.
+
+
 ## Experimental time and line-range filters
 
 Branch: `journal-range-development`, created from the tested production
