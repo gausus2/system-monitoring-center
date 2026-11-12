@@ -45,6 +45,8 @@ def physical_disks(run=subprocess.run):
         and isinstance(item.get("path"), str)
         and item["path"].startswith("/dev/")
         and os.path.basename(item["path"]).replace("-", "").isalnum()
+        and not os.path.basename(item["path"]).startswith(
+            ("zram", "ram", "loop", "nbd", "fd", "sr"))
     ]
 
 
@@ -68,7 +70,7 @@ def parse_smart(data, returncode=0):
             val = _number(raw.get("value"))
             if val is not None:
                 attributes[ATTRIBUTE_NAMES[identifier]] = val
-    temp = _number(data.get("temperature", {}).get("current"))
+    temp = _number((data.get("temperature") or {}).get("current"))
     if temp is None:
         temp = _number(nvme.get("temperature"))
     if temp is None:
