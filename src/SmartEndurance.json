@@ -1394,6 +1394,48 @@
       "tbw": 5100,
       "series": "Seagate FireCuda 530",
       "source": "https://www.seagate.com/files/www-content/datasheets/pdfs/firecuda-530-ssd-DS2059-3-2112US-en_US.pdf"
+    },
+    {
+      "model_regex": "^(?:WDC |WD )?WDBDNH5000ABK(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "WD Black SN770M",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD )?WDBDNH0010BBK(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN770M",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD )?WDBDNH0020BBK(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN770M",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD )?WDBBYV0010BNC(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "WD Black SN850P",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD )?WDBBYV0020BNC(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "WD Black SN850P",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
+    },
+    {
+      "model_regex": "^(?:WDC |WD )?WDBBYV0040BNC(?:-[A-Z0-9]+)?$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "WD Black SN850P",
+      "source": "https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods"
     }
   ],
   "catalog_updated": "2026-11-12"
