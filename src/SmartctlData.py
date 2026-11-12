@@ -6,6 +6,7 @@ unreadable devices remain visible with an explicit permissions status.
 """
 import json
 import os
+import shutil
 import subprocess
 
 LSBLK = ["lsblk", "-J", "-d", "-b", "-o", "NAME,PATH,TYPE,MODEL,SIZE,TRAN"]
@@ -114,16 +115,18 @@ def parse_smart(data, returncode=0):
     }
 
 
-def inspect_disk(path, run=subprocess.run):
+def inspect_disk(path, run=subprocess.run, command=None, timeout=TIMEOUT):
     """Inspect one discovered path; caller must not pass arbitrary user input."""
-    command = SMARTCTL + [path]
+    command = command if command is not None else SMARTCTL + [path]
     try:
         process = run(command, capture_output=True, text=True, errors="replace",
-                      timeout=TIMEOUT, check=False)
+                      timeout=timeout, check=False)
     except FileNotFoundError:
-        return {"health": "Unavailable", "messages": ["smartctl not installed"]}
+        return {"health": "Unavailable", "messages": [
+            "SMART reader or authentication command is not installed"]}
     except subprocess.TimeoutExpired:
-        return {"health": "Unavailable", "messages": ["smartctl timed out"]}
+        return {"health": "Unavailable", "messages": [
+            "SMART read or authentication timed out"]}
     try:
         data = json.loads(process.stdout)
     except (ValueError, TypeError):
@@ -134,11 +137,59 @@ def inspect_disk(path, run=subprocess.run):
     return parse_smart(data, process.returncode)
 
 
-def collect(run=subprocess.run):
-    """Return (disk, smart summary) pairs, preserving inaccessible devices."""
+def permission_denied(smart):
+    """Only retry with administrator access for explicit access errors."""
+    phrases = ("permission denied", "operation not permitted",
+               "requires root", "must be root", "insufficient privileges")
+    return (smart.get("health") == "Unavailable"
+            and any(phrase in str(message).casefold()
+                    for message in smart.get("messages", [])
+                    for phrase in phrases))
+
+
+def read_admin(path, run=subprocess.run, which=shutil.which):
+    """Try normal access, sudo -n, then polkit on explicit user request.
+
+    Only the fixed smartctl binary and discovered disk path are executed.
+    No shell, no generic privileged Python helper, no password handling.
+    """
+    ordinary = inspect_disk(path, run)
+    if not permission_denied(ordinary):
+        return ordinary
+    executable = which("smartctl")
+    if not executable or not os.path.isabs(executable):
+        return {"health": "Unavailable", "messages": ["smartctl not found"]}
+    # No prompt and no password read from stdin. Preserve smartctl's own
+    # nonzero health bitmask; judge results by actual access errors.
+    if which("sudo"):
+        sudo = inspect_disk(
+            path, run, ["sudo", "-n", "--", executable, "-a", "-j", path])
+        if sudo.get("health") != "Unavailable":
+            return sudo
+        # Authentication or policy failures should try polkit next.
+        if not (permission_denied(sudo) or
+                any(token in " ".join(sudo.get("messages", [])).casefold()
+                    for token in ("password", "sudoers", "not allowed", "a terminal"))):
+            return sudo
+    if not which("pkexec"):
+        return {"health": "Unavailable", "messages": [
+            "Administrator access unavailable: pkexec not installed or configured"]}
+    result = inspect_disk(
+        path, run, ["pkexec", executable, "-a", "-j", path], timeout=90)
+    if result.get("health") == "Unavailable":
+        messages = result.get("messages", [])
+        return {"health": "Unavailable", "messages": [
+            "Administrator authentication denied, cancelled or unavailable."
+            ] + messages[:2]}
+    return result
+
+
+def collect(run=subprocess.run, admin=False):
+    """Return (disk, smart summary) pairs, optionally escalating read only."""
     disks = physical_disks(run)
     results = []
     for disk in disks:
-        smart = inspect_disk(disk["path"], run)
+        smart = (read_admin(disk["path"], run) if admin
+                 else inspect_disk(disk["path"], run))
         results.append((disk, smart))
     return results
