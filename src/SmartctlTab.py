@@ -225,7 +225,7 @@ class SmartctlTab(ttk.Frame):
         item = self._selected_table_item()
         if item:
             values = self.table.item(item, "values")
-            self._clipboard_text("\\t".join(map(str, values)))
+            self._clipboard_text("\t".join(map(str, values)))
         return "break"
 
     def _copy_table_model(self):
