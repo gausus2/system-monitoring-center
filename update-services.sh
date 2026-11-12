@@ -24,7 +24,7 @@ printf '==> Checking Python syntax\n'
 python3 - <<'PY'
 from pathlib import Path
 
-for name in ("Services.py", "Libsysmon.py", "MainWindow.py", "ServiceBootPlot.py", "ServiceJournal.py", "SystemLogs.py", "WarpJournal.py", "JournalUnitTypes.py", "FileLogs.py", "LogHighlight.py", "FileLogBoot.py", "JournalColors.py", "SmartctlData.py", "SmartctlTab.py"):
+for name in ("Services.py", "Libsysmon.py", "MainWindow.py", "ServiceBootPlot.py", "ServiceJournal.py", "SystemLogs.py", "WarpJournal.py", "JournalUnitTypes.py", "FileLogs.py", "LogHighlight.py", "FileLogBoot.py", "JournalColors.py", "SmartctlData.py", "SmartctlTab.py", "SmartEndurance.py"):
     path = Path("src") / name
     compile(path.read_bytes(), str(path), "exec")
     print(f"{name}: syntax OK")
@@ -40,6 +40,7 @@ python3 tests/test_journal_colors.py
 python3 tests/test_services_failed_filter.py
 python3 tests/test_smartctl_data.py
 python3 tests/test_smartctl_formatting.py
+python3 tests/test_smart_endurance.py
 python3 tests/test_smart_tab_signal.py
 
 if [[ ! -f "$DEST/Services.py" || ! -f "$DEST/Libsysmon.py" || ! -f "$DEST/MainWindow.py" ]]; then
@@ -58,9 +59,12 @@ for name in Services.py Libsysmon.py MainWindow.py; do
 done
 
 # Install the new helper (not present in original upstream packages).
-for name in ServiceBootPlot.py ServiceJournal.py SystemLogs.py WarpJournal.py JournalUnitTypes.py FileLogs.py LogHighlight.py FileLogBoot.py JournalColors.py SmartctlData.py SmartctlTab.py; do
+for name in ServiceBootPlot.py ServiceJournal.py SystemLogs.py WarpJournal.py JournalUnitTypes.py FileLogs.py LogHighlight.py FileLogBoot.py JournalColors.py SmartctlData.py SmartctlTab.py SmartEndurance.py; do
     sudo install -m 644 -- "src/$name" "$DEST/$name"
     printf 'Installed %s\n' "$name"
 done
+
+sudo install -m 644 -- src/SmartEndurance.json "$DEST/SmartEndurance.json"
+printf 'Installed SmartEndurance.json\n'
 
 printf '\nDone. Close and restart System Monitoring Center to use the updates.\n'
