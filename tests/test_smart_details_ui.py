@@ -32,6 +32,12 @@ class SmartDetailsUITests(unittest.TestCase):
         self.assertIn('"NVMe wear %", "Media errs"', source)
         self.assertIn('widths = (86, 172, 64, 63, 53, 77, 78, 75, 62, 67, 78)', source)
 
+    def test_twb_and_nvme_wear_explainer(self):
+        self.assertIn("TBW % = host data written", source)
+        self.assertIn("NVMe wear % = the drive's own estimated endurance used", source)
+        self.assertIn('self.wear_help.grid(row=2, column=0', source)
+        self.assertIn('font=Common.font_normal, justify="left"', source)
+
     def test_nvme_endurance_and_error_columns(self):
         self.assertIn('"nvme_used", "nvme_errors"', source)
         self.assertIn('"NVMe wear %", "Media errs"', source)
