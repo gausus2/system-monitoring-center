@@ -11,6 +11,7 @@ from tkinter import ttk
 
 from . import Common
 from . import WarpJournal
+from . import JournalUnitTypes
 
 
 class ServiceJournal(ttk.Frame):
@@ -50,6 +51,7 @@ class ServiceJournal(ttk.Frame):
         self.level_var = tk.StringVar(value="All levels")
         self.time_var = tk.StringVar(value="Last 24 hours")
         self.lines_var = tk.StringVar(value="Last 500")
+        self.unit_type_var = tk.StringVar(value="All types")
         self.search_var = tk.StringVar()
         self.boot_values = {
             "Current boot": "-0", "Previous boot": "-1", "All boots": None,
@@ -83,8 +85,24 @@ class ServiceJournal(ttk.Frame):
             if label == "Lines":
                 selector.bind("<<ComboboxSelected>>", self.on_lines_selected)
 
+        if self.system_mode:
+            typebox = ttk.Frame(controls)
+            typebox.grid(row=0, column=4, sticky="w", padx=(0, 7))
+            ttk.Label(typebox, text="Type", font=Common.font_normal).pack(anchor="w")
+            self.unit_type_selector = ttk.Combobox(
+                typebox, textvariable=self.unit_type_var, state="readonly",
+                values=("All types",) + tuple(
+                    item.capitalize() for item in JournalUnitTypes.COMMON_TYPES),
+                width=13, font=Common.font_normal,
+            )
+            self.unit_type_selector.pack(fill="x")
+            refresh_column = 5
+        else:
+            self.unit_type_selector = None
+            refresh_column = 4
+
         self.refresh_button = ttk.Button(controls, text="Apply / Refresh", command=self.refresh)
-        self.refresh_button.grid(row=0, column=4, sticky="s", padx=(1, 0))
+        self.refresh_button.grid(row=0, column=refresh_column, sticky="s", padx=(1, 0))
 
         searchrow = ttk.Frame(self)
         searchrow.pack(fill="x", pady=(0, 5))
@@ -133,12 +151,32 @@ class ServiceJournal(ttk.Frame):
 
         self.after(100, self._poll_results)
 
+    def set_available_unit_types(self, types):
+        """Merge journal-discovered unit types with the common predefined ones."""
+        if self.unit_type_selector is None:
+            return
+        all_types = list(JournalUnitTypes.COMMON_TYPES)
+        all_types.extend(
+            item for item in types
+            if item not in all_types
+            and JournalUnitTypes.unit_glob(item)
+        )
+        self.unit_type_selector.configure(
+            values=("All types",) + tuple(item.capitalize() for item in all_types)
+        )
+
     def open_system(self, source="system", namespace=None):
         """Reuse the journal display for system-wide or kernel-only messages."""
         if source not in ("system", "kernel"):
             raise ValueError("Unknown journal source: " + str(source))
         self.system_mode = True
         self.log_source = source
+        if source == "kernel":
+            self.unit_type_var.set("All types")
+        if self.unit_type_selector is not None:
+            self.unit_type_selector.configure(
+                state="readonly" if source == "system" else "disabled"
+            )
         self.namespace = namespace  # None means default; "*" means all.
         self.service = None
         heading = "System Journal" if source == "system" else "Kernel Journal"
@@ -174,6 +212,11 @@ class ServiceJournal(ttk.Frame):
         count, first = WarpJournal.parse_line_selection(self.lines_var.get())
         warp_mode = (self.system_mode and self.log_source == "system"
                      and self.namespace == "warp")
+        type_name = (self.unit_type_var.get().lower()
+                     if self.system_mode and self.log_source == "system"
+                     else "all types")
+        unit_glob = (None if type_name == "all types"
+                     else JournalUnitTypes.unit_glob(type_name))
         command = ["journalctl", "--no-pager", "--quiet", "--output=json"]
         if not warp_mode:
             # journalctl -n +N selects the first N matching entries.
@@ -182,6 +225,8 @@ class ServiceJournal(ttk.Frame):
         if namespace is not None:
             command.append("--namespace=" + namespace)
         if self.system_mode:
+            if unit_glob is not None:
+                command.append("--unit=" + unit_glob)
             if self.log_source == "kernel":
                 # Unlike --kernel, this field match does not imply current boot.
                 command.append("_TRANSPORT=kernel")
@@ -190,6 +235,15 @@ class ServiceJournal(ttk.Frame):
                 if (self.log_source == "system" and query.endswith(".service")
                         and " " not in query):
                     # -u includes manager messages about the unit.
+                    if unit_glob is not None:
+                        # Avoid OR semantics of two --unit flags. An exact
+                        # unit selection is already narrower than its type.
+                        if JournalUnitTypes.unit_type(query) != type_name:
+                            self._records = []
+                            self._last_refresh = datetime.datetime.now().strftime("%H:%M:%S")
+                            self._render_records()
+                            return
+                        command.remove("--unit=" + unit_glob)
                     command.append("--unit=" + query)
                 else:
                     # Search MESSAGE on disk before limiting the results.
