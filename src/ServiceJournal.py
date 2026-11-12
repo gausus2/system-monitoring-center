@@ -14,8 +14,10 @@ from . import Common
 class ServiceJournal(ttk.Frame):
     """Filter and display a service's journal without blocking the Tk event loop."""
 
-    def __init__(self, parent):
+    def __init__(self, parent, system_mode=False):
         super().__init__(parent, padding=5)
+        self.system_mode = system_mode
+        self.log_source = "system"
         self.service = None
         self._generation = 0
         self._results = queue.Queue()
@@ -34,7 +36,8 @@ class ServiceJournal(ttk.Frame):
         self.heading = ttk.Label(header, text="Service Journal", font=Common.font_bold)
         self.heading.pack(side="left")
         self.close_button = ttk.Button(header, text="Close", command=self.close, width=8)
-        self.close_button.pack(side="right")
+        if not self.system_mode:
+            self.close_button.pack(side="right")
 
         controls = ttk.Frame(self)
         controls.pack(fill="x", pady=(0, 5))
@@ -79,7 +82,7 @@ class ServiceJournal(ttk.Frame):
         searchentry = ttk.Entry(searchrow, textvariable=self.search_var, font=Common.font_normal)
         searchentry.pack(side="left", fill="x", expand=True)
         self.search_var.trace_add("write", self._search_changed)
-        self.status = ttk.Label(searchrow, text="Choose a service", font=Common.font_normal)
+        self.status = ttk.Label(searchrow, text="Ready" if self.system_mode else "Choose a service", font=Common.font_normal)
         self.status.pack(side="right", padx=(8, 0))
 
         logframe = ttk.Frame(self)
@@ -102,6 +105,17 @@ class ServiceJournal(ttk.Frame):
 
         self.after(100, self._poll_results)
 
+    def open_system(self, source="system"):
+        """Reuse the journal display for system-wide or kernel-only messages."""
+        if source not in ("system", "kernel"):
+            raise ValueError("Unknown journal source: " + str(source))
+        self.system_mode = True
+        self.log_source = source
+        self.service = None
+        self.heading.configure(text="System Journal" if source == "system"
+                               else "Kernel Journal")
+        self.refresh()
+
     def open_service(self, service, errors=False):
         if not service or not service.endswith(".service"):
             return
@@ -116,13 +130,18 @@ class ServiceJournal(ttk.Frame):
         self.refresh()
 
     def refresh(self):
-        if not self.service or self._closed:
+        if self._closed or (not self.system_mode and not self.service):
             return
         self._generation += 1
         generation = self._generation
         service = self.service
-        command = ["journalctl", "--namespace=*", "--no-pager", "--quiet", "--output=json",
-                   "--unit", service, "--lines", self.lines_var.get()]
+        command = ["journalctl", "--namespace=*", "--no-pager", "--quiet",
+                   "--output=json", "--lines", self.lines_var.get()]
+        if self.system_mode:
+            if self.log_source == "kernel":
+                command.append("--kernel")
+        else:
+            command.extend(["--unit", service])
         boot = self.boot_values.get(self.boot_var.get())
         level = self.level_values.get(self.level_var.get())
         since = self.time_values.get(self.time_var.get())
@@ -135,7 +154,8 @@ class ServiceJournal(ttk.Frame):
         self._records = []
         self.refresh_button.configure(state="disabled")
         self.status.configure(text="Loading…")
-        self._set_text("Loading journal for " + service + "…\n")
+        title = ("kernel" if self.log_source == "kernel" else "system") if self.system_mode else service
+        self._set_text("Loading journal for " + title + "…\n")
 
         def worker():
             try:
