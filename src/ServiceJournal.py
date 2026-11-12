@@ -66,20 +66,20 @@ class ServiceJournal(ttk.Frame):
         )):
             box = ttk.Frame(controls)
             box.grid(row=0, column=column, sticky="w", padx=(0, 7))
-            ttk.Label(box, text=label).pack(anchor="w")
+            ttk.Label(box, text=label, font=Common.font_normal).pack(anchor="w")
             ttk.Combobox(box, textvariable=var, state="readonly",
-                         values=values, width=width).pack(fill="x")
+                         values=values, width=width, font=Common.font_normal).pack(fill="x")
 
         self.refresh_button = ttk.Button(controls, text="Apply / Refresh", command=self.refresh)
         self.refresh_button.grid(row=0, column=4, sticky="s", padx=(1, 0))
 
         searchrow = ttk.Frame(self)
         searchrow.pack(fill="x", pady=(0, 5))
-        ttk.Label(searchrow, text="Search in loaded messages:").pack(side="left", padx=(0, 6))
-        searchentry = ttk.Entry(searchrow, textvariable=self.search_var)
+        ttk.Label(searchrow, text="Search in loaded messages:", font=Common.font_normal).pack(side="left", padx=(0, 6))
+        searchentry = ttk.Entry(searchrow, textvariable=self.search_var, font=Common.font_normal)
         searchentry.pack(side="left", fill="x", expand=True)
         self.search_var.trace_add("write", self._search_changed)
-        self.status = ttk.Label(searchrow, text="Choose a service")
+        self.status = ttk.Label(searchrow, text="Choose a service", font=Common.font_normal)
         self.status.pack(side="right", padx=(8, 0))
 
         logframe = ttk.Frame(self)
