@@ -30,6 +30,10 @@ The suspected Services-tab failure was not conclusively reproduced. Test that th
 
 These are custom changes to [System Monitoring Center](https://github.com/hakandundar34coding/system-monitoring-center) v3.4.1, maintained in the [gausus2 fork](https://github.com/gausus2/system-monitoring-center) on the `services-enhancements` branch. They are **not** part of the original upstream project.
 
+## Journal namespaces (test branch)
+
+The embedded journal now uses `journalctl --namespace=*` for every filtered query. This includes entries from the default journal and named namespaces (such as `netdata`) in time order. The existing boot, priority, time, line-count, and text-search filters remain unchanged. Journal permissions still apply. This change is being tested in `journal-development` before production promotion.
+
 ## Services State filter (test branch)
 
 The existing **Search** entry continues to filter by service name. A separate
