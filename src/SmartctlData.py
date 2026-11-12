@@ -212,6 +212,7 @@ def parse_smart(data, returncode=0):
         "attributes": attributes,
         "model": data.get("model_name") or data.get("model_family") or "",
         "serial": data.get("serial_number") or "",
+        "firmware": data.get("firmware_version") or "",
         "protocol": (device.get("protocol") or ""),
         "messages": errors,
     }
