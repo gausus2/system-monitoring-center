@@ -827,3 +827,16 @@ A compact note directly below the SMART disk list clarifies:
 used. These can legitimately differ, e.g. TBW 1.99 % versus NVMe 0 %.
 The note uses the GUI font and wraps with the available pane width,
 without changing disk status, SMART parsing or the draggable split.
+
+### SMART Copy table
+
+A compact **Copy table** button next to the SMART heading, and the
+same option in the disk-table right-click menu, copy **all displayed
+disk rows and their current column headings** to the clipboard.
+The exported content uses an aligned plain-text table with two spaces
+between columns, preserving the same row and column order, units and
+current values as the Treeview. This makes pasted results readable
+in plain-text editors, terminals and chats, without requiring another
+SMART scan or authentication. Existing **Ctrl+C** on a selected row,
+**Copy cell**, **Copy model** and **Copy details** remain unchanged.
+Test: `tests/test_smart_copy_table.py`.
