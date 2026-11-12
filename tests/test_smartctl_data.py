@@ -103,6 +103,15 @@ class SmartctlTests(unittest.TestCase):
         self.assertEqual(data["hours"], 7500)
         self.assertEqual(data["attributes"]["Current pending sectors"], 2)
 
+    def test_firmware_version_nvme_and_sata(self):
+        for name in ("S5Z42105", "EIFM31.6"):
+            with self.subTest(name=name):
+                result = module.parse_smart({
+                    "firmware_version": name,
+                    "smart_status": {"passed": True}})
+                self.assertEqual(result["firmware"], name)
+        self.assertEqual(module.parse_smart({})["firmware"], "")
+
     def test_nvme_warning_and_media_errors(self):
         raw = {"nvme_smart_health_information_log":{
             "critical_warning":1, "temperature":42,
