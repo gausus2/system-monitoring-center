@@ -99,8 +99,17 @@ class FileLogsTests(unittest.TestCase):
                  mock.patch.object(logs.os.path, "getmtime", return_value=start.timestamp()), \
                  mock.patch.object(logs.FileLogBoot, "boot_window",
                                    return_value=(start, None)):
-                with self.assertRaisesRegex(ValueError, "No recognizable"):
+                with self.assertRaises(logs.NoRecognizableTimestamps):
                     logs.read_lines(str(path), 2, boot="Current boot")
+                lines, partial, fallback = logs.read_with_boot_fallback(
+                    str(path), 2, boot="Current boot")
+                self.assertEqual(lines, ["foo", "bar"])
+                self.assertFalse(partial)
+                self.assertTrue(fallback)
+                lines, partial, fallback = logs.read_with_boot_fallback(
+                    str(path), 1, needle="bar", boot="Previous boot (-1)")
+                self.assertEqual(lines, ["bar"])
+                self.assertTrue(fallback)
 
     def test_last_scans_newest_bytes_in_large_file(self):
         with tempfile.TemporaryDirectory() as directory:
