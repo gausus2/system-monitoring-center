@@ -57,6 +57,90 @@
       "tbw": 1200,
       "series": "Samsung 970 EVO Plus",
       "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 870 EVO 250GB$",
+      "capacity_gb": 250,
+      "tbw": 150,
+      "series": "Samsung 870 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 870 EVO 500GB$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "Samsung 870 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 870 EVO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "Samsung 870 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 870 EVO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "Samsung 870 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 870 EVO 4TB$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "Samsung 870 EVO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 980 PRO 250GB$",
+      "capacity_gb": 250,
+      "tbw": 150,
+      "series": "Samsung 980 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 980 PRO 500GB$",
+      "capacity_gb": 500,
+      "tbw": 300,
+      "series": "Samsung 980 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 980 PRO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "Samsung 980 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 980 PRO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "Samsung 980 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 990 PRO 1TB$",
+      "capacity_gb": 1000,
+      "tbw": 600,
+      "series": "Samsung 990 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 990 PRO 2TB$",
+      "capacity_gb": 2000,
+      "tbw": 1200,
+      "series": "Samsung 990 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
+    },
+    {
+      "model_regex": "^SAMSUNG SSD 990 PRO 4TB$",
+      "capacity_gb": 4000,
+      "tbw": 2400,
+      "series": "Samsung 990 PRO",
+      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
     }
   ]
 }
