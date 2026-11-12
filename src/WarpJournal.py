@@ -24,6 +24,21 @@ FILTER_PRIORITY = {
 }
 
 
+def parse_line_selection(selection):
+    """Return (count, first) from Last/First N, retaining numeric legacy values."""
+    text = str(selection).strip()
+    parts = text.split()
+    if len(parts) == 1:
+        count, first = int(parts[0]), False
+    elif len(parts) == 2 and parts[0] in ("First", "Last"):
+        count, first = int(parts[1]), parts[0] == "First"
+    else:
+        raise ValueError("Invalid line selection: " + text)
+    if count not in (100, 500, 1000, 5000):
+        raise ValueError("Unsupported journal line count: " + str(count))
+    return count, first
+
+
 def timestamp_microseconds(entry):
     """Journal timestamps used to normalize normal and reverse query output."""
     try:
@@ -57,8 +72,8 @@ def effective_priority(entry):
     return LEVEL_PRIORITY[match.group(1)] if match else max(0, min(7, priority))
 
 
-def read_entries(command, max_entries, level, timeout=45):
-    """Return newest matching entries in chronological order, memory-bounded.
+def read_entries(command, max_entries, level, timeout=45, first=False):
+    """Return first or last N matches in chronological order, memory-bounded.
 
     command has the usual boot, namespace, time, and optional message query.
     It must not contain --lines or --priority, which would discard candidates
@@ -69,7 +84,7 @@ def read_entries(command, max_entries, level, timeout=45):
     collected = []
     deadline = time.monotonic() + timeout
     process = subprocess.Popen(
-        command + ["--reverse"], stdout=subprocess.PIPE,
+        command + ([] if first else ["--reverse"]), stdout=subprocess.PIPE,
         stderr=subprocess.PIPE, text=True, errors="replace",
     )
     stopped_early = False
@@ -128,5 +143,6 @@ def read_entries(command, max_entries, level, timeout=45):
             process.wait()
         process.stdout.close()
         process.stderr.close()
-    collected.reverse()
+    if not first:
+        collected.reverse()
     return collected
