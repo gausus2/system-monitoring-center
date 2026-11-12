@@ -14,6 +14,15 @@ and `journalctl --field=UNIT` for the selected namespace. The baseline
 options remain available when discovery is slow, incomplete, or denied.
 The list is deliberately **not** derived from just the loaded 100–5000 rows.
 
+**No matching unit data:** For some types (notably `.device`),
+`journalctl --unit=*.device` can exit with
+`Failed to add filter for units: No data available` when the wildcard
+cannot be expanded against recorded unit data. This specific condition is
+now displayed as **0 journal entries** rather than a GUI error. Other
+journalctl errors, including permission failures, remain visible. A
+systemd device may exist without any matching journal events; this type
+filter is not a device inventory.
+
 The type selection is applied by `journalctl --unit=*.service`,
 `--unit=*.mount`, etc. The glob is matched against unit names **in the
 journal** and includes systemd manager messages about those units. This
