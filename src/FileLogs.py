@@ -22,6 +22,12 @@ SKIP_DIRS = {"journal", "private"}
 MAX_SCAN_BYTES = 64 * 1024 * 1024
 
 
+class NoRecognizableTimestamps(ValueError):
+    """The requested boot filter cannot be applied to an undated file."""
+
+
+
+
 def available_logs():
     """Discover current regular text logs, including in subdirectories.
 
@@ -99,10 +105,23 @@ def read_lines(path, count, first=False, needle="", boot="All available"):
             else:
                 found.append(line)
     if window is not None and recognized == 0:
-        raise ValueError(
-            "No recognizable timestamps in this log. "
-            "Choose All available (boot filtering needs dated lines).")
+        raise NoRecognizableTimestamps(
+            "No recognizable timestamps in this log.")
     return list(found), truncated
+
+
+def read_with_boot_fallback(path, count, first=False, needle="", boot="All available"):
+    """Use plain text when the selected file has no recognizable dates.
+
+    Only unsupported timestamps trigger fallback; access, binary, missing
+    boot history, and other errors are never suppressed.
+    """
+    try:
+        lines, truncated = read_lines(path, count, first, needle, boot)
+        return lines, truncated, False
+    except NoRecognizableTimestamps:
+        lines, truncated = read_lines(path, count, first, needle, "All available")
+        return lines, truncated, True
 
 
 class FileLogViewer(ttk.Frame):
@@ -207,10 +226,11 @@ class FileLogViewer(ttk.Frame):
 
         def worker():
             try:
-                lines, truncated = read_lines(path, count, first, needle, boot)
-                self._results.put((generation, lines, truncated, None))
-            except (OSError, ValueError) as exc:
-                self._results.put((generation, [], False, str(exc)))
+                lines, truncated, fallback = read_with_boot_fallback(
+                    path, count, first, needle, boot)
+                self._results.put((generation, lines, truncated, fallback, None))
+            except (OSError, ValueError, RuntimeError) as exc:
+                self._results.put((generation, [], False, False, str(exc)))
 
         threading.Thread(target=worker, daemon=True).start()
 
@@ -219,7 +239,7 @@ class FileLogViewer(ttk.Frame):
             return
         try:
             while True:
-                generation, lines, truncated, error = self._results.get_nowait()
+                generation, lines, truncated, fallback, error = self._results.get_nowait()
                 if generation != self._generation:
                     continue
                 if error:
@@ -228,7 +248,9 @@ class FileLogViewer(ttk.Frame):
                 else:
                     now = datetime.datetime.now().strftime("%H:%M:%S")
                     suffix = " · partial scan (64 MiB limit)" if truncated else ""
-                    if self.boot_var.get() != "All available":
+                    if fallback:
+                        suffix += " · plain text (boot filter unavailable)"
+                    elif self.boot_var.get() != "All available":
                         suffix += " · estimated boot range"
                     self.status.configure(text=str(len(lines)) + " entries · Updated " + now + suffix)
                     self._set_lines(lines)
