@@ -225,7 +225,7 @@ class FileLogViewer(ttk.Frame):
         first = self.lines_var.get().startswith("First ")
         count = int(self.lines_var.get().split()[-1])
         needle = self.search_var.get()
-         self.status.configure(text="Loading…")
+        self.status.configure(text="Loading…")
         self._set_text("Reading " + path + "…\n")
 
         def worker():
