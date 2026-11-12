@@ -1,5 +1,18 @@
 # System Monitoring Center – Services enhancements
 
+## Production update: Journal refresh (12 November 2026)
+
+The tested `journal-refresh-development` improvements have been promoted to
+`services-enhancements`. The journal viewer now sorts records chronologically
+before display (including results of `journalctl --grep` with `--lines`), so
+the newest entries appear at the bottom. The status shows `Updated HH:MM:SS`
+after a successful reload to confirm **Apply / Refresh** was executed.
+
+Use `bash ./update-services.sh` on the `services-enhancements` branch
+to install this production version. The older test instructions below are
+retained as development history; the test branch remains unchanged.
+
+
 ## Journal refresh ordering (experimental branch)
 
 The `journal-refresh-development` branch tests a fix for a subtle
