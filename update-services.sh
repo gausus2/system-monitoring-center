@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Test installer for warp-log-levels-development; working branches are untouched.
+# Production installer for services-enhancements (with System Logs and Warp levels).
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="warp-log-levels-development"
+BRANCH="services-enhancements"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
