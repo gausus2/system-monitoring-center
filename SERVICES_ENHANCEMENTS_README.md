@@ -719,3 +719,36 @@ Disk details expose `Writes source` for traceability. In particular,
 NAND writes and host writes are not interchangeable.
 Tests: `tests/test_smartctl_formatting.py` and
 `tests/test_smartctl_data.py`.
+
+### Manufacturer-rated TBW lookup (test branch)
+
+The SMART tab now compares measured **Total writes** (host writes) with
+the manufacturer's **rated TBW**, stored in a local, versioned
+`src/SmartEndurance.json` table. A model is accepted only when its
+model identifier matches a catalog record and the physical capacity is
+consistent. The catalog provides model, capacity, decimal TBW and
+manufacturer URL. It is entirely offline at runtime and can be extended
+without changing SMART parsing code.
+
+Initial catalog: **Kingston KC3000**, **Samsung 970 EVO Plus**,
+**Samsung 870 EVO**, **Samsung 980 PRO** and **Samsung 990 PRO**, across
+their specified capacities (20 model/size combinations total).
+Kingston source:
+https://www.kingston.com/en/ssd/kc3000-nvme-m2-solid-state-drive?capacity=2048gb
+Samsung source:
+https://semiconductor.samsung.com/consumer-storage/support/warranty/
+
+New table columns: **Rated TBW** and **TBW used %**, the latter
+calculated as `actual_host_writes_bytes / (rated_tbw * 10^12) * 100`.
+Disk details show **Manufacturer rated TBW**, **Writes / rated TBW**
+and **Rating source**. No match or unsupported write counter is
+displayed as `-` rather than invented; e.g. `NE-256` is unknown.
+
+**Important:** Rated TBW is manufacturer-specified endurance (often
+a warranty limit), **not** the precise usable lifetime, a predicted
+failure date, or a replacement for the NVMe controller's distinct
+`Percentage Used`. The percentage can exceed 100 without proving a
+drive has failed. It is intentionally labelled **TBW used %**, not
+"remaining health".
+The catalog is copied with the modules by `update-services.sh`, with
+matching and ambiguity tests in `tests/test_smart_endurance.py`.
