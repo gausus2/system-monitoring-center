@@ -149,12 +149,17 @@ class SmartctlTab(ttk.Frame):
         detail_frame = ttk.Frame(self)
         detail_frame.grid(row=3, column=0, sticky="nsew", pady=(8, 0))
         detail_frame.columnconfigure(0, weight=1)
+        detail_frame.rowconfigure(1, weight=1)
         ttk.Label(detail_frame, text="Disk details",
                   font=Common.font_bold).grid(row=0, column=0, sticky="w")
         self.details = tk.Text(
             detail_frame, height=9, state="disabled", wrap="word",
             font=Common.font_normal)
-        self.details.grid(row=1, column=0, sticky="ew", pady=(4, 0))
+        self.details.grid(row=1, column=0, sticky="nsew", pady=(4, 0))
+        details_scrollbar = ttk.Scrollbar(
+            detail_frame, orient="vertical", command=self.details.yview)
+        details_scrollbar.grid(row=1, column=1, sticky="ns", pady=(4, 0))
+        self.details.configure(yscrollcommand=details_scrollbar.set)
         self.after(150, self._poll)
 
     def activate(self):
