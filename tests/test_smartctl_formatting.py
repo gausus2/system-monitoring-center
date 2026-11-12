@@ -24,6 +24,24 @@ class SmartFormattingTests(unittest.TestCase):
         self.assertEqual(format_hours(0), "0 d 0 h")
         self.assertEqual(format_hours(None), "-")
 
+    def test_disk_details_show_current_mounts(self):
+        smart = {"health": "Passed", "attributes": {}, "messages": []}
+        disk = {"path": "/dev/nvme0n1", "model": "NVMe",
+                "size": 2_000_000_000_000, "transport": "nvme",
+                "mount_points": [
+                    ("/dev/nvme0n1p2", "/"),
+                    ("/dev/nvme0n1p3", "/home")]}
+        details = scope["details_text"](disk, smart)
+        self.assertIn("Mount points (currently mounted):", details)
+        self.assertIn("/dev/nvme0n1p2 → /", details)
+        self.assertIn("/dev/nvme0n1p3 → /home", details)
+        disk["mount_points"] = []
+        self.assertIn("Mount points: Not mounted",
+                      scope["details_text"](disk, smart))
+        disk["mount_error"] = "lsblk not available"
+        self.assertIn("Mount points: Unavailable (lsblk not available)",
+                      scope["details_text"](disk, smart))
+
     def test_auto_and_manual_decimal_units(self):
         format_writes = scope["format_writes"]
         self.assertEqual(format_writes(1_024_000_000_000), "1.02 TB")
