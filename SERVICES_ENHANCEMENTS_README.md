@@ -794,3 +794,12 @@ GUI size, with no 1.2 multiplier. The table can copy its selected row
 as tab-separated values with **Ctrl+C**. Right-click a table cell for
 **Copy cell**, **Copy model** or **Copy selected row**. The existing
 Disk details text selection and Copy details button remain available.
+
+### SMART disk table font correction
+
+The SMART disk **table rows and column headings** explicitly use
+`Common.font_normal` via the isolated `SmartDisk.Treeview` and
+`SmartDisk.Treeview.Heading` ttk styles. Tk does not automatically
+inherit a parent font for Treeview. Row height follows font line height
+with a small padding. This avoids modifying the global Treeview style
+used by other tabs and does not affect table copy features.
