@@ -31,34 +31,6 @@
       "source": "https://www.kingston.com/en/ssd/kc3000-nvme-m2-solid-state-drive?capacity=2048gb"
     },
     {
-      "model_regex": "^SAMSUNG SSD 970 EVO PLUS (?:250GB)$",
-      "capacity_gb": 250,
-      "tbw": 150,
-      "series": "Samsung 970 EVO Plus",
-      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
-    },
-    {
-      "model_regex": "^SAMSUNG SSD 970 EVO PLUS (?:500GB)$",
-      "capacity_gb": 500,
-      "tbw": 300,
-      "series": "Samsung 970 EVO Plus",
-      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
-    },
-    {
-      "model_regex": "^SAMSUNG SSD 970 EVO PLUS (?:1TB)$",
-      "capacity_gb": 1000,
-      "tbw": 600,
-      "series": "Samsung 970 EVO Plus",
-      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
-    },
-    {
-      "model_regex": "^SAMSUNG SSD 970 EVO PLUS (?:2TB)$",
-      "capacity_gb": 2000,
-      "tbw": 1200,
-      "series": "Samsung 970 EVO Plus",
-      "source": "https://semiconductor.samsung.com/consumer-storage/support/warranty/"
-    },
-    {
       "model_regex": "^SAMSUNG SSD 870 EVO 250GB$",
       "capacity_gb": 250,
       "tbw": 150,
