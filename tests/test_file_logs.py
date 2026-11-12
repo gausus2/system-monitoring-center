@@ -47,7 +47,7 @@ class FileLogsTests(unittest.TestCase):
             (sub / "error.log").write_text("failure\n")
             with mock.patch.object(logs, "ROOT", directory):
                 self.assertEqual(logs.available_logs(),
-                                 [str(sub / "error.log"), str(root / "syslog")])
+                                 [str(root / "syslog"), str(sub / "error.log")])
 
     def test_binary_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
