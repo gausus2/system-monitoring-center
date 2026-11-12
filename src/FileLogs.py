@@ -10,6 +10,7 @@ import tkinter.font as tkfont
 from tkinter import ttk
 
 from . import Common
+from . import LogHighlight
 
 
 ROOT = "/var/log"
@@ -129,7 +130,20 @@ class FileLogViewer(ttk.Frame):
         horizontal = ttk.Scrollbar(frame, orient="horizontal", command=self.log.xview)
         horizontal.grid(row=1, column=0, sticky="ew")
         self.log.configure(yscrollcommand=scrollbar.set, xscrollcommand=horizontal.set)
+        self.log.tag_configure("normal", foreground="#cccccc")
         self.log.tag_configure("error", foreground="#e05a60")
+        self.log.tag_configure("warning", foreground="#dca640")
+        self.log.tag_configure("success", foreground="#65c76b")
+        self.log.tag_configure("timestamp", foreground="#91b9e9")
+        self.log.tag_configure("ip", foreground="#c6a0e9")
+        self.log.tag_configure("hex", foreground="#c6a0e9")
+        self.log.tag_configure("path", foreground="#7cbacb")
+        self.log.tag_configure("quoted", foreground="#b1c68c")
+        self.log.tag_configure("key", foreground="#74c4bd")
+        bold = font.copy()
+        bold.configure(weight="bold")
+        self.highlight_font = bold
+        self.log.tag_configure("timestamp", font=bold)
         self.after(100, self._poll_results)
 
     def open_file(self, path):
@@ -180,11 +194,26 @@ class FileLogViewer(ttk.Frame):
                     now = datetime.datetime.now().strftime("%H:%M:%S")
                     suffix = " · partial scan (64 MiB limit)" if truncated else ""
                     self.status.configure(text=str(len(lines)) + " entries · Updated " + now + suffix)
-                    self._set_text("\n".join(lines) + "\n" if lines else
-                                   "No file lines match these filters.\n")
+                    self._set_lines(lines)
         except queue.Empty:
             pass
         self.after(100, self._poll_results)
+
+    def _set_lines(self, lines):
+        """Show bounded text with semantic coloring, preserving line contents."""
+        self.log.configure(state="normal")
+        self.log.delete("1.0", "end")
+        if not lines:
+            self.log.insert("end", "No file lines match these filters.\n")
+        else:
+            for line in lines:
+                clean = LogHighlight.ANSI.sub("", line)
+                start = self.log.index("end-1c")
+                self.log.insert("end", clean + "\n", LogHighlight.classify_line(clean))
+                for begin, end, style in LogHighlight.highlight_spans(clean):
+                    self.log.tag_add(style, f"{start}+{begin}c", f"{start}+{end}c")
+        self.log.configure(state="disabled")
+        self.log.yview_moveto(0 if self.lines_var.get().startswith("First ") else 1)
 
     def destroy(self):
         self._closed = True
