@@ -534,3 +534,35 @@ Integrate upstream updates in a separate test branch and review conflicts, espec
 - **Confirmed by the user:** The integrated Service Journal works with service selection, boot filters, priority highlighting and loaded entries in Xubuntu.\n- **Not fully tested:** All services, other desktop environments, or future upstream versions.
 
 The original project is licensed under **GNU GPL v3**. Retain upstream copyright notices and license terms when redistributing modified versions.
+
+
+## File Logs test branch
+
+`file-logs-development` adds **Other logs ▾** directly beneath the existing
+**Log source** dropdown in System Logs. The original System journal / Kernel
+journal choices, namespaces, boot/time/type and priority filtering are unchanged.
+
+The new menu scans regular non-rotated text files under `/var/log` when opened,
+grouping entries by full directory path. Selecting a file switches the viewer to
+a separate read-only file mode with **First/Last 100–5000**, case-insensitive
+substring search (applied before line count), and Apply / Refresh. The actual
+file path appears in the heading. Selecting System journal or Kernel journal
+returns to the original journal viewer; F5 refreshes whichever is visible.
+Other logs files are not journal entries: journal boot, unit type and priority
+filters do not apply to arbitrary text files.
+
+Safety: file names are discovered locally, and files are revalidated on read.
+Symlinks, binary log formats, compressed and rotated files are excluded;
+64 MiB maximum per refresh is scanned to prevent unbounded work. File reads
+run off the Tk thread. Permissions are not bypassed: unreadable files show a
+clear error rather than escalating privileges.
+
+Run on the test branch:
+```bash
+git fetch origin
+git switch -c file-logs-development --track origin/file-logs-development
+bash ./update-services.sh
+```
+If the test branch already exists locally, simply
+`git switch file-logs-development && bash ./update-services.sh`.
+Production remains on `services-enhancements`.
