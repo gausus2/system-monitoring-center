@@ -67,7 +67,14 @@ def read_lines(path, count, first=False, needle="", boot="All available"):
     with open(path, "rb") as stream:
         if b"\x00" in stream.read(4096):
             raise ValueError("Binary log file; use a suitable log-specific viewer")
-        stream.seek(0)
+        size = stream.seek(0, os.SEEK_END)
+        if not first and size > MAX_SCAN_BYTES:
+            # Last N must scan the newest bytes, not the oldest bytes.
+            stream.seek(size - MAX_SCAN_BYTES)
+            stream.readline()  # Discard an incomplete line at the boundary.
+            truncated = True
+        else:
+            stream.seek(0)
         for raw_line in stream:
             scanned += len(raw_line)
             if scanned > MAX_SCAN_BYTES:
