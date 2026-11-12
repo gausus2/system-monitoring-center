@@ -626,3 +626,14 @@ bash ./update-services.sh
 ```
 If the local branch already exists: `git switch journal-advanced-colors-development`
 then run the installer. Production stays on `services-enhancements`.
+
+### Compact GUI-scaled log controls (test branch)
+
+**Other logs** uses a narrower `CompactLogs.TMenubutton` ttk style,
+with `Common.font_normal` and reduced padding. The journal color
+switch uses `JournalColors.TButton` with the same application-scaled
+font and compact padding. **Apply / Refresh** uses the
+`JournalRefresh.TButton` style, also GUI-scaled and compact, with
+green enabled-state text (`#65c76b`) and grey disabled-state text.
+This does not alter log retrieval, highlighting, or the Services
+journal embedded outside System Logs.
