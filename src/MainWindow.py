@@ -390,6 +390,7 @@ class MainWindow():
         self.services_tb.config(command=self.main_gui_tab_switch)
         self.system_tb.config(command=self.main_gui_tab_switch)
         self.system_logs_tb.config(command=self.main_gui_tab_switch)
+        self.smartctl_tb.config(command=self.main_gui_tab_switch)
 
         # Performance tab sub-tabs togglebutton signals
         self.summary_tb.config(command=self.main_gui_tab_switch)
