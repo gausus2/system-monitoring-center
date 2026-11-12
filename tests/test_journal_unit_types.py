@@ -70,6 +70,18 @@ class UnitTypesTests(unittest.TestCase):
             with self.subTest(invalid=invalid), self.assertRaises(ValueError):
                 types.unit_glob(invalid)
 
+    def test_missing_device_unit_data_is_empty_not_failure(self):
+        cmd = ["journalctl", "--output=json", "--unit=*.device", "--boot", "-0"]
+        message = "Failed to add filter for units: No data available"
+        self.assertTrue(types.empty_unit_filter_result(cmd, 1, message))
+        self.assertFalse(types.empty_unit_filter_result(
+            cmd, 1, "Permission denied"))
+        self.assertFalse(types.empty_unit_filter_result(
+            ["journalctl", "--output=json"], 1, message))
+        self.assertFalse(types.empty_unit_filter_result(
+            cmd, 1, message, '{"MESSAGE":"something"}'))
+        self.assertFalse(types.empty_unit_filter_result(cmd, 0, message))
+
     def test_discovery_reads_journal_fields_for_selected_namespace(self):
         def result(command, **kwargs):
             if "--field=_SYSTEMD_UNIT" in command:
