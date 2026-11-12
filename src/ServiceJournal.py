@@ -87,7 +87,7 @@ class ServiceJournal(ttk.Frame):
         logframe.columnconfigure(0, weight=1)
         logframe.rowconfigure(0, weight=1)
         self.log = tk.Text(logframe, wrap="none", state="disabled", height=11,
-                           font=self.log_font, takefocus=True
+                           font=self.log_font, takefocus=True)
         self.log.grid(row=0, column=0, sticky="nsew")
         vertical = ttk.Scrollbar(logframe, orient="vertical", command=self.log.yview)
         vertical.grid(row=0, column=1, sticky="ns")
