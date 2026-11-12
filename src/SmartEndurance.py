@@ -5,12 +5,14 @@ SMART Percentage Used and not a guarantee that a device will fail at TBW.
 Unrecognized models always return None; never infer TBW by vendor alone.
 """
 import json
+from functools import lru_cache
 from pathlib import Path
 import re
 
 CATALOG_PATH = Path(__file__).with_name("SmartEndurance.json")
 
 
+@lru_cache(maxsize=1)
 def load_catalog():
     with CATALOG_PATH.open(encoding="utf-8") as stream:
         doc = json.load(stream)
@@ -25,7 +27,15 @@ def lookup(model, capacity_bytes, catalog=None):
         return None
     if isinstance(capacity_bytes, bool) or not isinstance(capacity_bytes, int) or capacity_bytes <= 0:
         return None
-    records = load_catalog() if catalog is None else catalog
+    if catalog is None:
+        try:
+            records = load_catalog()
+        except (OSError, ValueError, TypeError, KeyError):
+            # Optional TBW catalog must never prevent reading the
+            # underlying SMART health, temperature and error fields.
+            return None
+    else:
+        records = catalog
     model = " ".join(model.upper().split())
     matches = []
     for row in records:
