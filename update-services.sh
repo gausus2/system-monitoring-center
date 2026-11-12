@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Production installer for services-enhancements, including SMART and Services updates.
+# Installer for the stable branch (Services, System Logs and SMART).
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="services-enhancements"
+BRANCH="stable"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
@@ -17,7 +17,7 @@ if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
     exit 1
 fi
 
-printf '==> Fetching the latest Services enhancements\n'
+printf '==> Fetching the latest stable version\n'
 git pull --ff-only origin "$BRANCH"
 
 printf '==> Checking Python syntax\n'
