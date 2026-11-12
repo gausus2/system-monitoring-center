@@ -1,5 +1,12 @@
 # System Monitoring Center – Services enhancements
 
+## Empty journal searches (test branch)
+
+A `journalctl --grep` search with no matches can return exit status 1.
+The System Logs viewer now treats this specific case (no output and no
+error details) as an empty result rather than a journal read failure.
+Actual command errors remain visible.
+
 ## Boot boundaries in journal results (test branch)
 
 When **All boots** is selected, the viewer retains the journal's `_BOOT_ID`
