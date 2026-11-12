@@ -57,6 +57,28 @@ def _number(value):
     return value if isinstance(value, (int, float)) and not isinstance(value, bool) else None
 
 
+def _counter(value):
+    """NVMe counters can be JSON integers or decimal strings (up to 128 bits)."""
+    if isinstance(value, dict):
+        value = value.get("value")
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value if value >= 0 else None
+    if isinstance(value, str) and value.isascii() and value.isdecimal():
+        return int(value)
+    return None
+
+
+def nvme_total_written_bytes(log):
+    """NVMe Data Units Written: 1000 * 512 bytes per reported unit.
+
+    A zero counter means the controller did not report the value.
+    """
+    units = _counter(log.get("data_units_written"))
+    return units * 512000 if units else None
+
+
 def parse_smart(data, returncode=0):
     """Turn smartctl -a -j into a conservative, readable summary."""
     device = data.get("device") or {}
@@ -105,6 +127,7 @@ def parse_smart(data, returncode=0):
         "health": health,
         "temperature": temp,
         "hours": hours,
+        "writes_bytes": nvme_total_written_bytes(nvme),
         "percentage_used": percentage_used,
         "media_errors": media_errors,
         "attributes": attributes,
