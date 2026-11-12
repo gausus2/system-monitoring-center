@@ -62,6 +62,32 @@ class FileLogsTests(unittest.TestCase):
                 self.assertEqual(logs.available_logs(),
                                  [str(root / "syslog"), str(sub / "error.log")])
 
+    def test_menu_lists_only_files_modified_in_selected_boot(self):
+        tz = datetime.timezone(datetime.timedelta(hours=1))
+        start = datetime.datetime(2026, 11, 12, 12, 8, tzinfo=tz)
+        end = datetime.datetime(2026, 11, 12, 20, 0, tzinfo=tz)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            old = root / "old.log"
+            current = root / "current.log"
+            newer = root / "newer.log"
+            for path in (old, current, newer):
+                path.write_text("one\n", encoding="utf-8")
+            with mock.patch.object(logs, "ROOT", directory), \
+                 mock.patch.object(logs.FileLogBoot, "boot_window",
+                                   return_value=(start, end)), \
+                 mock.patch.object(logs.os.path, "getmtime",
+                                   side_effect=lambda path: {
+                                       str(old): start.timestamp() - 2,
+                                       str(current): start.timestamp() + 2,
+                                       str(newer): end.timestamp() + 2,
+                                   }[path]):
+                self.assertEqual(logs.available_logs("Previous boot (-1)"),
+                                 [str(current)])
+            # An opened file is always read without any boot clipping.
+            with mock.patch.object(logs, "ROOT", directory):
+                self.assertEqual(logs.read_lines(str(old), 1)[0], ["one"])
+
     def test_boot_filter_applies_before_last_line_count(self):
         tz = datetime.timezone(datetime.timedelta(hours=1))
         start = datetime.datetime(2026, 11, 12, 12, 8, 22, tzinfo=tz)
