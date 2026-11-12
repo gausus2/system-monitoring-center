@@ -51,6 +51,36 @@ class SmartctlTests(unittest.TestCase):
         self.assertEqual([d["path"] for d in disks],
                          ["/dev/sda", "/dev/nvme0n1"])
 
+    def test_ext4_filesystem_created_dates_and_admin_retry(self):
+        tree = {"blockdevices": [
+            {"path": "/dev/nvme2n1", "type": "disk", "children": [
+                {"path": "/dev/nvme2n1p4", "type": "part", "fstype": "ext4"},
+                {"path": "/dev/nvme2n1p6", "type": "part", "fstype": "ext4"},
+                {"path": "/dev/nvme2n1p1", "type": "part", "fstype": "vfat"}]}]}
+        calls = []
+        def runner(command, **kwargs):
+            calls.append(command)
+            if command[0] == "lsblk":
+                return process(tree)
+            if command[0] == "tune2fs":
+                return subprocess.CompletedProcess(command, 1, "",
+                                                   "Permission denied")
+            dates = {"/dev/nvme2n1p4": "Wed Mar 20 14:56:20 2024",
+                     "/dev/nvme2n1p6": "Tue Feb 27 21:11:50 2024"}
+            return subprocess.CompletedProcess(
+                command, 0,
+                "Filesystem created:       " + dates[command[-1]] + "\\n", "")
+        which = lambda name: "/usr/bin/" + name
+        normal = module.filesystem_creation_dates(runner, admin=False, which=which)
+        self.assertEqual(normal["/dev/nvme2n1"], [])
+        self.assertFalse(any(cmd[0] == "sudo" for cmd in calls))
+        calls.clear()
+        elevated = module.filesystem_creation_dates(runner, admin=True, which=which)
+        self.assertEqual(elevated["/dev/nvme2n1"], [
+            ("2024-02-27 21:11:50", "/dev/nvme2n1p6"),
+            ("2024-03-20 14:56:20", "/dev/nvme2n1p4")])
+        self.assertEqual(sum(cmd[0] == "sudo" for cmd in calls), 2)
+
     def test_mounts_on_partitions_and_nested_mappers(self):
         tree = {"blockdevices": [
             {"path": "/dev/nvme0n1", "type": "disk", "mountpoints": [None],
@@ -83,6 +113,8 @@ class SmartctlTests(unittest.TestCase):
         with mock.patch.object(module, "physical_disks", return_value=[disk]), \
              mock.patch.object(module, "mounted_paths",
                                side_effect=RuntimeError("cannot list mounts")), \
+             mock.patch.object(module, "filesystem_creation_dates",
+                               return_value={}), \
              mock.patch.object(module, "inspect_disk",
                                return_value={"health": "Passed"}):
             results = module.collect()
@@ -270,6 +302,8 @@ class SmartctlTests(unittest.TestCase):
                 "size":1000, "transport":"nvme"}
         with mock.patch.object(module, "physical_disks", return_value=[disk]), \
              mock.patch.object(module, "mounted_paths", return_value={}), \
+             mock.patch.object(module, "filesystem_creation_dates",
+                               return_value={}), \
              mock.patch.object(module, "inspect_disk",
                                return_value={"health":"Unavailable"}) as plain, \
              mock.patch.object(module, "read_admin") as admin:
