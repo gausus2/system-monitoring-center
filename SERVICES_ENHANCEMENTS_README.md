@@ -30,6 +30,17 @@ The suspected Services-tab failure was not conclusively reproduced. Test that th
 
 These are custom changes to [System Monitoring Center](https://github.com/hakandundar34coding/system-monitoring-center) v3.4.1, maintained in the [gausus2 fork](https://github.com/gausus2/system-monitoring-center) on the `services-enhancements` branch. They are **not** part of the original upstream project.
 
+## Services State filter (test branch)
+
+The existing **Search** entry continues to filter by service name. A separate
+**State** dropdown alongside it filters the already loaded service list by
+unit-file state (Enabled, Disabled, Static, Masked, Generated, and others).
+Both filters can be used together. Clicking the **State** column header still
+sorts as before; choose **All states** to remove the State restriction.
+
+This change is being tested in `journal-development` and has not been promoted
+to `services-enhancements`.
+
 ## Changes
 
 - **Single-process Services loading:** In `src/Libsysmon.py`, `get_services_information()` uses the existing single-process code path by setting `number_of_logical_cores = 2` locally. This worked around a Services-tab loading failure on Xubuntu 24.04.5 / AMD Ryzen 7 5700G. The setting does **not** change actual CPU core availability or other CPU-monitoring features.
