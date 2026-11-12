@@ -30,6 +30,9 @@ for name in ("Services.py", "Libsysmon.py", "MainWindow.py", "ServiceBootPlot.py
     print(f"{name}: syntax OK")
 PY
 
+printf '==> Testing Warp internal-priority parser\n'
+python3 tests/test_warp_journal.py
+
 if [[ ! -f "$DEST/Services.py" || ! -f "$DEST/Libsysmon.py" || ! -f "$DEST/MainWindow.py" ]]; then
     printf 'ERROR: System Monitoring Center installation not found at %s\n' "$DEST" >&2
     exit 1
