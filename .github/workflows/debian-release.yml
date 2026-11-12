@@ -1,0 +1,114 @@
+name: Build and publish Debian package
+
+on:
+  push:
+    branches: [stable]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: debian-stable-release
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout stable
+        uses: actions/checkout@v4
+
+      - name: Install Debian build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential debhelper dh-python python3-setuptools \
+            python3 meson ninja-build appstream-util desktop-file-utils \
+            gettext
+
+      - name: Run regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for test in \
+            tests/test_warp_journal.py \
+            tests/test_journal_unit_types.py \
+            tests/test_file_logs.py \
+            tests/test_log_highlight.py \
+            tests/test_file_log_boot.py \
+            tests/test_journal_colors.py \
+            tests/test_journal_context_copy.py \
+            tests/test_services_failed_filter.py \
+            tests/test_services_copy_table.py \
+            tests/test_smartctl_data.py \
+            tests/test_smartctl_formatting.py \
+            tests/test_smart_endurance.py \
+            tests/test_smart_details_ui.py \
+            tests/test_smart_copy_table.py \
+            tests/test_smart_tab_signal.py; do
+            python3 "$test"
+          done
+
+      - name: Set gausus2 Debian package version
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime, timezone
+          from email.utils import format_datetime
+          from pathlib import Path
+          import os
+
+          version = "3.4.1+gausus2." + os.environ["BUILD_NUMBER"]
+          Path("src/__version__").write_text(version + "\n", encoding="utf-8")
+          path = Path("debian/changelog")
+          previous = path.read_text(encoding="utf-8")
+          header = (
+              f"system-monitoring-center ({version}) stable; urgency=medium\n\n"
+              "  * Complete System Monitoring Center with Services, System Logs and SMART enhancements.\n\n"
+              f" -- gausus2 <gausus2@users.noreply.github.com>  "
+              f"{format_datetime(datetime.now(timezone.utc))}\n\n"
+          )
+          path.write_text(header + previous, encoding="utf-8")
+          print("Building", version)
+          PY
+
+      - name: Build full Debian package
+        run: |
+          dpkg-buildpackage --build=binary --no-sign
+          mkdir -p dist
+          cp ../system-monitoring-center_*_all.deb dist/
+
+      - name: Verify package includes complete application
+        shell: bash
+        run: |
+          set -euo pipefail
+          deb=(dist/system-monitoring-center_*_all.deb)
+          test "${#deb[@]}" -eq 1
+          dpkg-deb --info "${deb[0]}"
+          dpkg-deb --contents "${deb[0]}" > /tmp/deb-contents.txt
+          for file in \
+            systemmonitoringcenter/MainWindow.py \
+            systemmonitoringcenter/Services.py \
+            systemmonitoringcenter/ServiceJournal.py \
+            systemmonitoringcenter/SystemLogs.py \
+            systemmonitoringcenter/SmartctlData.py \
+            systemmonitoringcenter/SmartctlTab.py \
+            systemmonitoringcenter/SmartEndurance.py \
+            systemmonitoringcenter/SmartEndurance.json; do
+            grep -Fq "/usr/share/system-monitoring-center/$file" /tmp/deb-contents.txt
+          done
+          grep -Fq "/usr/bin/system-monitoring-center" /tmp/deb-contents.txt
+          sha256sum "${deb[0]}" | tee dist/SHA256SUMS
+
+      - name: Publish package under GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: stable-3.4.1-gausus2.${{ github.run_number }}
+        run: |
+          gh release create "$RELEASE_TAG" dist/*.deb dist/SHA256SUMS \
+            --target "$GITHUB_SHA" \
+            --title "System Monitoring Center stable — gausus2 build ${{ github.run_number }}" \
+            --notes "Complete .deb package for Ubuntu/Debian with all stable features. Install with: sudo apt install ./system-monitoring-center_*.deb. Original application package is not required." \
+            --latest
