@@ -218,7 +218,7 @@ class MainWindow():
         self.main_tab_tb_frame = ttk.Frame(self.main_frame)
         self.main_tab_tb_frame.grid(row=0, column=0, sticky="n", padx=0, pady=0)
         # "equal" is an arbitrary key for the group
-        self.main_tab_tb_frame.columnconfigure((0, 1, 2, 3, 4), minsize=132, uniform="equal")
+        self.main_tab_tb_frame.columnconfigure((0, 1, 2, 3, 4, 5), minsize=110, uniform="equal")
 
         self.main_tab_var = tk.IntVar()
 
@@ -242,6 +242,13 @@ class MainWindow():
         # ToggleButton (System)
         self.system_tb = Common.main_tab_togglebutton(self.main_tab_tb_frame, _tr("System"), self.image_path + "smc-system.png", self.main_tab_var, 4)
         self.system_tb.grid(row=0, column=4, sticky="ew", padx=0, pady=0)
+
+        # System Logs: separate from Services; reuse the existing System icon
+        # for this test branch so no extra asset installation is needed.
+        self.system_logs_tb = Common.main_tab_togglebutton(
+            self.main_tab_tb_frame, "System Logs",
+            self.image_path + "smc-system.png", self.main_tab_var, 5)
+        self.system_logs_tb.grid(row=0, column=5, sticky="ew", padx=0, pady=0)
 
         # Separator between main tab togglebuttons and main tabs
         separator = ttk.Separator(self.main_frame, orient="horizontal")
@@ -270,6 +277,8 @@ class MainWindow():
 
         # Main Frame (System tab)
         self.system_tab_main_frame = Common.tab_main_frame(self.main_tab_stack)
+        self.system_logs_tab_main_frame = Common.tab_main_frame(self.main_tab_stack)
+        self.system_logs_view = None
 
 
     def performance_tab_sub_tabs(self):
@@ -372,6 +381,7 @@ class MainWindow():
         self.users_tb.config(command=self.main_gui_tab_switch)
         self.services_tb.config(command=self.main_gui_tab_switch)
         self.system_tb.config(command=self.main_gui_tab_switch)
+        self.system_logs_tb.config(command=self.main_gui_tab_switch)
 
         # Performance tab sub-tabs togglebutton signals
         self.summary_tb.config(command=self.main_gui_tab_switch)
@@ -426,6 +436,7 @@ class MainWindow():
         self.users_tb.image.__del__()
         self.services_tb.image.__del__()
         self.system_tb.image.__del__()
+        self.system_logs_tb.image.__del__()
         self.summary_tb.image.__del__()
         self.cpu_tb.image.__del__()
         self.memory_tb.image.__del__()
@@ -444,6 +455,7 @@ class MainWindow():
         self.users_tb.image = None
         self.services_tb.image = None
         self.system_tb.image = None
+        self.system_logs_tb.image = None
         self.summary_tb.image = None
         self.cpu_tb.image = None
         self.memory_tb.image = None
@@ -615,7 +627,7 @@ class MainWindow():
                 tab_refresh_time_difference = 0.4
         elif Config.current_main_tab in [1, 2]:
             tab_refresh_time_difference = 0.4
-        elif Config.current_main_tab in [3, 4]:
+        elif Config.current_main_tab in [3, 4, 5]:
             tab_refresh_time_difference = 1
 
         import time
@@ -635,6 +647,10 @@ class MainWindow():
         elif Config.current_main_tab == 4:
             from .System import System
             System.loop_already_run = 0
+        elif Config.current_main_tab == 5:
+            if self.system_logs_view is not None:
+                self.system_logs_view.refresh()
+            return
 
         self.main_gui_tab_loop()
 
@@ -933,6 +949,19 @@ class MainWindow():
                System.initial_func()
             return
 
+        # System Logs uses the shared journal widget without changing Services.
+        elif "selected" in self.system_logs_tb.state():
+            self.system_logs_tab_main_frame.tkraise()
+            # Do not persist tab index 5 yet: production versions without this
+            # experimental tab cannot restore such a saved selection.
+            Config.current_main_tab = 5
+            if self.system_logs_view is None:
+                from .SystemLogs import SystemLogs
+                self.system_logs_view = SystemLogs(self.system_logs_tab_main_frame)
+                self.system_logs_view.grid(row=0, column=0, sticky="nsew")
+            self.system_logs_view.activate()
+            return
+
 
     def main_gui_device_selection_list(self):
         """
@@ -1139,7 +1168,7 @@ class MainWindow():
         if init_system != "systemd":
             self.services_tb.grid_remove()
             self.system_tb.grid(row=0, column=3, sticky="ew", padx=0, pady=0)
-            self.main_tab_tb_frame.columnconfigure((0, 1, 2, 3, 4), minsize=165, uniform="equal")
+            self.main_tab_tb_frame.columnconfigure((0, 1, 2, 3, 5), minsize=132, uniform="equal")
             self.main_tab_tb_frame.columnconfigure(4, minsize=0, uniform="not_equal")
 
 
