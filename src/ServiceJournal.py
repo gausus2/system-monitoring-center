@@ -112,7 +112,7 @@ class ServiceJournal(ttk.Frame):
         self._generation += 1
         generation = self._generation
         service = self.service
-        command = ["journalctl", "--no-pager", "--quiet", "--output=json",
+        command = ["journalctl", "--namespace=*", "--no-pager", "--quiet", "--output=json",
                    "--unit", service, "--lines", self.lines_var.get()]
         boot = self.boot_values.get(self.boot_var.get())
         level = self.level_values.get(self.level_var.get())
