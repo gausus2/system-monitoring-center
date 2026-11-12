@@ -13,7 +13,7 @@ registry, so future file-log readers can be added as separate providers without
 redesigning the page. Regular file logs are **not implemented yet**.
 
 System journal uses `journalctl --namespace=* --output=json` without a unit
-restriction; Kernel journal adds `--kernel`. The usual boot, priority, time,
+restriction; Kernel journal matches `_TRANSPORT=kernel` (rather than `--kernel`, so **All boots** remains usable). The usual boot, priority, time,
 line-count and search controls remain available. Reads follow the current
 user's journal permissions; the displayed results are snapshots, not live
 follow. The tab deliberately does not save index 5 as the default tab, so
