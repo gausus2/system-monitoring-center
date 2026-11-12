@@ -863,3 +863,15 @@ SMART **Disk details** shows **Firmware** using the standard
 and NVMe devices. If not reported, it displays `-`. This is
 read-only and does not attempt firmware updates. The field is also
 included in **Copy details**.
+
+### Journal right-click Copy
+
+The **System journal** and **Kernel journal** text views now provide an
+explicit right-click menu with **Copy** and **Select all**, rather than
+relying on the platform's implicit Text context menu. Copy reads the
+existing selected text from the read-only Tk Text widget into the
+clipboard; a missing selection disables Copy and leaves the clipboard
+untouched. Ordinary left-drag selection and Ctrl+C still work. The
+shared ServiceJournal widget also offers the menu in embedded service
+logs; journal retrieval, color modes and filters are unchanged.
+Regression test: `tests/test_journal_context_copy.py`.
