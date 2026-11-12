@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Test installer for services-failed-filter-development; production untouched.
+# Test installer for smartctl-development; production untouched.
 set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 DEST="/usr/share/system-monitoring-center/systemmonitoringcenter"
-BRANCH="services-failed-filter-development"
+BRANCH="smartctl-development"
 
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
     printf 'ERROR: Switch to the %s branch first.\n' "$BRANCH" >&2
@@ -24,7 +24,7 @@ printf '==> Checking Python syntax\n'
 python3 - <<'PY'
 from pathlib import Path
 
-for name in ("Services.py", "Libsysmon.py", "MainWindow.py", "ServiceBootPlot.py", "ServiceJournal.py", "SystemLogs.py", "WarpJournal.py", "JournalUnitTypes.py", "FileLogs.py", "LogHighlight.py", "FileLogBoot.py", "JournalColors.py"):
+for name in ("Services.py", "Libsysmon.py", "MainWindow.py", "ServiceBootPlot.py", "ServiceJournal.py", "SystemLogs.py", "WarpJournal.py", "JournalUnitTypes.py", "FileLogs.py", "LogHighlight.py", "FileLogBoot.py", "JournalColors.py", "SmartctlData.py", "SmartctlTab.py"):
     path = Path("src") / name
     compile(path.read_bytes(), str(path), "exec")
     print(f"{name}: syntax OK")
@@ -38,6 +38,7 @@ python3 tests/test_log_highlight.py
 python3 tests/test_file_log_boot.py
 python3 tests/test_journal_colors.py
 python3 tests/test_services_failed_filter.py
+python3 tests/test_smartctl_data.py
 
 if [[ ! -f "$DEST/Services.py" || ! -f "$DEST/Libsysmon.py" || ! -f "$DEST/MainWindow.py" ]]; then
     printf 'ERROR: System Monitoring Center installation not found at %s\n' "$DEST" >&2
@@ -55,7 +56,7 @@ for name in Services.py Libsysmon.py MainWindow.py; do
 done
 
 # Install the new helper (not present in original upstream packages).
-for name in ServiceBootPlot.py ServiceJournal.py SystemLogs.py WarpJournal.py JournalUnitTypes.py FileLogs.py LogHighlight.py FileLogBoot.py JournalColors.py; do
+for name in ServiceBootPlot.py ServiceJournal.py SystemLogs.py WarpJournal.py JournalUnitTypes.py FileLogs.py LogHighlight.py FileLogBoot.py JournalColors.py SmartctlData.py SmartctlTab.py; do
     sudo install -m 644 -- "src/$name" "$DEST/$name"
     printf 'Installed %s\n' "$name"
 done
