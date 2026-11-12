@@ -4,6 +4,8 @@ The source registry intentionally separates source selection from log rendering.
 Additional file-backed providers can be added later without altering the
 existing Services journal or the main window's tab implementation.
 """
+import os
+import tkinter as tk
 from tkinter import ttk
 import glob
 import queue
@@ -14,6 +16,7 @@ import threading
 from . import Common
 from .ServiceJournal import ServiceJournal
 from . import JournalUnitTypes
+from .FileLogs import FileLogViewer, available_logs
 
 
 class SystemLogs(ttk.Frame):
@@ -70,6 +73,14 @@ class SystemLogs(ttk.Frame):
         self.source.set("System journal")
         self.source.bind("<<ComboboxSelected>>", self.select_source)
 
+        # Separate file-log dropdown below the original Log source control.
+        self.file_button = ttk.Menubutton(toolbar, text="Other logs ▾", width=21)
+        self.file_button.grid(row=1, column=2, sticky="ew", pady=(5, 0))
+        self.file_menu = tk.Menu(self.file_button, tearoff=False)
+        self.file_button.configure(menu=self.file_menu)
+        self.file_menu.configure(postcommand=self._build_file_menu)
+        self._file_path = None
+
         ttk.Label(toolbar, text="Namespace:", font=Common.font_normal).grid(
             row=0, column=3, sticky="e", padx=(16, 6))
         self.namespace = ttk.Combobox(
@@ -82,12 +93,48 @@ class SystemLogs(ttk.Frame):
 
         self.journal = ServiceJournal(self, system_mode=True)
         self.journal.grid(row=1, column=0, sticky="nsew")
+        self.files = FileLogViewer(self)
+        self.files.grid(row=1, column=0, sticky="nsew")
+        self.files.grid_remove()
         self._loaded = False
         self._namespaces_discovered = False
         self._type_cache = {}
         self._type_pending = set()
         self._type_results = queue.Queue()
         self.after(200, self._poll_unit_types)
+
+    def _build_file_menu(self):
+        """Refresh available /var/log files when the menu opens."""
+        self.file_menu.delete(0, "end")
+        paths = available_logs()
+        if not paths:
+            self.file_menu.add_command(label="No text logs found", state="disabled")
+            return
+        groups = {}
+        for path in paths:
+            directory = os.path.dirname(path)
+            submenu = groups.get(directory)
+            if submenu is None:
+                submenu = tk.Menu(self.file_menu, tearoff=False)
+                groups[directory] = submenu
+            submenu.add_command(
+                label=os.path.basename(path),
+                command=lambda selected=path: self.open_file_log(selected),
+            )
+        for directory, submenu in sorted(groups.items()):
+            self.file_menu.add_cascade(label=directory + "/", menu=submenu)
+
+    def open_file_log(self, path):
+        """Switch to a file without changing the Log source selection."""
+        if path not in available_logs():
+            return
+        self._file_path = path
+        self.file_button.configure(text="Other logs: " + os.path.basename(path))
+        self.namespace.configure(state="disabled")
+        self.journal.grid_remove()
+        self.files.grid()
+        self.files.open_file(path)
+        self._loaded = True
 
     def refresh_namespaces(self):
         """Refresh selectable names without changing the current selection."""
@@ -101,6 +148,11 @@ class SystemLogs(ttk.Frame):
     def select_source(self, event=None):
         """Dispatch to a provider; current providers share ServiceJournal."""
         kind, name = self.SOURCES[self.source.get()]
+        self._file_path = None
+        self.file_button.configure(text="Other logs ▾")
+        self.namespace.configure(state="readonly")
+        self.files.grid_remove()
+        self.journal.grid()
         if kind == "journal":
             selected = self.namespace.get()
             namespace = None if selected == "Default" else (
@@ -151,5 +203,8 @@ class SystemLogs(ttk.Frame):
             self.select_source()
 
     def refresh(self):
-        """Refresh current source (also used by the main window's F5 key)."""
-        self.select_source()
+        """Refresh the visible journal or file log (also bound to F5)."""
+        if self._file_path:
+            self.files.refresh()
+        else:
+            self.select_source()
