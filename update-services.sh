@@ -39,6 +39,7 @@ python3 tests/test_file_log_boot.py
 python3 tests/test_journal_colors.py
 python3 tests/test_services_failed_filter.py
 python3 tests/test_smartctl_data.py
+python3 tests/test_smart_tab_signal.py
 
 if [[ ! -f "$DEST/Services.py" || ! -f "$DEST/Libsysmon.py" || ! -f "$DEST/MainWindow.py" ]]; then
     printf 'ERROR: System Monitoring Center installation not found at %s\n' "$DEST" >&2
