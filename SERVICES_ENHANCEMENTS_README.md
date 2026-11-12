@@ -730,9 +730,26 @@ consistent. The catalog provides model, capacity, decimal TBW and
 manufacturer URL. It is entirely offline at runtime and can be extended
 without changing SMART parsing code.
 
-Initial catalog: **Kingston KC3000**, **Samsung 970 EVO Plus**,
-**Samsung 870 EVO**, **Samsung 980 PRO** and **Samsung 990 PRO**, across
-their specified capacities (20 model/size combinations total).
+The expanded catalog currently contains **224 model/capacity entries**
+across **Samsung, Western Digital (WD Blue/Black/Red/Green), Kingston,
+Crucial, Seagate, SK hynix, and Lexar**. Records include exact model
+matching patterns, capacity, rated decimal TBW, product series and a
+source URL; the data is kept locally and does not require internet access
+at application runtime. Sources are manufacturer warranty/endurance
+tables and model datasheets, including:
+- https://semiconductor.samsung.com/consumer-storage/support/warranty/
+- https://support-en.sandisk.com/app/answers/detailweb/a_id/30797/~/wd-internal-ssd-endurance-and-warranty-periods
+- https://content.crucial.com/content/dam/crucial/ssd-products/mx500/flyer/crucial-mx500-ssd-productflyer-en.pdf
+- https://www.kingston.com/datasheets/snv2s_en.pdf
+- https://www.seagate.com/files/www-content/datasheets/pdfs/firecuda-530-ssd-DS2059-3-2112US-en_US.pdf
+- https://ssd.skhynix.com/platinum_p41/
+- https://resources.lexar.com/download/1048/documents/13165/lexar-productsheet-ssd-nm790-en-202410.pdf
+
+This replaces the 20-entry starter list, without enabling unsupervised
+web downloads or guessing TBW from capacity alone. WD model codes
+support the usual optional `WDC ` prefix and firmware/model suffix.
+The optional catalog is cached and if missing/corrupt, SMART monitoring
+continues without TBW data.
 Kingston source:
 https://www.kingston.com/en/ssd/kc3000-nvme-m2-solid-state-drive?capacity=2048gb
 Samsung source:
