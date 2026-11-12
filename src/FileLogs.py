@@ -11,6 +11,7 @@ from tkinter import ttk
 
 from . import Common
 from . import LogHighlight
+from . import FileLogBoot
 
 
 ROOT = "/var/log"
@@ -46,7 +47,7 @@ def available_logs():
     return result
 
 
-def read_lines(path, count, first=False, needle=""):
+def read_lines(path, count, first=False, needle="", boot="All available"):
     """Search before limiting lines, with bounded memory and a scan limit."""
     path = os.path.abspath(path)
     if not path.startswith(ROOT + os.sep) or os.path.islink(path):
@@ -54,6 +55,12 @@ def read_lines(path, count, first=False, needle=""):
     if not os.path.isfile(path):
         raise ValueError("Selected log file no longer exists")
     match = needle.casefold()
+    window = FileLogBoot.boot_window(boot)
+    reference = datetime.datetime.fromtimestamp(os.path.getmtime(path)).astimezone()
+    if window is not None:
+        reference = window[1] or reference
+    recognized = 0
+    last_date = None
     found = collections.deque(maxlen=count) if not first else []
     scanned = 0
     truncated = False
@@ -67,6 +74,15 @@ def read_lines(path, count, first=False, needle=""):
                 truncated = True
                 break
             line = raw_line.decode("utf-8", errors="replace").rstrip("\r\n")
+            if window is not None:
+                stamp = FileLogBoot.timestamp(line, reference)
+                if stamp is not None:
+                    recognized += 1
+                    last_date = stamp
+                if last_date is None or not (
+                        window[0] <= last_date
+                        and (window[1] is None or last_date <= window[1])):
+                    continue
             if match and match not in line.casefold():
                 continue
             if first:
@@ -75,6 +91,10 @@ def read_lines(path, count, first=False, needle=""):
                     break
             else:
                 found.append(line)
+    if window is not None and recognized == 0:
+        raise ValueError(
+            "No recognizable timestamps in this log. "
+            "Choose All available (boot filtering needs dated lines).")
     return list(found), truncated
 
 
@@ -96,6 +116,13 @@ class FileLogViewer(ttk.Frame):
         toolbar = ttk.Frame(self)
         toolbar.grid(row=1, column=0, sticky="ew", pady=(0, 5))
         ttk.Label(toolbar, text="Lines:", font=Common.font_normal).pack(side="left")
+        self.boot_var = tk.StringVar(value="Current boot")
+        ttk.Label(toolbar, text="Boot:", font=Common.font_normal).pack(side="left")
+        self.boot_selector = ttk.Combobox(
+            toolbar, textvariable=self.boot_var, state="readonly", width=19,
+            values=FileLogBoot.BOOT_LABELS, font=Common.font_normal)
+        self.boot_selector.pack(side="left", padx=(5, 10))
+        self.boot_selector.bind("<<ComboboxSelected>>", lambda event: self.refresh())
         self.lines_var = tk.StringVar(value="Last 500")
         self.lines = ttk.Combobox(
             toolbar, textvariable=self.lines_var, state="readonly", width=13,
@@ -167,12 +194,13 @@ class FileLogViewer(ttk.Frame):
         first = self.lines_var.get().startswith("First ")
         count = int(self.lines_var.get().split()[-1])
         needle = self.search_var.get()
+        boot = self.boot_var.get()
         self.status.configure(text="Loading…")
         self._set_text("Reading " + path + "…\n")
 
         def worker():
             try:
-                lines, truncated = read_lines(path, count, first, needle)
+                lines, truncated = read_lines(path, count, first, needle, boot)
                 self._results.put((generation, lines, truncated, None))
             except (OSError, ValueError) as exc:
                 self._results.put((generation, [], False, str(exc)))
@@ -193,6 +221,8 @@ class FileLogViewer(ttk.Frame):
                 else:
                     now = datetime.datetime.now().strftime("%H:%M:%S")
                     suffix = " · partial scan (64 MiB limit)" if truncated else ""
+                    if self.boot_var.get() != "All available":
+                        suffix += " · estimated boot range"
                     self.status.configure(text=str(len(lines)) + " entries · Updated " + now + suffix)
                     self._set_lines(lines)
         except queue.Empty:
